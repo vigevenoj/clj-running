@@ -11,17 +11,19 @@
                            :title "Running API"
                            :description "Running Services"}}}}
   
-  (context "/api" []
+  (context "/api/v1" []
     :tags ["An API for running data"]
 
     (GET "/runs" []
       :summary "Return all runs"
       (ok (db/get-runs)))
-    (GET "/runs" [runid]
+    (GET "/runs:runid" []
+      :path-params [runid :- Long]
       :summary "Return a run by ID"
       (ok (db/get-run runid)))
 
     ; These are sligtly different and maybe belong in a different context?
-    (GET "/bydate" [rdate]
+    (GET "/bydate" []
+      :query-params [rdate]
       :summary "Return runs that occurred on a given date"
-      (ok (db/get-by-date rdate)))))
+      (ok (db/get-by-date {:rdate rdate})))))
