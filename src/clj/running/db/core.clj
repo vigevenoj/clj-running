@@ -1,7 +1,7 @@
 (ns running.db.core
   (:require
     [cheshire.core :refer [generate-string parse-string]]
-    [clj-time.jdbc]
+    ;[clj-time.jdbc]
     [clojure.java.jdbc :as jdbc]
     [clojure.tools.logging :as log]
     [conman.core :as conman]

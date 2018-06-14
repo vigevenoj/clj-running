@@ -3,8 +3,9 @@
   :description "Demo project of React/Reagent ui for running data"
   :url "http://example.com/FIXME"
 
-  :dependencies [[clj-time "0.14.4"]
+  :dependencies [;[clj-time "0.14.4"]
                  [cljs-ajax "0.7.3"]
+                 [clojure.java-time "0.3.2"]
                  [compojure "1.6.1"]
                  [conman "0.7.9"]
                  [cprop "0.1.11"]

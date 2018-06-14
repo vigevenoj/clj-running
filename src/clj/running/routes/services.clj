@@ -4,7 +4,9 @@
             [schema.core :as s]
             [running.db.core :as db]
             [schema.coerce :as coerce]
-            [clj-time.core :as t])
+            [java-time :as jt]
+            ;[clj-time.core :as t]
+            )
   (:import java.time.LocalDate))
 
 ; define some schema information
