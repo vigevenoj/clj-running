@@ -1,6 +1,6 @@
 (defproject running "0.1.0-SNAPSHOT"
 
-  :description "FIXME: write description"
+  :description "Demo project of React/Reagent ui for running data"
   :url "http://example.com/FIXME"
 
   :dependencies [[clj-time "0.14.4"]
