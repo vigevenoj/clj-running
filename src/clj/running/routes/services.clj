@@ -2,22 +2,43 @@
   (:require [ring.util.http-response :refer :all]
             [compojure.api.sweet :refer :all]
             [schema.core :as s]
-            [running.db.core :as db]))
+            [running.db.core :as db]
+            [schema.coerce :as coerce]
+            [clj-time.core :as t])
+  (:import java.time.LocalDate))
 
-; define some schemas
+; define some schema information
 (def TimeOfDay (s/enum "am" "pm" "noon" "night"))
-
 (def DistanceUnits (s/enum "m" "km" "mile" "miles" "meters"))
 
+; This information is used for  coercion from #inst to LocalDate
+;(def date-regex #"\d{4}-\d{2}-\d{2}")
+;(defn date-matcher [schema]
+;  (when (= java.time.LocalDate schema)
+;    (coerce/safe
+;      (fn [x]
+;        (if (and (string? x) (re-matches date-regex x))
+;          (t/local-date x)
+;          x)))))
+;
+;(defn coerce-and-validate [schema matcher data]
+;  (let [coercer (coerce/coercer schema matcher)
+;        result (coercer data)]
+;    (if (schema.utils/error? result)
+;      (throw (Exception. (format "Value does not match schema: %s"
+;                                 (schema.utils/error-val result))))
+;      result)))
+
+; A schema for runs
 (s/defschema Run
   {:runid s/Num
-   :rdate s/Inst
-   :timeofday TimeOfDay
-   (s/optional-key :distance) s/Num
-   (s/optional-key :units) DistanceUnits
-   (s/optional-key :elapsed) s/Any
-   (s/optional-key :comment) s/Str
-   (s/optional-key :effort) s/Str
+   :rdate s/Any;LocalDate
+   :timeofday (s/maybe TimeOfDay)
+   (s/optional-key :distance) (s/maybe s/Num)
+   (s/optional-key :units) (s/maybe DistanceUnits)
+   (s/optional-key :elapsed) (s/maybe s/Any)
+   (s/optional-key :comment) (s/maybe s/Str)
+   (s/optional-key :effort) (s/maybe s/Str)
    (s/optional-key :shoeid) (s/maybe s/Num)})
 
 (s/defschema RunResult
@@ -27,6 +48,9 @@
 (s/defschema RunsResult
   {(s/optional-key :runs) [Run]
   (s/optional-key :error) s/Str})
+
+;(def run-matcher (coerce/first-matcher [date-matcher coerce/json-coercion-matcher]))
+
 
 (defapi service-routes
   {:swagger {:ui "/swagger-ui"
@@ -43,17 +67,17 @@
     (context "/runs" []
       :tags ["runs"]
       (GET "/" []
-        :return RunsResult
+        :return [Run]
         :summary "Return all runs"
         (ok (db/get-runs)))
       (GET "/:runid" []
-        :return RunResult
+        :return Run
         :path-params [runid :- Long]
         :summary "Return a run by ID"
         (ok (db/get-run {:runid runid})))
       ; todo need to add authentication for POST/PUT/DELTE
       (POST "/" []
-        :body-params [rdate
+        :body-params [rdate :- s/Any
                       timeofday :- TimeOfDay
                       distance :- s/Num
                       units :- DistanceUnits
@@ -66,7 +90,7 @@
         (ok "not implemented"))
       (PUT "/" []
         :body-params [runid :- s/Int
-                      rdate
+                      rdate :- s/Any
                       timeofday :- TimeOfDay
                       distance :- s/Num
                       units :- DistanceUnits
