@@ -9,6 +9,7 @@
   (:import goog.History))
 
 (defonce session (r/atom {:page :home}))
+(defonce app-state (r/atom {:running-data []}))
 
 (defn nav-link [uri title page]
   [:li.nav-item
@@ -27,7 +28,8 @@
    [:div#collapsing-navbar.collapse.navbar-collapse
     [:ul.nav.navbar-nav.mr-auto
      [nav-link "#/" "Home" :home]
-     [nav-link "#/about" "About" :about]]]])
+     [nav-link "#/about" "About" :about]
+     [nav-link "#/running" "Running" :running-page]]]])
 
 (defn about-page []
   [:div.container
@@ -42,9 +44,58 @@
       [:div {:dangerouslySetInnerHTML
              {:__html (md->html docs)}}]])])
 
+(defn run-row
+  "Display a single run"
+  [{:keys [runid rdate timeofday distance units elapsed comment effort shoeid] :as run}]
+  [:tr
+   [:td runid]
+   [:td rdate]
+   [:td timeofday]
+   [:td distance]
+   [:td units]
+   [:td elapsed]
+   [:td comment]
+   [:td effort]
+   [:td shoeid]])
+
+(defn run-display-table
+  "Render a table of runs"
+  []
+  [:table
+   [:thead
+    [:tr
+     [:th "ID"]
+     [:th "Date"]
+     [:th "Time of Day"]
+     [:th "Distance"]
+     [:th "Units"]
+     [:th "Elapsed"]
+     [:th "Comment"]
+     [:th "Effort"]
+     [:th "Shoes"]]]
+   [:tbody
+    (when (seq (:running-data @app-state))
+      (for [r (:running-data @app-state)]
+        ^{:key (:runid r)}
+        [run-row r]))]])
+
+(defn get-runs
+  "Get all runs"
+  []
+  (GET "/api/v1/runs/"
+       {:handler (fn [response] swap! app-state assoc :running-data response)}))
+
+(defn running-page []
+  (if (empty? (:running-data @app-state))
+    (get-runs))
+  [:div
+   (run-display-table)
+   ])
+
 (def pages
   {:home #'home-page
-   :about #'about-page})
+   :about #'about-page
+   :running-page #'running-page})
 
 (defn page []
   [(pages (:page @session))])
@@ -59,6 +110,9 @@
 
 (secretary/defroute "/about" []
   (swap! session assoc :page :about))
+
+(secretary/defroute "/running" []
+  (swap! session assoc :page :running-page))
 
 ;; -------------------------
 ;; History
