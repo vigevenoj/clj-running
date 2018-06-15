@@ -66,7 +66,7 @@
 
 (defn run-row
   "Display a single run"
-  [{:keys [runid rdate timeofday distance units elapsed comment effort shoeid] :as run}]
+  [{:keys [runid rdate timeofday distance units elapsed comment effort] :as run}]
   [:tr {:key runid}
    [:td runid]
    [:td (format-date rdate)]
@@ -74,10 +74,9 @@
    [:td (if (not (nil? distance))
           (.-rep distance))]
    [:td units]
-   [:td elapsed]
+   [:td.duration elapsed]
    [:td comment]
-   [:td effort]
-   [:td shoeid]])
+   [:td effort]])
 
 (defn run-display-table
   "Render a table of runs"
@@ -85,18 +84,17 @@
   [:table.runningData
    [:thead
     [:tr
-     [:th {:on-click #(update-sort-value :runid)} "ID"]
-     [:th {:on-click #(update-sort-value :rdate)} "Date"]
-     [:th "Time of Day"]
-     [:th {:on-click #(update-sort-value :distance)} "Distance"]
+     [:th {:width "200" :on-click #(update-sort-value :runid) } "ID"]
+     [:th {:width "200" :on-click #(update-sort-value :rdate) } "Date"]
+     [:th {:width "200" } "Time of Day"]
+     [:th {:width "200" :on-click #(update-sort-value :distance) } "Distance"]
      [:th "Units"]
-     [:th {:on-click #(update-sort-value :elapsed)} "Elapsed"]
-     [:th "Comment"]
-     [:th "Effort"]
-     [:th "Shoes"]]]
+     [:th {:width "200" :on-click #(update-sort-value :elapsed) } "Elapsed"]
+     [:th {:width "200" } "Comment"]
+     [:th {:width "200" } "Effort"]]]
    [:tbody
     (when (seq (:running-data @app-state))
-      (for [r (:running-data @app-state)]
+      (for [r (sorted-runs)]
         ^{:key (:runid r)}
         [run-row r]))]])
 
