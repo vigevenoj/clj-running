@@ -1,5 +1,6 @@
 (ns running.core
   (:require [reagent.core :as r]
+            [clojure.string :as string]
             [cljs-time.format :as format]
             [cljs-time.coerce :as c]
             [cognitect.transit :as t]
@@ -68,7 +69,7 @@
   "Display a single run"
   [{:keys [runid rdate timeofday distance units elapsed comment effort] :as run}]
   [:tr {:key runid}
-   [:td runid]
+   ;[:td runid]
    [:td (format-date rdate)]
    [:td timeofday]
    [:td (if (not (nil? distance))
@@ -84,10 +85,10 @@
   [:table.runningData
    [:thead
     [:tr
-     [:th {:width "200" :on-click #(update-sort-value :runid) } "ID"]
+     ;[:th {:width "200" :on-click #(update-sort-value :runid) } "ID"]
      [:th {:width "200" :on-click #(update-sort-value :rdate) } "Date"]
      [:th {:width "200" } "Time of Day"]
-     [:th {:width "200" :on-click #(update-sort-value :distance) } "Distance"]
+     [:th {:width "200" } "Distance"]
      [:th "Units"]
      [:th {:width "200" :on-click #(update-sort-value :elapsed) } "Elapsed"]
      [:th {:width "200" } "Comment"]
@@ -106,7 +107,7 @@
         :handler #(swap! app-state assoc :running-data %)}))
 
 (defn running-page []
-  [:div "text about running"]
+  [:div]
   (if (empty? (:running-data @app-state))
     (get-runs))
   [:div
