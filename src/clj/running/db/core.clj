@@ -58,3 +58,22 @@
   (sql-value [value] (to-pg-json value))
   IPersistentVector
   (sql-value [value] (to-pg-json value)))
+
+(defn pginterval-to-duration [pginterval]
+  "Convert from a postgresql PGInterval to a java.time.Duration"
+  (.plusSeconds
+    (.plusMinutes
+      (.plusHours
+        (java.time.Duration/ofDays
+          (+ (* 365 (.getYears pginterval))
+             (* 30 (.getMonths pginterval))
+             (.getDays pginterval)))
+        (.getHours pginterval))
+      (.getMinutes pginterval))
+    (.getSeconds pginterval)))
+
+
+(extend-protocol jdbc/IResultSetReadColumn
+  org.postgresql.util.PGInterval
+  (result-set-read-column [value metadata index]
+    (.toString (pginterval-to-duration value))))
