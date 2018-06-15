@@ -1,5 +1,8 @@
 (ns running.core
   (:require [reagent.core :as r]
+            [cljs-time.format :as format]
+            [cljs-time.coerce :as c]
+            [cognitect.transit :as t]
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
             [markdown.core :refer [md->html]]
@@ -9,7 +12,8 @@
   (:import goog.History))
 
 (defonce session (r/atom {:page :home}))
-(defonce app-state (r/atom {:running-data []}))
+(defonce app-state (r/atom {:running-data []
+                            :sort-val :runid :ascending true}))
 
 (defn nav-link [uri title page]
   [:li.nav-item
@@ -44,14 +48,31 @@
       [:div {:dangerouslySetInnerHTML
              {:__html (md->html docs)}}]])])
 
+(defn format-date [date]
+  (format/unparse (format/formatter "yyyy-MM-dd")
+             (c/from-date date)))
+
+(defn update-sort-value [new-val]
+  (if (= new-val (:sort-val @app-state))
+    (swap! app-state update-in [:ascending] not)
+    (swap! app-state assoc :ascending true))
+  (swap! app-state assoc :sort-val new-val))
+
+(defn sorted-runs []
+  (let [sorted-runs (sort-by (:sort-val @app-state) (:running-data @app-state))]
+    (if (:ascending @app-state)
+      sorted-runs
+      (rseq sorted-runs))))
+
 (defn run-row
   "Display a single run"
   [{:keys [runid rdate timeofday distance units elapsed comment effort shoeid] :as run}]
-  [:tr
+  [:tr {:key runid}
    [:td runid]
-   [:td rdate]
+   [:td (format-date rdate)]
    [:td timeofday]
-   [:td distance]
+   [:td (if (true? distance)
+          (.-rep distance))]
    [:td units]
    [:td elapsed]
    [:td comment]
@@ -64,12 +85,12 @@
   [:table
    [:thead
     [:tr
-     [:th "ID"]
-     [:th "Date"]
+     [:th {:on-click #(update-sort-value :runid)} "ID"]
+     [:th {:on-click #(update-sort-value :rdate)} "Date"]
      [:th "Time of Day"]
-     [:th "Distance"]
+     [:th {:on-click #(update-sort-value :distance)} "Distance"]
      [:th "Units"]
-     [:th "Elapsed"]
+     [:th {:on-click #(update-sort-value :elapsed)} "Elapsed"]
      [:th "Comment"]
      [:th "Effort"]
      [:th "Shoes"]]]
@@ -83,9 +104,11 @@
   "Get all runs"
   []
   (GET "/api/v1/runs/"
-       {:handler (fn [response] swap! app-state assoc :running-data response)}))
+       {;:response-format :json
+        :handler #(swap! app-state assoc :running-data %)}))
 
 (defn running-page []
+  [:div "text about running"]
   (if (empty? (:running-data @app-state))
     (get-runs))
   [:div
