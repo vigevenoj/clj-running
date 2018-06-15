@@ -71,7 +71,7 @@
    [:td runid]
    [:td (format-date rdate)]
    [:td timeofday]
-   [:td (if (true? distance)
+   [:td (if (not (nil? distance))
           (.-rep distance))]
    [:td units]
    [:td elapsed]
@@ -82,7 +82,7 @@
 (defn run-display-table
   "Render a table of runs"
   []
-  [:table
+  [:table.runningData
    [:thead
     [:tr
      [:th {:on-click #(update-sort-value :runid)} "ID"]
