@@ -90,7 +90,7 @@
                       shoeid :- s/Int]
         :return s/Int
         :summary "Add a new run"
-        (ok "not implemented"))
+        (not-implemented "not implemented"))
       (PUT "/" []
         :body-params [runid :- s/Int
                       rdate :- s/Any
@@ -103,12 +103,12 @@
                       shoeid :- s/Int]
         :return s/Int
         :summary "Update an existing run"
-        (ok "not implemented"))
+        (not-implemented "not implemented"))
       (DELETE "/:runid" []
         :path-params [runid :- s/Int]
         :return s/Int
         :summary "Delete a run"
-        (ok "not implemented"))
+        (not-implemented "not implemented"))
 
       (GET "/bydate" []
         :query-params [rdate]
