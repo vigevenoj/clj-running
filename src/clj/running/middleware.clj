@@ -51,10 +51,7 @@
     muuntaja/default-options
     :formats
     merge
-    {"application/json"
-     json-format
-
-     "application/transit+json"
+    {"application/transit+json"
      {:decoder [(partial transit-format/make-transit-decoder :json)]
       :encoder [#(transit-format/make-transit-encoder
                    :json
