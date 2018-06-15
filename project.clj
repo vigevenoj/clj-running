@@ -7,6 +7,7 @@
                  [cljs-ajax "0.7.3"]
                  [clojure.java-time "0.3.2"]
                  [compojure "1.6.1"]
+                 [com.andrewmcveigh/cljs-time "0.5.2"]
                  [conman "0.7.9"]
                  [cprop "0.1.11"]
                  [funcool/struct "1.3.0"]
