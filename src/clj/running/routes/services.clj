@@ -30,6 +30,11 @@
         :return [runs/Run]
         :summary "Return runs that occurred on a given date"
         (runs/runs-by-date rdate))
+      (GET "/recent/:days" []
+        :path-params [days :- s/Int]
+        :return [runs/Run]
+        :summary "Return runs from the past [days] days"
+        (runs/recent-runs [days]))
       (GET "/filter" []
         :query-params [{before :- (describe String "Runs before this date") ""}
                        {after :- (describe String "Runs after this date") ""}

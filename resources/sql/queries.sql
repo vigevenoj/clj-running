@@ -50,7 +50,7 @@ WHERE runid = :runid
 -- :name get-recent-runs :? :*
 -- :doc retrieve runs as recently as the past :limit days
 SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoeid FROM runs
-WHERE rdate >= current_date - interval ':limit days'
+WHERE rdate >= current_date - :limit::interval
 
 -- :name get-runs-by-date :? :*
 -- :doc retrieve runs on a given date

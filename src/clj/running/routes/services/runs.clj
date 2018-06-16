@@ -42,6 +42,9 @@
       (ok (db/get-runs-by-date {:rdate (c/to-sql-date rdate)}))
       (catch Exception e (log/error (.getMessage e))))))
 
+(handler recent-runs [days]
+         (ok (db/get-recent-runs {:limit (str days " days")})))
+
 ;(handler delete-run! [runid]
 ;  (ok (db/delete-run! {:runid runid})))
 
