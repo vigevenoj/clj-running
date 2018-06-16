@@ -12,31 +12,6 @@
   (:import java.text.SimpleDateFormat))
 
 
-; This information is used for  coercion from #inst to LocalDate
-;(def date-regex #"\d{4}-\d{2}-\d{2}")
-;(defn date-matcher [schema]
-;  (when (= java.time.LocalDate schema)
-;    (coerce/safe
-;      (fn [x]
-;        (if (and (string? x) (re-matches date-regex x))
-;          (t/local-date x)
-;          x)))))
-;
-;(defn coerce-and-validate [schema matcher data]
-;  (let [coercer (coerce/coercer schema matcher)
-;        result (coercer data)]
-;    (if (schema.utils/error? result)
-;      (throw (Exception. (format "Value does not match schema: %s"
-;                                 (schema.utils/error-val result))))
-;      result)))
-
-
-
-
-
-;(def run-matcher (coerce/first-matcher [date-matcher coerce/json-coercion-matcher]))
-
-
 (defapi service-routes
   {:swagger {:ui   "/swagger-ui"
              :spec "/swagger.json"
@@ -47,7 +22,7 @@
                            {:name "statistics" :description "Statistics about runs"}]}}}
 
   (context "/api/v1" []
-    :tags ["An API for running data"]
+    :tags ["Running data"]
     ; /api/v1/running/
     (context "/running" []
       (GET "/bydate" []
