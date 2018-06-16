@@ -102,7 +102,7 @@
 (defn get-runs
   "Get all runs"
   []
-  (GET "/api/v1/runs/"
+  (GET "/api/v1/running/runs/"
        {;:response-format :json
         :handler #(swap! app-state assoc :running-data %)}))
 
