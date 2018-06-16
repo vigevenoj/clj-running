@@ -47,12 +47,18 @@ SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoei
 SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoeid FROM runs
 WHERE runid = :runid
 
--- :name get-recent :? :*
+-- :name get-recent-runs :? :*
 -- :doc retrieve runs as recently as the past :limit days
 SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoeid FROM runs
 WHERE rdate >= current_date - interval ':limit days'
 
--- :name get-by-date :? :*
+-- :name get-runs-by-date :? :*
 -- :doc retrieve runs on a given date
 SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoeid FROM runs
 WHERE rdate = :rdate
+
+-- :name get-filtered-runs :? :*
+-- :doc retrieve runs that match a set of filters
+SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoeid FROM runs
+WHERE rdate >= :after-date and rdate <= :before-date
+and distance >= :min-distance and distance <= :max-distance

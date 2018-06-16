@@ -6,13 +6,11 @@
             [schema.coerce :as coerce]
             [java-time :as jt]
             [clj-time.format :as f]
-            ;[clj-time.core :as t]
-            )
-  (:import java.time.LocalDate))
+            [running.routes.services.runs :as runs]
+    ;[clj-time.core :as t]
+            [clojure.tools.logging :as log])
+  (:import java.text.SimpleDateFormat))
 
-; define some schema information
-(def TimeOfDay (s/enum "am" "pm" "noon" "night"))
-(def DistanceUnits (s/enum "m" "km" "mile" "miles" "meters"))
 
 ; This information is used for  coercion from #inst to LocalDate
 ;(def date-regex #"\d{4}-\d{2}-\d{2}")
@@ -32,25 +30,9 @@
 ;                                 (schema.utils/error-val result))))
 ;      result)))
 
-; A schema for runs
-(s/defschema Run
-  {:runid s/Num
-   :rdate s/Any;LocalDate
-   :timeofday (s/maybe TimeOfDay)
-   (s/optional-key :distance) (s/maybe s/Num)
-   (s/optional-key :units) (s/maybe DistanceUnits)
-   (s/optional-key :elapsed) (s/maybe s/Any)
-   (s/optional-key :comment) (s/maybe s/Str)
-   (s/optional-key :effort) (s/maybe s/Str)
-   (s/optional-key :shoeid) (s/maybe s/Num)})
 
-(s/defschema RunResult
-  {(s/optional-key :run) Run
-   (s/optional-key :error) s/Str})
 
-(s/defschema RunsResult
-  {(s/optional-key :runs) [Run]
-  (s/optional-key :error) s/Str})
+
 
 ;(def run-matcher (coerce/first-matcher [date-matcher coerce/json-coercion-matcher]))
 
@@ -66,24 +48,31 @@
   
   (context "/api/v1" []
     :tags ["An API for running data"]
+
     ; This context is about runs themselves
     (context "/runs" []
       :tags ["runs"]
       (GET "/" []
-        :return [Run]
+        :return [runs/Run]
         :summary "Return all runs"
-        (ok (db/get-runs)))
+        (runs/all-runs))
+      (GET "/bydate" []
+        :query-params [rdate :- s/Any]
+        :return [runs/Run]
+        :summary "Return runs that occurred on a given date"
+            (runs/runs-by-date rdate))
+
       (GET "/:runid" []
-        :return Run
+        :return runs/Run
         :path-params [runid :- Long]
         :summary "Return a run by ID"
-        (ok (db/get-run {:runid runid})))
+        (runs/run runid))
       ; todo need to add authentication for POST/PUT/DELTE
       (POST "/" []
         :body-params [rdate :- s/Any
-                      timeofday :- TimeOfDay
+                      timeofday :- runs/TimeOfDay
                       distance :- s/Num
-                      units :- DistanceUnits
+                      units :- runs/DistanceUnits
                       elapsed :- s/Any
                       comment :- s/Any
                       effort :- s/Any
@@ -94,9 +83,9 @@
       (PUT "/" []
         :body-params [runid :- s/Int
                       rdate :- s/Any
-                      timeofday :- TimeOfDay
+                      timeofday :- runs/TimeOfDay
                       distance :- s/Num
-                      units :- DistanceUnits
+                      units :- runs/DistanceUnits
                       elapsed :- s/Any
                       comment :- s/Any
                       effort :- s/Any
@@ -110,11 +99,22 @@
         :summary "Delete a run"
         (not-implemented "not implemented"))
 
-      (GET "/bydate" []
-        :query-params [rdate]
-        :return RunsResult
-        :summary "Return runs that occurred on a given date"
-        (ok (db/get-by-date {:rdate rdate}))))
+
+
+
+      (GET "/filter" []
+        :query-params [{before :- (describe String "Runs before this date") ""}
+                       {after :- (describe String "Runs after this date") ""}
+                       {longerThan :- (describe s/Num "Runs longer than this") 0}
+                       {shorterThan :- (describe s/Num "Runs shorter than this") 100}
+                       {fasterThan :- (describe s/Any "Runs faster than this pace") nil}
+                       {slowerThan :- (describe s/Any "Runs slower than this pace") nil}]
+        :return runs/RunsResult
+        :summary "Returns runs that match the filters provided"
+        (ok (db/get-filtered-runs {:before-date before
+                                   :after-date after
+                                   :min-distance longerThan
+                                   :max-distance shorterThan}))))
 
     ; This context is for statistics about runs
     ; todo: need to scope out what I want to include in the response
