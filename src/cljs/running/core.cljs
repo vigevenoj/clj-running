@@ -10,10 +10,12 @@
             [running.ajax :refer [load-interceptors!]]
             [ajax.core :refer [GET POST]]
             [secretary.core :as secretary :include-macros true])
+  ;(:use [hiccup form])
   (:import goog.History))
 
 (defonce session (r/atom {:page :home}))
 (defonce app-state (r/atom {:running-data []
+                            :recent-runs []
                             :sort-val :runid :ascending true}))
 
 (defn nav-link [uri title page]
@@ -34,7 +36,9 @@
     [:ul.nav.navbar-nav.mr-auto
      [nav-link "#/" "Home" :home]
      [nav-link "#/about" "About" :about]
-     [nav-link "#/running" "Running" :running-page]]]])
+     [nav-link "#/running" "Runs" :running-page]
+     [nav-link "#/recent" "Recent" :running-recent]
+     [nav-link "#/graphs" "Graphs" :running-graph]]]])
 
 (defn about-page []
   [:div.container
@@ -44,6 +48,11 @@
 
 (defn home-page []
   [:div.container
+   [:form {:action "/login", :method "post"}
+    [:label "Username: "]
+    [:input {:name "username", :id "username", :placeholder "Username"}]
+    [:label "Password: "]
+    [:input {:type "password", :name "password", :id "password"}]]
    (when-let [docs (:docs @session)]
      [:div.row>div.col-sm-12
       [:div {:dangerouslySetInnerHTML
@@ -69,7 +78,6 @@
   "Display a single run"
   [{:keys [runid rdate timeofday distance units elapsed comment effort] :as run}]
   [:tr {:key runid}
-   ;[:td runid]
    [:td (format-date rdate)]
    [:td timeofday]
    [:td (if (not (nil? distance))
@@ -85,7 +93,6 @@
   [:table.runningData
    [:thead
     [:tr
-     ;[:th {:width "200" :on-click #(update-sort-value :runid) } "ID"]
      [:th {:width "200" :on-click #(update-sort-value :rdate) } "Date"]
      [:th {:width "200" } "Time of Day"]
      [:th {:width "200" } "Distance"]
@@ -106,18 +113,41 @@
        {;:response-format :json
         :handler #(swap! app-state assoc :running-data %)}))
 
+(defn get-recent-runs
+  "Get recent runs"
+  []
+  (GET "/api/v1/running/recent/90"
+       {:handler #(swap! app-state assoc :recent-runs %)}))
+
+
+(defn recent-runs-page []
+   (if (empty? (:recent-runs @app-state))
+     (get-recent-runs))
+     [:div
+      ; todo: refactor run-display-table to take different source arguments
+      [:table.runningdata
+       []
+      (when (seq (:running-data @app-state))
+        (for [r (sorted-runs)]
+          ^{:key (:runid r)}
+          [run-row r]))]])
+
 (defn running-page []
-  [:div]
   (if (empty? (:running-data @app-state))
     (get-runs))
   [:div
    (run-display-table)
    ])
 
+(defn running-graph-page []
+  [:div])
+
 (def pages
   {:home #'home-page
    :about #'about-page
-   :running-page #'running-page})
+   :running-page #'running-page
+   :running-recent #'recent-runs-page
+   :running-graph #'running-graph-page})
 
 (defn page []
   [(pages (:page @session))])
@@ -135,6 +165,12 @@
 
 (secretary/defroute "/running" []
   (swap! session assoc :page :running-page))
+
+(secretary/defroute "/recent" []
+  (swap! session assoc :page :running-recent))
+
+(secretary/defroute "/graph" []
+  (swap! session assoc :page :running-graph))
 
 ;; -------------------------
 ;; History
