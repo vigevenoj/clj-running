@@ -46,13 +46,16 @@
     [:div.col-md-12
      [:img {:src "/img/warning_clojure.png"}]]]])
 
+(defn login-form []
+  [:form {:action "/login", :method "post"}
+   [:label "Username: "]
+   [:input {:name "username", :id "username", :placeholder "Username"}]
+   [:label "Password: "]
+   [:input {:type "password", :name "password", :id "password"}]])
+
 (defn home-page []
   [:div.container
-   [:form {:action "/login", :method "post"}
-    [:label "Username: "]
-    [:input {:name "username", :id "username", :placeholder "Username"}]
-    [:label "Password: "]
-    [:input {:type "password", :name "password", :id "password"}]]
+   (login-form)
    (when-let [docs (:docs @session)]
      [:div.row>div.col-sm-12
       [:div {:dangerouslySetInnerHTML
@@ -68,8 +71,8 @@
     (swap! app-state assoc :ascending true))
   (swap! app-state assoc :sort-val new-val))
 
-(defn sorted-runs []
-  (let [sorted-runs (sort-by (:sort-val @app-state) (:running-data @app-state))]
+(defn sorted-runs [data]
+  (let [sorted-runs (sort-by (:sort-val @app-state) data)]
     (if (:ascending @app-state)
       sorted-runs
       (rseq sorted-runs))))
@@ -89,7 +92,7 @@
 
 (defn run-display-table
   "Render a table of runs"
-  []
+  [data]
   [:table.runningData
    [:thead
     [:tr
@@ -101,8 +104,8 @@
      [:th {:width "200" } "Comment"]
      [:th {:width "200" } "Effort"]]]
    [:tbody
-    (when (seq (:running-data @app-state))
-      (for [r (sorted-runs)]
+    (when (seq data)
+      (for [r (sorted-runs data)]
         ^{:key (:runid r)}
         [run-row r]))]])
 
@@ -124,20 +127,15 @@
    (if (empty? (:recent-runs @app-state))
      (get-recent-runs))
      [:div
-      ; todo: refactor run-display-table to take different source arguments
-      [:table.runningdata
-       []
-      (when (seq (:running-data @app-state))
-        (for [r (sorted-runs)]
-          ^{:key (:runid r)}
-          [run-row r]))]])
+      (run-display-table (:recent-runs @app-state))])
 
 (defn running-page []
   (if (empty? (:running-data @app-state))
     (get-runs))
+  [:button
+   {:type "button"}]
   [:div
-   (run-display-table)
-   ])
+   (run-display-table (:running-data @app-state))])
 
 (defn running-graph-page []
   [:div])
