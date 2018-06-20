@@ -79,11 +79,7 @@
 (defn home-page []
   [:div.container
    (login-form)
-   (run-form)
-   (when-let [docs (:docs @session)]
-     [:div.row>div.col-sm-12
-      [:div {:dangerouslySetInnerHTML
-             {:__html (md->html docs)}}]])])
+   (run-form)])
 
 (defn format-date [date]
   (format/unparse (format/formatter "yyyy-MM-dd")
