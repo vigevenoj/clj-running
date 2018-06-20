@@ -53,9 +53,33 @@
    [:label "Password: "]
    [:input {:type "password", :name "password", :id "password"}]])
 
+(defn run-form []
+  [:div.runform
+   [:span.rundate
+   [:input {:type "text" :placeholder "Date"}]]
+   [:span
+    [:select
+     [:option "am"]
+     [:option "pm"]
+     [:option "noon"]
+     [:option "night"]]]
+    [:span
+     [:input {:type "text" :placeholder "Distance"}]]
+    [:span
+     [:select {:default-value "miles"}
+      [:option "km"]
+      [:option "m"]
+      [:option "miles"]
+      ]]
+    [:span
+     [:input {:type "text" :placeholder "Elapsed time"}]]
+    [:span
+     [:input {:type "text" :placeholder "Comments"}]]])
+
 (defn home-page []
   [:div.container
    (login-form)
+   (run-form)
    (when-let [docs (:docs @session)]
      [:div.row>div.col-sm-12
       [:div {:dangerouslySetInnerHTML
