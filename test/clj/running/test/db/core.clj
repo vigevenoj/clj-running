@@ -4,7 +4,8 @@
             [clojure.test :refer :all]
             [clojure.java.jdbc :as jdbc]
             [running.config :refer [env]]
-            [mount.core :as mount]))
+            [mount.core :as mount]
+            [clj-time.coerce :as c]))
 
 (use-fixtures
   :once
@@ -34,3 +35,17 @@
             :last_login nil
             :is_active  nil}
            (db/get-user t-conn {:id "1"})))))
+
+(deftest test-runs
+  (jdbc/with-db-transaction[t-conn *db*]
+                           (jdbc/db-set-rollback-only! t-conn)
+                           (is (= 1 (db/create-run!
+                                      t-conn
+                                      {:rdate     (c/to-sql-date "2018-05-16")
+                                       :timeofday "noon"
+                                       :distance  10.2
+                                       :units     "miles"
+                                       :elapsed   (running.db.core/string-duration-to-pginterval "PT1H30M6S")
+                                       :comment   nil
+                                       :effort    nil
+                                       :shoeid    nil})))))
