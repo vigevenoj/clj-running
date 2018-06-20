@@ -24,7 +24,7 @@ WHERE id = :id
 -- :doc create a new run
 INSERT INTO runs
 (rdate, timeofday, distance, units, elapsed, effort, comment, shoeid)
-VALUES (:rdate, :timeofday, :distance, :units, :elapsed, :effort, :comment :shoeid)
+VALUES (:rdate, :timeofday, :distance, :units, :elapsed, :effort, :comment, :shoeid)
 
 -- :name update-run! :! :n
 -- :doc update an existing run
@@ -62,3 +62,11 @@ WHERE rdate = :rdate
 SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoeid FROM runs
 WHERE rdate >= :after-date and rdate <= :before-date
 and distance >= :min-distance and distance <= :max-distance
+
+-- :name get-ytd-mileage :? :*
+-- :doc get the cumulative distance run in the current year
+SELECT sum(r.distance*uc.factor) as distance
+FROM runs r, unit_conversion uc
+WHERE extract(year from r.rdate) = extract(year from now())
+and uc.from_u = r.units
+and uc.to_u = :units
