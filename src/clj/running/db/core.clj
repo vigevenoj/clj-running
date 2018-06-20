@@ -13,7 +13,10 @@
            clojure.lang.IPersistentVector
            [java.sql
             BatchUpdateException
-            PreparedStatement]))
+            PreparedStatement]
+           (java.time.format DateTimeParseException)
+           (java.time Duration)
+           (org.postgresql.util PGInterval)))
 (defstate ^:dynamic *db*
   :start (if-let [jdbc-url (env :database-url)]
            (conman/connect! {:jdbc-url jdbc-url})
@@ -64,7 +67,7 @@
   (.plusSeconds
     (.plusMinutes
       (.plusHours
-        (java.time.Duration/ofDays
+        (Duration/ofDays
           (+ (* 365 (.getYears pginterval))
              (* 30 (.getMonths pginterval))
              (.getDays pginterval)))
@@ -72,8 +75,27 @@
       (.getMinutes pginterval))
     (.getSeconds pginterval)))
 
+(defn string-duration-to-duration
+  "Convert from a stringified duration like PT1H30M6S to a java.time.Duration"
+  [string-duration]
+  (try
+     (Duration/parse string-duration)
+     (catch DateTimeParseException e nil)))
+
+(defn duration-to-pginterval [^Duration duration]
+  "Convert from a java.time.Duration to a postgresql PGInterval"
+  (let [seconds (.getSeconds duration)]
+    (PGInterval. 0 0 0 (quot seconds 3600) (quot seconds 60) seconds)))
+
+(defn string-duration-to-pginterval [string-duration]
+  (duration-to-pginterval(string-duration-to-duration string-duration)))
 
 (extend-protocol jdbc/IResultSetReadColumn
   org.postgresql.util.PGInterval
   (result-set-read-column [value metadata index]
     (.toString (pginterval-to-duration value))))
+
+;(extend-type java.time.Duration
+;  jdbc/ISQLParameter
+;  (set-parameter [value ^PreparedStatement stmt idx]
+;    (duration-to-pginterval value)))
