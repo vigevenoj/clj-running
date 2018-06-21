@@ -15,7 +15,7 @@
             BatchUpdateException
             PreparedStatement]
            (java.time.format DateTimeParseException)
-           (java.time Duration)
+           (java.time Duration LocalTime)
            (org.postgresql.util PGInterval)))
 (defstate ^:dynamic *db*
   :start (if-let [jdbc-url (env :database-url)]
@@ -75,12 +75,22 @@
       (.getMinutes pginterval))
     (.getSeconds pginterval)))
 
+(defn hhmmss-to-duration [string-duration]
+  "Convert from HH:MM:SS to java.time.Duration"
+  (Duration/between
+    LocalTime/MIN
+    (LocalTime/parse string-duration)))
+
 (defn string-duration-to-duration
   "Convert from a stringified duration like PT1H30M6S to a java.time.Duration"
   [string-duration]
   (try
      (Duration/parse string-duration)
-     (catch DateTimeParseException e nil)))
+     (catch DateTimeParseException e
+       (try
+         (hhmmss-to-duration string-duration)
+         (catch DateTimeParseException e
+           (log/warn (str "Unable to parse " string-duration " as duration")))))))
 
 (defn duration-to-pginterval [^Duration duration]
   "Convert from a java.time.Duration to a postgresql PGInterval"
