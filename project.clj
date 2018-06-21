@@ -1,7 +1,7 @@
 (defproject running "0.1.0-SNAPSHOT"
 
-  :description "Demo project of React/Reagent ui for running data"
-  :url "http://example.com/FIXME"
+  :description "API for running data"
+  :url "https://github.com/vigevenoj/"
 
   :dependencies [;[clj-time "0.14.4"]
                  [cljs-ajax "0.7.3"]
@@ -30,6 +30,8 @@
                  [org.webjars/font-awesome "5.0.13"]
                  [org.webjars/webjars-locator "0.34"]
                  [reagent "0.8.1"]
+                 [reagent-forms "0.5.42"]
+                 [rid3 "0.2.1"]
                  [ring-webjars "0.2.0"]
                  [ring/ring-core "1.6.3"]
                  [ring/ring-defaults "0.3.2"]
