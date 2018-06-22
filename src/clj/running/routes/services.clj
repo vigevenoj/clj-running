@@ -11,6 +11,17 @@
             [clojure.tools.logging :as log])
   (:import java.text.SimpleDateFormat))
 
+(s/defschema myDuration
+  {:duration s/Str})
+
+(defn elapsed-duration-matcher [schema]
+  (when (= myDuration schema)
+    (coerce/safe
+      (fn [x]
+        (if (and (string? x) (or
+                               (re-matches runs/iso-duration-regex x)
+                               (re-matches runs/hhmmss-regex x)))
+          db/string-duration-to-duration x)))))
 
 (defapi service-routes
   {:swagger {:ui   "/swagger-ui"
@@ -22,6 +33,17 @@
                            {:name "statistics" :description "Statistics about runs"}]}}}
 
   (context "/api/v1" []
+    (POST "/duration" []
+      :summary "takes hh:mm:ss formatted dates, sends it back as java.time.Duration"
+      :body [body myDuration]
+      :return myDuration
+      (log/warn "Post body: " body)
+      (let [d (running.db.core/string-duration-to-duration (:duration body))]
+        (log/warn "Duration from post body: " (:duration body))
+        (log/warn "Calculated java.time.Duration: " d)
+        (ok {:duration (.toString d)})))
+        ;(ok (.toString (running.db.core/string-duration-to-duration d)))))
+  ;
     :tags ["Running data"]
     ; /api/v1/running/
     (context "/running" []
