@@ -2,6 +2,7 @@
   (:require [ring.util.http-response :refer :all]
             [compojure.api.sweet :refer :all]
             [schema.core :as s]
+            [ring.swagger.json-schema :as json-schema]
             [running.db.core :as db]
             [schema.coerce :as coerce]
             [java-time :as jt]
@@ -11,8 +12,11 @@
             [clojure.tools.logging :as log])
   (:import java.text.SimpleDateFormat))
 
+(defmethod json-schema/convert-class java.time.Duration [_ _] {:type "string"})
+
+(def DurationSchema java.time.Duration)
 (s/defschema myDuration
-  {:duration s/Str})
+  {:duration (s/either DurationSchema s/Str)})
 
 (defn elapsed-duration-matcher [schema]
   (when (= myDuration schema)
@@ -33,6 +37,7 @@
                            {:name "statistics" :description "Statistics about runs"}]}}}
 
   (context "/api/v1" []
+    :tags ["Running data"]
     (POST "/duration" []
       :summary "takes hh:mm:ss formatted dates, sends it back as java.time.Duration"
       :body [body myDuration]
@@ -44,7 +49,7 @@
         (ok {:duration (.toString d)})))
         ;(ok (.toString (running.db.core/string-duration-to-duration d)))))
   ;
-    :tags ["Running data"]
+
     ; /api/v1/running/
     (context "/running" []
       (GET "/bydate" []
