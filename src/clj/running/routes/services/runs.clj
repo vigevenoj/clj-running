@@ -11,11 +11,13 @@
 ; define some schema information
 (def TimeOfDay (s/enum "am" "pm" "noon" "night"))
 (def DistanceUnits (s/enum "m" "km" "mile" "miles" "meters"))
+(def DurationSchema java.time.Duration)
+(def ElapsedDuration (s/either DurationSchema s/Str))
 (def iso-duration-regex #"^P(?!$)(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(?=\d+[HMS])(\d+H)?(\d+M)?(\d+S)?)?$")
 (def hhmmss-regex #"^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$")
 
 (defn elapsed-duration-matcher [schema]
-  (when (= java.time.Duration schema)
+  (when (= ElapsedDuration schema)
     (coerce/safe
       (fn [x]
         (if (and (string? x) (or
@@ -30,7 +32,7 @@
    :timeofday                 (s/maybe TimeOfDay)
    (s/optional-key :distance) (s/maybe s/Num)
    (s/optional-key :units)    (s/maybe DistanceUnits)
-   (s/optional-key :elapsed)  (s/maybe Duration)
+   (s/optional-key :elapsed)  (s/maybe ElapsedDuration)
    (s/optional-key :comment)  (s/maybe s/Str)
    (s/optional-key :effort)   (s/maybe s/Str)
    (s/optional-key :shoeid)   (s/maybe s/Num)})
