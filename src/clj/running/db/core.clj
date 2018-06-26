@@ -95,7 +95,7 @@
 (defn duration-to-pginterval [^Duration duration]
   "Convert from a java.time.Duration to a postgresql PGInterval"
   (let [seconds (.getSeconds duration)]
-    (PGInterval. 0 0 0 (quot seconds 3600) (quot seconds 60) (rem seconds 60))))
+    (PGInterval. 0 0 0 (quot seconds 3600) (quot (rem seconds 3600) 60) (rem seconds 60))))
 
 (defn string-duration-to-pginterval [string-duration]
   (duration-to-pginterval(string-duration-to-duration string-duration)))
