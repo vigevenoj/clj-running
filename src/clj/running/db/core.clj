@@ -95,7 +95,7 @@
 (defn duration-to-pginterval [^Duration duration]
   "Convert from a java.time.Duration to a postgresql PGInterval"
   (let [seconds (.getSeconds duration)]
-    (PGInterval. 0 0 0 (quot seconds 3600) (quot seconds 60) seconds)))
+    (PGInterval. 0 0 0 (quot seconds 3600) (quot seconds 60) (rem seconds 60))))
 
 (defn string-duration-to-pginterval [string-duration]
   (duration-to-pginterval(string-duration-to-duration string-duration)))
@@ -105,7 +105,7 @@
   (result-set-read-column [value metadata index]
     (.toString (pginterval-to-duration value))))
 
-;(extend-type java.time.Duration
-;  jdbc/ISQLParameter
-;  (set-parameter [value ^PreparedStatement stmt idx]
-;    (duration-to-pginterval value)))
+(extend-type java.time.Duration
+  jdbc/ISQLParameter
+  (set-parameter [value ^PreparedStatement stmt idx]
+    (.setObject stmt idx (duration-to-pginterval value))))

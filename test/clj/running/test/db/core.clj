@@ -36,6 +36,9 @@
             :is_active  nil}
            (db/get-user t-conn {:id "1"})))))
 
+(deftest test-pginterval-duration-conversion
+  ())
+
 (deftest test-runs
   (jdbc/with-db-transaction[t-conn *db*]
                            (jdbc/db-set-rollback-only! t-conn)
@@ -45,7 +48,26 @@
                                        :timeofday "noon"
                                        :distance  10.2
                                        :units     "miles"
-                                       :elapsed   (running.db.core/string-duration-to-pginterval "PT1H30M6S")
+                                       :elapsed   (running.db.core/string-duration-to-duration "PT1H30M6S")
                                        :comment   nil
                                        :effort    nil
-                                       :shoeid    nil})))))
+                                       :shoeid    nil})))
+                           ;(is (= {:rdate (c/to-sql-date "2018-05-16")
+                           ;        :timeofday "noon"
+                           ;        :distance 10.2
+                           ;        :units "miles"
+                           ;        :elapsed (running.db.core/string-duration-to-duration "PT1H30M6S")
+                           ;        :comment nil
+                           ;        :effort nil
+                           ;        :shoeid nil}
+                           ;       (db/get-run t-conn {:runid 1})))
+                           (is (= {:rdate (c/to-sql-date "2018-05-16")
+                                   :timeofday "noon"
+                                   :distance 10.2M
+                                   :units "miles"
+                                   :elapsed "PT1H30M6S"
+                                   :comment nil
+                                   :effort nil
+                                   :shoeid nil}
+                                  (first (db/get-runs-by-date t-conn {:rdate (c/to-sql-date "2018-05-16")}))))
+                           ))

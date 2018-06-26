@@ -24,25 +24,29 @@
     (let [response (app (request :get "/invalid"))]
       (is (= 404 (:status response))))))
 
-(deftest test-validation
-  (s/validate runs/Run
-              {:runid     0
-               :rdate     (c/to-sql-date "2018-05-16")
-               :timeofday "noon"
-               :distance  10.2
-               :units     "miles"
-               :elapsed   (running.db.core/string-duration-to-duration "PT1H30M6S")
-               :comment   nil
-               :effort    nil
-               :shoeid    nil})
-  (s/validate runs/Run
-              {:runid     0
-               :rdate     (c/to-sql-date "2018-05-16")
-               :timeofday "noon"
-               :distance  10.2
-               :units     "miles"
-               :elapsed   (running.db.core/string-duration-to-duration "01:30:06")
-               :comment   nil
-               :effort    nil
-               :shoeid    nil})
-  )
+;(deftest test-runs
+;  (testing "add a run"
+;    (let [response (app (request :post "/api/v1/running/runs"))])))
+
+;(deftest test-validation
+;  (s/validate runs/Run
+;              {:runid     0
+;               :rdate     (c/to-sql-date "2018-05-16")
+;               :timeofday "noon"
+;               :distance  10.2
+;               :units     "miles"
+;               :elapsed   "PT1H30M6S"
+;               :comment   nil
+;               :effort    nil
+;               :shoeid    nil})
+;  (s/validate runs/Run
+;              {:runid     0
+;               :rdate     (c/to-sql-date "2018-05-16")
+;               :timeofday "noon"
+;               :distance  10.2
+;               :units     "miles"
+;               :elapsed   "01:30:06"
+;               :comment   nil
+;               :effort    nil
+;               :shoeid    nil})
+;  )
