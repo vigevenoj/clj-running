@@ -103,7 +103,7 @@
 (extend-protocol jdbc/IResultSetReadColumn
   org.postgresql.util.PGInterval
   (result-set-read-column [value metadata index]
-    (.toString (pginterval-to-duration value))))
+    (pginterval-to-duration value)))
 
 (extend-type java.time.Duration
   jdbc/ISQLParameter
