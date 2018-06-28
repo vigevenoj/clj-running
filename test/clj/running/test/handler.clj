@@ -5,8 +5,7 @@
             [mount.core :as mount]
             [schema.coerce :as coerce]
             [schema.core :as s]
-            [running.routes.services.runs :as runs]
-            [clj-time.coerce :as c]))
+            [running.routes.services.runs :as runs]))
 
 (use-fixtures
   :once

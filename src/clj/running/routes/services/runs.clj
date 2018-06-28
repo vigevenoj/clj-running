@@ -1,12 +1,12 @@
 (ns running.routes.services.runs
-  (:require [clj-time.coerce :as c]
+  (:require [java-time :as jt]
             [clojure.tools.logging :as log]
             [ring.util.http-response :refer :all]
             [running.db.core :as db]
             [running.routes.services.common :refer [handler]]
             [schema.core :as s]
             [schema.coerce :as coerce])
-  (:import (java.time Duration)))
+  (:import (java.time Duration LocalDate)))
 
 ; define some schema information
 (def TimeOfDay (s/enum "am" "pm" "noon" "night"))
@@ -28,7 +28,7 @@
 ; A schema for runs
 (s/defschema Run
   {:runid                     s/Num
-   :rdate                     s/Any ;LocalDate
+   :rdate                     LocalDate
    :timeofday                 (s/maybe TimeOfDay)
    (s/optional-key :distance) (s/maybe s/Num)
    (s/optional-key :units)    (s/maybe DistanceUnits)
@@ -54,7 +54,7 @@
 (handler runs-by-date [rdate]
   (do
     (try
-      (ok (db/get-runs-by-date {:rdate (c/to-sql-date rdate)}))
+      (ok (db/get-runs-by-date {:rdate (jt/to-sql-date rdate)}))
       (catch Exception e (log/error (.getMessage e))))))
 
 (handler recent-runs [days]
@@ -64,8 +64,8 @@
 ;  (ok (db/delete-run! {:runid runid})))
 
 (handler filtered-runs [before-date after-date min-distance max-distance]
-         (ok (db/get-filtered-runs {:before-date (c/to-sql-date :before-date)
-                                    :after-date (c/to-sql-date :after-date)
+         (ok (db/get-filtered-runs {:before-date (jt/to-sql-date :before-date)
+                                    :after-date (jt/to-sql-date :after-date)
                                     :min-distance :min-distance
                                     :max-distance :max-distance})))
 

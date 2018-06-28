@@ -1,10 +1,10 @@
 (ns running.db.core
   (:require
     [cheshire.core :refer [generate-string parse-string]]
-    ;[clj-time.jdbc]
     [clojure.java.jdbc :as jdbc]
     [clojure.tools.logging :as log]
     [conman.core :as conman]
+    [java-time :as jt]
     [running.config :refer [env]]
     [mount.core :refer [defstate]])
   (:import org.postgresql.util.PGobject
@@ -109,3 +109,13 @@
   jdbc/ISQLParameter
   (set-parameter [value ^PreparedStatement stmt idx]
     (.setObject stmt idx (duration-to-pginterval value))))
+
+(extend-protocol jdbc/IResultSetReadColumn
+  java.sql.Date
+  ;java.time.LocalDate
+  (result-set-read-column [v _ _] (jt/local-date v)))
+
+(extend-type java.time.LocalDate
+  jdbc/ISQLParameter
+  (set-parameter [value ^PreparedStatement stmt idx]
+    (.setObject stmt idx value)))
