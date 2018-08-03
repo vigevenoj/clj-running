@@ -74,7 +74,8 @@
     [:span
      [:input {:type "text" :placeholder "Elapsed time"}]]
     [:span
-     [:input {:type "text" :placeholder "Comments"}]]])
+     [:input {:type "text" :placeholder "Comments"}]]
+   (submit-button "submit")])
 
 (defn home-page []
   [:div.container
