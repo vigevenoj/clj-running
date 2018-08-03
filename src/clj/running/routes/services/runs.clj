@@ -27,8 +27,8 @@
 
 ; A schema for runs
 (s/defschema Run
-  {:runid                     s/Num
-   :rdate                     LocalDate
+  {(s/optional-key :runid)    (s/maybe s/Num)
+   :rdate                     java.time.LocalDate
    :timeofday                 (s/maybe TimeOfDay)
    (s/optional-key :distance) (s/maybe s/Num)
    (s/optional-key :units)    (s/maybe DistanceUnits)
