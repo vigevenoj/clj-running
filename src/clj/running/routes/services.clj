@@ -6,11 +6,14 @@
             [running.db.core :as db]
             [schema.coerce :as coerce]
             [java-time :as jt]
-            [clj-time.format :as f]
+    ;[clj-time.format :as f]
             [running.routes.services.runs :as runs]
     ;[clj-time.core :as t]
-            [clojure.tools.logging :as log])
-  (:import java.text.SimpleDateFormat))
+            [clojure.tools.logging :as log]
+            [muuntaja.core :as muuntaja]
+            [cognitect.transit :as transit])
+  (:import java.text.SimpleDateFormat
+           (java.time LocalDate)))
 
 (defmethod json-schema/convert-class java.time.Duration [_ _] {:type "string"})
 
@@ -27,14 +30,38 @@
                                (re-matches runs/hhmmss-regex x)))
           db/string-duration-to-duration x)))))
 
-(defapi service-routes
-  {:swagger {:ui   "/swagger-ui"
-             :spec "/swagger.json"
-             :data {:info {:version     "1.0.0"
-                           :title       "Running API"
-                           :description "Running Services"}
-                    :tags [{:name "runs" :description "Runs"}
-                           {:name "statistics" :description "Statistics about runs"}]}}}
+(def java-time-localdate-handler
+  (transit/write-handler
+    (constantly "LocalDate")
+    (fn [v] (-> v .toString))))
+
+(def java-time-duration-handler
+  (transit/write-handler
+    (constantly "Duration")
+    (fn [v] (-> v .toString))))
+
+(def write-handlers
+  {java.time.LocalDate java-time-localdate-handler
+   java.time.Duration java-time-duration-handler})
+
+(def m
+  (muuntaja/create
+   (update-in
+     muuntaja/default-options
+     [:formats "application/transit+json"]
+     merge {:decoder-opts {}
+            :encoder-opts {:handlers write-handlers}})))
+
+(def service-routes (api
+                      {:swagger {:ui   "/swagger-ui"
+                                 :spec "/swagger.json"
+                                 :data {:info {:version     "1.0.0"
+                                               :title       "Running API"
+                                               :description "Running Services"}
+                                        :tags [{:name "runs" :description "Runs"}
+                                               {:name "statistics" :description "Statistics about runs"}]}
+                                 }
+                       :formats m}
 
   (context "/api/v1" []
     :tags ["Running data"]
@@ -46,7 +73,17 @@
       (let [d (running.db.core/string-duration-to-duration (:duration body))]
         (log/warn "Duration from post body: " (:duration body))
         (log/warn "Calculated java.time.Duration: " d)
+        (if (nil? d) ; The provided string couldn't be converted to a duration
+          (bad-request! "Invalid duration"))
         (ok {:duration (.toString d)})))
+    (GET "/date" []
+      :summary "test returning a LocalDate"
+      ;:body-params [date LocalDate]
+      :return {:result java.time.LocalDate}
+      ;(log/warn "Post body: " date)
+      (let [d (jt/local-date)]
+        (log/warn "LocalDate from body: " d)
+        (ok {:result d})))
         ;(ok (.toString (running.db.core/string-duration-to-duration d)))))
   ;
 
@@ -91,17 +128,18 @@
           (runs/run runid))
         ; todo need to add authentication for POST/PUT/DELTE
         (POST "/" []
-          :body-params [rdate :- s/Any
-                        timeofday :- runs/TimeOfDay
-                        distance :- s/Num
-                        units :- runs/DistanceUnits
-                        elapsed :- s/Any
-                        comment :- s/Any
-                        effort :- s/Any
-                        shoeid :- s/Int]
-          :return s/Int
+          :body [run runs/Run]
+          ;:body-params [rdate :- s/Any
+          ;              timeofday :- runs/TimeOfDay
+          ;              distance :- s/Num
+          ;              units :- runs/DistanceUnits
+          ;              elapsed :- s/Any
+          ;              comment :- s/Any
+          ;              effort :- s/Any
+          ;              shoeid :- s/Int]
+          :return runs/Run
           :summary "Add a new run"
-          (not-implemented "not implemented"))
+          (ok run))
         (PUT "/" []
           :body-params [runid :- s/Int
                         rdate :- s/Any
@@ -133,4 +171,4 @@
         (GET "/rolling" []
           :path-params [period]
           :summary "Get information about runs during the past [week|month|90 days|180 days|year]"
-          (ok "not implemented"))))))
+          (ok "not implemented")))))))
