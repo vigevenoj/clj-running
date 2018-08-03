@@ -55,15 +55,6 @@
                                        :comment   nil
                                        :effort    nil
                                        :shoeid    nil})))
-                           ;(is (= {:rdate (c/to-sql-date "2018-05-16")
-                           ;        :timeofday "noon"
-                           ;        :distance 10.2
-                           ;        :units "miles"
-                           ;        :elapsed (running.db.core/string-duration-to-duration "PT1H30M6S")
-                           ;        :comment nil
-                           ;        :effort nil
-                           ;        :shoeid nil}
-                           ;       (db/get-run t-conn {:runid 1})))
                            (is (= {:runid nil
                                    ; I should use clojure.java-time for this and parse a LocalDate out
                                    ; of this string--that would avoid the timezone issue that I keep seeing
