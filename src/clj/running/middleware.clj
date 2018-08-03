@@ -13,9 +13,7 @@
             [running.config :refer [env]]
             [ring.middleware.flash :refer [wrap-flash]]
             [immutant.web.middleware :refer [wrap-session]]
-            [ring.middleware.defaults :refer [site-defaults wrap-defaults]])
-  (:import [javax.servlet ServletContext]
-           [org.joda.time ReadableInstant]))
+            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]))
 
 (defn wrap-internal-error [handler]
   (fn [req]
@@ -35,32 +33,30 @@
        {:status 403
         :title "Invalid anti-forgery token"})}))
 
-(def joda-time-writer
+(def java-time-localdate-handler
   (transit/write-handler
-    (constantly "m")
-    (fn [v] (-> ^ReadableInstant v .getMillis))
-    (fn [v] (-> ^ReadableInstant v .getMillis .toString))))
+    (constantly "LocalDate")
+    (fn [v] (-> v .toString))))
 
-(cheshire/add-encoder
-  org.joda.time.DateTime
-  (fn [c jsonGenerator]
-    (.writeString jsonGenerator (-> ^ReadableInstant c .getMillis .toString))))
+(def java-time-duration-handler
+  (transit/write-handler
+    (constantly "Duration")
+    (fn [v] (-> v .toString))))
 
-(def restful-format-options
-  (update
-    muuntaja/default-options
-    :formats
-    merge
-    {"application/transit+json"
-     {:decoder [(partial transit-format/make-transit-decoder :json)]
-      :encoder [#(transit-format/make-transit-encoder
-                   :json
-                   (merge
-                     %
-                     {:handlers {org.joda.time.DateTime joda-time-writer}}))]}}))
+(def write-handlers
+  {java.time.LocalDate java-time-localdate-handler
+   java.time.Duration java-time-duration-handler})
+
+(def m
+  (muuntaja/create
+    (update-in
+      muuntaja/default-options
+      [:formats "application/transit+json"]
+      merge {:decoder-opts {}
+             :encoder-opts {:handlers write-handlers}})))
 
 (defn wrap-formats [handler]
-  (let [wrapped (-> handler wrap-params (wrap-format restful-format-options))]
+  (let [wrapped (-> handler wrap-params (wrap-format m))]
     (fn [request]
       ;; disable wrap-formats for websockets
       ;; since they're not compatible with this middleware
