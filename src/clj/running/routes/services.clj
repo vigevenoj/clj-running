@@ -44,6 +44,10 @@
   {java.time.LocalDate java-time-localdate-handler
    java.time.Duration java-time-duration-handler})
 
+; probably going to need a bridge for https://github.com/FasterXML/jackson-modules-java8
+; in order to serialize java.time LocalDate and Duration to json
+; but that doesn't solve the other problem, with cljs not reading our transit response right
+
 (def m
   (muuntaja/create
    (update-in
@@ -75,7 +79,7 @@
         (log/warn "Calculated java.time.Duration: " d)
         (if (nil? d) ; The provided string couldn't be converted to a duration
           (bad-request! "Invalid duration"))
-        (ok {:duration (.toString d)})))
+        (ok {:duration d})))
     (GET "/date" []
       :summary "test returning a LocalDate"
       ;:body-params [date LocalDate]
