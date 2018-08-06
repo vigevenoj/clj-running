@@ -1,6 +1,5 @@
 (ns running.middleware
   (:require [running.env :refer [defaults]]
-            [cheshire.generate :as cheshire]
             [cognitect.transit :as transit]
             [clojure.tools.logging :as log]
             [running.layout :refer [error-page]]
@@ -46,6 +45,16 @@
 (def write-handlers
   {java.time.LocalDate java-time-localdate-handler
    java.time.Duration java-time-duration-handler})
+
+(extend-protocol cheshire.generate/JSONable
+  java.time.Duration
+  (to-json [d gen]
+    (cheshire.generate/write-string gen (str d))))
+
+(extend-protocol cheshire.generate/JSONable
+  java.time.LocalDate
+  (to-json [ld gen]
+    (cheshire.generate/write-string gen (str ld))))
 
 (def m
   (muuntaja/create
