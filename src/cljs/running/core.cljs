@@ -10,7 +10,6 @@
             [running.ajax :refer [load-interceptors!]]
             [ajax.core :refer [GET POST]]
             [secretary.core :as secretary :include-macros true])
-  ;(:use [hiccup form])
   (:import goog.History))
 
 (defonce session (r/atom {:page :home}))
@@ -75,16 +74,23 @@
      [:input {:type "text" :placeholder "Elapsed time"}]]
     [:span
      [:input {:type "text" :placeholder "Comments"}]]
-   (submit-button "submit")])
+   [:button {:type :submit} "Save"]])
 
 (defn home-page []
   [:div.container
    (login-form)
-   (run-form)])
+   (run-form)
+   ])
 
 (defn format-date [date]
-  (format/unparse (format/formatter "yyyy-MM-dd")
-             (c/from-date date)))
+  ;(format/unparse (format/formatter "yyyy-MM-dd")
+  ;           (c/from-date date))
+  (str date))
+
+;(def reader
+;  (t/reader :json
+;            {:handlers
+;             {"LocalDate" (fn[x] )}}))
 
 (defn update-sort-value [new-val]
   (if (= new-val (:sort-val @app-state))
@@ -98,20 +104,20 @@
       sorted-runs
       (rseq sorted-runs))))
 
-(defn run-row
+(defn run-row-ui
   "Display a single run"
   [{:keys [runid rdate timeofday distance units elapsed comment effort] :as run}]
   [:tr {:key runid}
    [:td (format-date rdate)]
    [:td timeofday]
    [:td (if (not (nil? distance))
-          (.-rep distance))]
+          (str distance))]
    [:td units]
    [:td.duration elapsed]
    [:td comment]
    [:td effort]])
 
-(defn run-display-table
+(defn run-display-table-ui
   "Render a table of runs"
   [data]
   [:table.runningData
@@ -128,27 +134,36 @@
     (when (seq data)
       (for [r (sorted-runs data)]
         ^{:key (:runid r)}
-        [run-row r]))]])
+        [run-row-ui r]))]])
 
 (defn get-runs
   "Get all runs"
   []
   (GET "/api/v1/running/runs/"
-       {;:response-format :json
+       {:response-format :json
+        :keywords? true
         :handler #(swap! app-state assoc :running-data %)}))
+
+;(defn recent-handler [response]
+;  (.log js/console (str response))
+;  (.log js/console (t/read (t/reader :json) response))
+;  (swap! app-state assoc :recent-runs (t/read (t/reader :json) response)))
+
 
 (defn get-recent-runs
   "Get recent runs"
   []
   (GET "/api/v1/running/recent/90"
-       {:handler #(swap! app-state assoc :recent-runs %)}))
+       {:response-format :json
+        :keywords? true
+        :handler #(swap! app-state assoc :recent-runs  % )}))
 
 
 (defn recent-runs-page []
    (if (empty? (:recent-runs @app-state))
      (get-recent-runs))
      [:div
-      (run-display-table (:recent-runs @app-state))])
+      (run-display-table-ui (:recent-runs @app-state))])
 
 (defn running-page []
   (if (empty? (:running-data @app-state))
@@ -156,7 +171,7 @@
   [:button
    {:type "button"}]
   [:div
-   (run-display-table (:running-data @app-state))])
+   (run-display-table-ui (:running-data @app-state))])
 
 (defn running-graph-page []
   [:div])
