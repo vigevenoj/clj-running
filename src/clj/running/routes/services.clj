@@ -69,28 +69,6 @@
 
   (context "/api/v1" []
     :tags ["Running data"]
-    (POST "/duration" []
-      :summary "takes hh:mm:ss formatted dates, sends it back as java.time.Duration"
-      :body [body myDuration]
-      :return myDuration
-      (log/warn "Post body: " body)
-      (let [d (running.db.core/string-duration-to-duration (:duration body))]
-        (log/warn "Duration from post body: " (:duration body))
-        (log/warn "Calculated java.time.Duration: " d)
-        (if (nil? d) ; The provided string couldn't be converted to a duration
-          (bad-request! "Invalid duration"))
-        (ok {:duration d})))
-    (GET "/date" []
-      :summary "test returning a LocalDate"
-      ;:body-params [date LocalDate]
-      :return {:result java.time.LocalDate}
-      ;(log/warn "Post body: " date)
-      (let [d (jt/local-date)]
-        (log/warn "LocalDate from body: " d)
-        (ok {:result d})))
-        ;(ok (.toString (running.db.core/string-duration-to-duration d)))))
-  ;
-
     ; /api/v1/running/
     (context "/running" []
       (GET "/bydate" []
