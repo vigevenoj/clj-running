@@ -1,24 +1,50 @@
 -- :name create-user! :! :n
 -- :doc creates a new user record
 INSERT INTO users
-(id, first_name, last_name, email, pass)
-VALUES (:id, :first_name, :last_name, :email, :pass)
+(name, email, last_login pass)
+VALUES (:name,
+        :email,
+        :is-active,
+        --~ (if (= :postgresql (:db-type params)) "(now() at time zone 'utc')," "now(),")
+        :pass)
 
--- :name update-user! :! :n
--- :doc updates an existing user record
+-- :name update-user! :! :1
+-- :doc updates an existing user record, but not their password
 UPDATE users
-SET first_name = :first_name, last_name = :last_name, email = :email
-WHERE id = :id
+SET name = :name,
+    email = :email,
+    admin = :admin,
+    is_active = :is-active
+    last_login= --~ (if (= :postgresql (:db-type params)) "(now() at time zone 'utc')" "now()")
+WHERE user_id = :user-id
+
+-- :name update-user-with-pass! :! :1
+-- :doc updates all fields of an existing user
+UPDATE users
+SET name = :name,
+    email = :email,
+    admin = :admin,
+    is_active = :is-active,
+    pass = :pass,
+    last_login = --~ (if (= :postgresql (:db-type params)) "(now() at time zone 'utc')" "now()")
+WHERE user_id = :user-id;
+
+-- :name get-user-by-name :? :1
+-- :doc get a user by their username
+SELECT user_id, name, email, admin, last_login, is_active, pass
+FROM users
+WHERE name = :name
 
 -- :name get-user :? :1
 -- :doc retrieves a user record given the id
-SELECT * FROM users
-WHERE id = :id
+SELECT user_id, name, email, admin, last_login, is_active, pass
+FROM users
+WHERE user_id = :user-id
 
 -- :name delete-user! :! :n
 -- :doc deletes a user record given the id
 DELETE FROM users
-WHERE id = :id
+WHERE user_id = :user-id
 
 -- :name create-run! :! :n
 -- :doc create a new run
