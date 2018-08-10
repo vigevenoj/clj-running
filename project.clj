@@ -3,7 +3,9 @@
   :description "API for running data"
   :url "https://github.com/vigevenoj/"
 
-  :dependencies [;[clj-time "0.14.4"]
+  :dependencies [[buddy "2.0.0"]
+                 [camel-snake-kebab "0.4.0"]
+                 ;[clj-time "0.14.4"]
                  [cljs-ajax "0.7.4"]
                  [clojure.java-time "0.3.2"]
                  [compojure "1.6.1"]
