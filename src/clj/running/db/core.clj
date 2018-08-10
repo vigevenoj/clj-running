@@ -1,5 +1,7 @@
 (ns running.db.core
   (:require
+    [camel-snake-kebab.core :refer [->kebab-case-keyword]]
+    [camel-snake-kebab.extras :refer [transform-keys]]
     [cheshire.core :refer [generate-string parse-string]]
     [clojure.java.jdbc :as jdbc]
     [clojure.tools.logging :as log]
@@ -26,6 +28,29 @@
   :stop (conman/disconnect! *db*))
 
 (conman/bind-connection *db* "sql/queries.sql")
+
+(defn result-one-snake->kebab
+  [this result options]
+  (->> (hugsql.adapter/result-one this result options)
+       (transform-keys ->kebab-case-keyword)))
+
+(defn result-many-snake->kebab
+  [this result options]
+  (->> (hugsql.adapter/result-many this result options)
+       (map #(transform-keys ->kebab-case-keyword %))))
+
+(defmethod hugsql.core/hugsql-result-fn :1 [sym]
+  'running.db.core/result-one-snake->kebab)
+
+(defmethod hugsql.core/hugsql-result-fn :one [sym]
+  'running.db.core/result-one-snake->kebab)
+
+(defmethod hugsql.core/hugsql-result-fn :* [sym]
+  'running.db.core/result-many-snake->kebab)
+
+(defmethod hugsql.core/hugsql-result-fn :many [sym]
+  'running.db.core/result-many-snake->kebab)
+
 
 (extend-protocol jdbc/IResultSetReadColumn
   Array
@@ -119,3 +144,12 @@
   jdbc/ISQLParameter
   (set-parameter [value ^PreparedStatement stmt idx]
     (.setObject stmt idx value)))
+
+;(extend-protocol jdbc/IResultSetReadColumn
+;  java.sql.Timestamp
+;  (result-set-read-column [v _ _] (jt/local-date-time)))
+;
+;(extend-type java.time.LocalDateTime
+;  jdbc/ISQLParameter
+;  (set-parameter [value ^PreparedStatement stmt idx]
+;    (.setObject stmt idx value)))
