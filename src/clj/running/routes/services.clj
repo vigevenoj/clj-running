@@ -6,14 +6,29 @@
             [running.db.core :as db]
             [schema.coerce :as coerce]
             [java-time :as jt]
-    ;[clj-time.format :as f]
             [running.routes.services.runs :as runs]
-    ;[clj-time.core :as t]
+            [running.routes.services.auth :as auth]
             [clojure.tools.logging :as log]
             [muuntaja.core :as muuntaja]
-            [cognitect.transit :as transit])
-  (:import java.text.SimpleDateFormat
-           (java.time LocalDate)))
+            [cognitect.transit :as transit]
+            [compojure.api.meta :refer [restructure-param]]
+            [buddy.auth.accessrules :refer [restrict]]
+            [buddy.auth :refer [authenticated?]]))
+
+(defn access-error [_ _]
+  (unauthorized {:error "unauthorized"}))
+
+(defn wrap-restricted [handler rule]
+  (restrict handler {:handler rule
+                     :on-error access-error}))
+
+(defmethod restructure-param :auth-rules
+  [_ rule acc]
+  (update-in acc [:midleware] conj [wrap-restricted rule]))
+
+(defmethod restructure-param :current-user
+  [_ binding acc]
+  (update-in acc [:letks] into [binding `(:identity ~'+compojure-api-request+)]))
 
 (defmethod json-schema/convert-class java.time.Duration [_ _] {:type "string"})
 
@@ -67,9 +82,20 @@
                                  }
                        :formats m}
 
+                      (GET "/authenticated" []
+                        :auth-rules authenticated?
+                        :current-user user
+                        (ok {:user user}))
+
   (context "/api/v1" []
     :tags ["Running data"]
     ; /api/v1/running/
+    (POST "/login" req
+      :return auth/LoginResponse
+      :body-params [username :- s/Str
+                    pass :- s/Str]
+      :summary "User login endpoint"
+      (auth/login username pass req))
     (context "/running" []
       (GET "/bydate" []
         :query-params [rdate :- s/Any]

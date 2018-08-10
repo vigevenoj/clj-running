@@ -12,7 +12,16 @@
             [running.config :refer [env]]
             [ring.middleware.flash :refer [wrap-flash]]
             [immutant.web.middleware :refer [wrap-session]]
-            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]))
+            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
+            [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
+            [buddy.auth.accessrules :refer [restrict wrap-access-rules]]
+            [buddy.auth :refer [authenticated?]]
+            [buddy.auth.backends.session :refer [session-backend]]))
+
+
+(def rules
+  [{:uri "restricted"
+   :handler authenticated?}])
 
 (defn wrap-internal-error [handler]
   (fn [req]
@@ -56,6 +65,11 @@
   (to-json [ld gen]
     (cheshire.generate/write-string gen (str ld))))
 
+;(extend-protocol cheshire.generate/JSONable
+;  java.time.LocalDateTime
+;  (to-json [ldt gen]
+;    (cheshire.generate/write-string gen (str ldt))))
+
 (def m
   (muuntaja/create
     (update-in
@@ -71,8 +85,25 @@
       ;; since they're not compatible with this middleware
       ((if (:websocket? request) handler wrapped) request))))
 
+(defn on-error [request response]
+  (error-page
+    {:status 403
+     :body "Not Authorized"}))
+
+(defn wrap-restricted [handler]
+  (restrict handler {:handler authenticated?
+                     :on-error on-error}))
+
+(defn wrap-auth [handler]
+  (let [backend (session-backend)]
+    (-> handler
+        (wrap-access-rules {:rules rules :on-error on-error})
+        (wrap-authentication backend)
+        (wrap-authorization backend))))
+
 (defn wrap-base [handler]
   (-> ((:middleware defaults) handler)
+      wrap-auth
       wrap-webjars
       wrap-flash
       (wrap-session {:cookie-attrs {:http-only true}})
