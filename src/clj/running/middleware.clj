@@ -65,10 +65,10 @@
   (to-json [ld gen]
     (cheshire.generate/write-string gen (str ld))))
 
-;(extend-protocol cheshire.generate/JSONable
-;  java.time.LocalDateTime
-;  (to-json [ldt gen]
-;    (cheshire.generate/write-string gen (str ldt))))
+(extend-protocol cheshire.generate/JSONable
+  java.time.LocalDateTime
+  (to-json [ldt gen]
+    (cheshire.generate/write-string gen (str ldt))))
 
 (def m
   (muuntaja/create

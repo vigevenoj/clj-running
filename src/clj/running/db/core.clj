@@ -145,11 +145,11 @@
   (set-parameter [value ^PreparedStatement stmt idx]
     (.setObject stmt idx value)))
 
-;(extend-protocol jdbc/IResultSetReadColumn
-;  java.sql.Timestamp
-;  (result-set-read-column [v _ _] (jt/local-date-time)))
-;
-;(extend-type java.time.LocalDateTime
-;  jdbc/ISQLParameter
-;  (set-parameter [value ^PreparedStatement stmt idx]
-;    (.setObject stmt idx value)))
+(extend-protocol jdbc/IResultSetReadColumn
+  java.sql.Timestamp
+  (result-set-read-column [v _ _] (jt/local-date-time)))
+
+(extend-type java.time.LocalDateTime
+  jdbc/ISQLParameter
+  (set-parameter [value ^PreparedStatement stmt idx]
+    (.setObject stmt idx value)))
