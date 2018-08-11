@@ -90,10 +90,6 @@
     {:status 403
      :body "Not Authorized"}))
 
-(defn wrap-restricted [handler]
-  (restrict handler {:handler authenticated?
-                     :on-error on-error}))
-
 (defn wrap-auth [handler]
   (let [backend (session-backend)]
     (-> handler
