@@ -15,6 +15,11 @@
             [buddy.auth.accessrules :refer [restrict]]
             [buddy.auth :refer [authenticated?]]))
 
+(defn admin?
+  [request]
+  (:admin (:identity request)))
+
+
 (defn access-error [_ _]
   (unauthorized {:error "unauthorized"}))
 
@@ -82,13 +87,68 @@
                                  }
                        :formats m}
 
-                      (GET "/authenticated" []
-                        :auth-rules authenticated?
-                        :current-user user
-                        (ok {:user user}))
-
   (context "/api/v1" []
-    :tags ["Running data"]
+    :tags []
+
+    ;; Admin context
+    (context "/admin" []
+      :auth-rules admin?
+      :tags ["Administrative actions"]
+
+      ;; User operations
+      (GET "/user" []
+        :summary "Get users, filtered by name"
+        :query-params [{name :- s/Str ""}]
+        (ok
+          {:users
+           (db/get-users-by-name
+             {:name (str "%" name "%")})}))
+
+      (GET "/user/:name" []
+        :path-params [name]
+        :summary "Get a user by name"
+        (let [user (db/get-user-by-name {:name name})]
+          (if (nil? user)
+            (not-found)
+            (ok (dissoc user :pass)))))
+
+      (POST "/user" []
+        :body-params [name :- s/Str
+                      email :- s/Str
+                      pass :- s/Str
+                      pass-confirm :- s/Str
+                      admin :- s/Bool
+                      is-active :- s/Bool]
+        :summary "Create a new user"
+        (auth/create-user! {:name name
+                            :email email
+                            :pass pass
+                            :pass-confirm pass-confirm
+                            :admin admin
+                            :is-active is-active}))
+
+      (PUT "/user" []
+        :body-params [user-id :- s/Int
+                      name :- s/Str
+                      email :- s/Str
+                      pass :- (s/maybe s/Str)
+                      pass-confirm :- (s/maybe s/Str)
+                      admin :- s/Bool
+                      is-active :- s/Bool]
+        :summary "Update a user"
+        :return auth/LoginResponse
+        (auth/update-user! {:user-id user-id
+                            :name name
+                            :pass pass
+                            :pass-confirm pass-confirm
+                            :admin admin
+                            :is-active is-active}))
+
+      (DELETE "/user/:name" []
+        :path-params [name]
+        :summary "Delete a user"
+        (db/delete-user! {:name name})))
+
     ; /api/v1/running/
     (POST "/login" req
       :return auth/LoginResponse
@@ -96,7 +156,13 @@
                     pass :- s/Str]
       :summary "User login endpoint"
       (auth/login username pass req))
+    (POST "/logout" []
+      :return auth/LogoutResponse
+      :summary "Remove the user from the session and invalidate their authentication tokens"
+      (auth/logout))
+
     (context "/running" []
+      :tags ["Running data"]
       (GET "/bydate" []
         :query-params [rdate :- s/Any]
         :return [runs/Run]
@@ -134,7 +200,6 @@
           :path-params [runid :- Long]
           :summary "Return a run by ID"
           (runs/run runid))
-        ; todo need to add authentication for POST/PUT/DELTE
         (POST "/" []
           :body [run runs/Run]
           ;:body-params [rdate :- s/Any
@@ -147,24 +212,31 @@
           ;              shoeid :- s/Int]
           :return runs/Run
           :summary "Add a new run"
+          :auth-rules authenticated?
+          :current-user user ; todo add column for userid into run table
           (ok run))
         (PUT "/" []
-          :body-params [runid :- s/Int
-                        rdate :- s/Any
-                        timeofday :- runs/TimeOfDay
-                        distance :- s/Num
-                        units :- runs/DistanceUnits
-                        elapsed :- s/Any
-                        comment :- s/Any
-                        effort :- s/Any
-                        shoeid :- s/Int]
-          :return s/Int
+          :body [run runs/Run]
+          ;:body-params [runid :- s/Int
+          ;              rdate :- s/Any
+          ;              timeofday :- runs/TimeOfDay
+          ;              distance :- s/Num
+          ;              units :- runs/DistanceUnits
+          ;              elapsed :- s/Any
+          ;              comment :- s/Any
+          ;              effort :- s/Any
+          ;              shoeid :- s/Int]
+          :return runs/Run
           :summary "Update an existing run"
-          (not-implemented "not implemented"))
+          :auth-rules authenticated?
+          :current-user user ; todo add column for userid into run table
+          (ok run))
         (DELETE "/:runid" []
           :path-params [runid :- s/Int]
           :return s/Int
           :summary "Delete a run"
+          :auth-rules authenticated?
+          :current-user user ; todo add column for userid into run table
           (not-implemented "not implemented")))
 
       ; This context is for statistics about runs

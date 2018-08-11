@@ -2,8 +2,10 @@
   (:require [running.db.core :as db]
             [running.config :refer [env]]
             [running.routes.services.common :refer [handler]]
+            [running.validation :as v]
             [buddy.hashers :as hashers]
             [clojure.tools.logging :as log]
+            [java-time :as jt]
             [schema.core :as s]
             [ring.util.http-response :refer :all]))
 
@@ -47,7 +49,6 @@
                      {:client-ip remote-addr
                       :source-address server-name}))]
       (log/info "user:" username "successfully logged in from " remote-addr server-name)
-      (log/info ":user is " user)
       (-> {:user user}
           (ok)
           (assoc :session (assoc session :identity user))))
@@ -57,3 +58,29 @@
 
 (handler logout []
          (assoc (ok {:result "ok"}) :session nil))
+
+(handler find-users [username]
+         (ok
+           {:users
+            (db/get-users-by-name (str "%" username "%"))}))
+
+(handler create-user! [user]
+         (if-let [errors (v/validate-create-user user)]
+           (do
+             (log/error "Error creating user: " errors)
+             (bad-request {:error "invalid user"}))
+           (db/create-user!
+             (-> user
+                 (dissoc :pass-confirm)
+                 (update-in [:pass] hashers/encrypt)))))
+
+(handler update-user! [{:keys [pass] :as user}]
+         (if-let [errors (v/validate-update-user user)]
+           (do
+             (log/error "Error updating user: " errors)
+             (bad-request {:error "Error updating user"}))
+           (ok
+             {:user
+              (db/update-user! (cond-> user
+                                       pass (update :pass hashers/encrypt)
+                                       pass (assoc :update-password? true)))})))
