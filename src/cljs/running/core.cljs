@@ -15,7 +15,8 @@
 (defonce session (r/atom {:page :home}))
 (defonce app-state (r/atom {:running-data []
                             :recent-runs []
-                            :sort-val :runid :ascending true}))
+                            :sort-val :runid :ascending true
+                            :user {}}))
 
 (defn nav-link [uri title page]
   [:li.nav-item
@@ -46,11 +47,22 @@
      [:img {:src "/img/warning_clojure.png"}]]]])
 
 (defn login-form []
-  [:form {:action "/login", :method "post"}
+  ; need to watch (:user @app-state), if present change navbar to include logout link
+  [:form {;:action "/api/v1/login", :method "post"}
+          :on-submit
+          (fn [e]
+            (.preventDefault e)
+            (ajax.core/POST "/api/v1/login"
+                            {:response-format :json
+                             :params {
+                                      :username (.. e -target -elements -username -value)
+                                      :pass (.. e -target -elements -password -value)}
+                             :handler #(swap! app-state assoc :user  % )}))}
    [:label "Username: "]
    [:input {:name "username", :id "username", :placeholder "Username"}]
    [:label "Password: "]
-   [:input {:type "password", :name "password", :id "password"}]])
+   [:input {:type "password", :name "password", :id "password"}]
+   [:button {:type :submit} "Login"]])
 
 (defn run-form []
   [:div.runform
@@ -222,8 +234,8 @@
 
 ;; -------------------------
 ;; Initialize app
-(defn fetch-docs! []
-  (GET "/docs" {:handler #(swap! session assoc :docs %)}))
+;(defn fetch-docs! []
+;  (GET "/docs" {:handler #(swap! session assoc :docs %)}))
 
 (defn mount-components []
   (r/render [#'navbar] (.getElementById js/document "navbar"))
@@ -231,6 +243,6 @@
 
 (defn init! []
   (load-interceptors!)
-  (fetch-docs!)
+  ;(fetch-docs!)
   (hook-browser-navigation!)
   (mount-components))
