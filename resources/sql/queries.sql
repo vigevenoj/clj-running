@@ -35,6 +35,13 @@ SELECT user_id, name, email, admin, last_login, is_active, pass
 FROM users
 WHERE name = :name
 
+-- :name get-users-by-name :? :*
+-- :doc get users by partial username match
+SELECT user_id, name, email, admin, last_login, is_active
+FROM users
+where name ilike :name
+order by name
+
 -- :name get-user :? :1
 -- :doc retrieves a user record given the id
 SELECT user_id, name, email, admin, last_login, is_active, pass
@@ -45,6 +52,11 @@ WHERE user_id = :user-id
 -- :doc deletes a user record given the id
 DELETE FROM users
 WHERE user_id = :user-id
+
+-- :name delete-user-by-name! :! :n
+-- :doc delete a user by their name
+DELETE FROM users
+WHERE name = :name
 
 -- :name create-run! :! :n
 -- :doc create a new run
@@ -89,6 +101,13 @@ WHERE rdate = :rdate
 SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoeid FROM runs
 WHERE rdate >= :after-date and rdate <= :before-date
 and distance >= :min-distance and distance <= :max-distance
+
+-- :name get-latest-runs :? :*
+-- :doc get the latest runs regardless of how long ago they happened
+SELECT runid, rdate, timeofay, distance, units, elapsed, effort, comment, shoeid
+FROM runs
+ORDER BY rdate desc
+LIMIT :limit
 
 -- :name get-ytd-mileage :? :*
 -- :doc get the cumulative distance run in the current year
