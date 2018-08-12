@@ -3,11 +3,14 @@
             [running.config :refer [env]]
             [running.routes.services.common :refer [handler]]
             [running.validation :as v]
+            [running.middleware :refer [secret]]
             [buddy.hashers :as hashers]
             [clojure.tools.logging :as log]
             [java-time :as jt]
             [schema.core :as s]
-            [ring.util.http-response :refer :all]))
+            [ring.util.http-response :refer :all]
+            [buddy.sign.jwt :as jwt]
+            [cheshire.core :as json]))
 
 
 (defn authenticate-local [username pass]
@@ -58,6 +61,16 @@
 
 (handler logout []
          (assoc (ok {:result "ok"}) :session nil))
+
+(handler get-token [username, pass {:keys [session]}]
+         (if-let [user (authenticate-local username pass)]
+           (let [user (-> user
+                          (dissoc :pass))]
+             (log/info "user " username " authenticated for token")
+             (ok {:token (jwt/sign {:user-id (:user-id user)} secret)}))
+           (do
+             (log/info "Token request could not be validated")
+             (unauthorized {:error "The username or password was incorrect"}))))
 
 (handler find-users [username]
          (ok

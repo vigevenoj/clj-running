@@ -16,12 +16,19 @@
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
             [buddy.auth.accessrules :refer [restrict wrap-access-rules]]
             [buddy.auth :refer [authenticated?]]
-            [buddy.auth.backends.session :refer [session-backend]]))
+            [buddy.auth.backends.session :refer [session-backend]]
+            [buddy.auth.backends :as backends]))
 
 
 (def rules
   [{:uri "restricted"
    :handler authenticated?}])
+
+(def secret "supersecretsecret") ;; todo get this from config/env
+(def token-backend (backends/jws {:secret secret
+                                  ;:authfn (fn [token-data]
+                                  ;          token-data)
+                                  }))
 
 (defn wrap-internal-error [handler]
   (fn [req]
@@ -91,11 +98,16 @@
      :body "Not Authorized"}))
 
 (defn wrap-auth [handler]
-  (let [backend (session-backend)]
+  (let [auth-backend token-backend
+        session-backend (session-backend)]
     (-> handler
         (wrap-access-rules {:rules rules :on-error on-error})
-        (wrap-authentication backend)
-        (wrap-authorization backend))))
+        ; I had trouble applying multiple backends functionally but
+        ; applying them one by one works fine
+        (wrap-authentication auth-backend)
+        (wrap-authentication session-backend)
+        (wrap-authorization auth-backend)
+        (wrap-authorization session-backend))))
 
 (defn wrap-base [handler]
   (-> ((:middleware defaults) handler)
@@ -107,4 +119,5 @@
         (-> site-defaults
             (assoc-in [:security :anti-forgery] false)
             (dissoc :session)))
-      wrap-internal-error))
+      wrap-internal-error
+      ))

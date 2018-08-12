@@ -19,7 +19,6 @@
   [request]
   (:admin (:identity request)))
 
-
 (defn access-error [_ _]
   (unauthorized {:error "unauthorized"}))
 
@@ -81,9 +80,15 @@
                                  :spec "/swagger.json"
                                  :data {:info {:version     "1.0.0"
                                                :title       "Running API"
-                                               :description "Running Services"}
+                                               :description "Running Services"
+                                               :securityDefinitions
+                                                            {:api_key
+                                                             {:type "apiKey"
+                                                              :name "Authorization"
+                                                              :in "header"}}}
                                         :tags [{:name "runs" :description "Runs"}
-                                               {:name "statistics" :description "Statistics about runs"}]}
+                                               {:name "statistics" :description "Statistics about runs"}
+                                               {:name "admin" :description "Administrative actions"}]}
                                  }
                        :formats m}
 
@@ -160,6 +165,14 @@
       :return auth/LogoutResponse
       :summary "Remove the user from the session and invalidate their authentication tokens"
       (auth/logout))
+    (POST "/token" req
+      :summary "Return a token to an authenticated user"
+      :body-params [username :- s/Str
+                    pass :-  s/Str]
+      :current-user user
+      ;:auth-rules authenticated?
+      (auth/get-token username pass req))
+
 
     (context "/running" []
       :tags ["Running data"]
