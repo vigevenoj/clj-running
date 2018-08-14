@@ -97,11 +97,16 @@
     {:status 403
      :body "Not Authorized"}))
 
+(defn wrap-rule [handler rule]
+  (-> handler
+      (wrap-access-rules {:rules [{:pattern #".*"
+                                   :handler rule}]
+                          :on-error on-error})))
+
 (defn wrap-auth [handler]
   (let [auth-backend token-backend
         session-backend (session-backend)]
     (-> handler
-        (wrap-access-rules {:rules rules :on-error on-error})
         ; I had trouble applying multiple backends functionally but
         ; applying them one by one works fine
         (wrap-authentication auth-backend)

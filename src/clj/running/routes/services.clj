@@ -28,7 +28,7 @@
 
 (defmethod restructure-param :auth-rules
   [_ rule acc]
-  (update-in acc [:midleware] conj [wrap-restricted rule]))
+  (update-in acc [:middleware] conj [wrap-restricted rule]))
 
 (defmethod restructure-param :current-user
   [_ binding acc]
@@ -78,18 +78,18 @@
 (def service-routes (api
                       {:swagger {:ui   "/swagger-ui"
                                  :spec "/swagger.json"
-                                 :data {:info {:version     "1.0.0"
+                                 :data
+                                       {:info {:version     "1.0.0"
                                                :title       "Running API"
                                                :description "Running Services"
-                                               :securityDefinitions
-                                                            {:api_key
-                                                             {:type "apiKey"
-                                                              :name "Authorization"
-                                                              :in "header"}}}
-                                        :tags [{:name "runs" :description "Runs"}
+                                               :tags [{:name "runs" :description "Runs"}
                                                {:name "statistics" :description "Statistics about runs"}
                                                {:name "admin" :description "Administrative actions"}]}
-                                 }
+                                        :securityDefinitions
+                                              {:api_key
+                                               {:type "apiKey"
+                                                :name "Authorization"
+                                                :in "header"}}}}
                        :formats m}
 
   (context "/api/v1" []
@@ -97,13 +97,14 @@
 
     ;; Admin context
     (context "/admin" []
-      :auth-rules admin?
+      :auth-rules authenticated?
       :tags ["Administrative actions"]
 
       ;; User operations
       (GET "/user" []
         :summary "Get users, filtered by name"
         :query-params [{name :- s/Str ""}]
+        :auth-rules admin?
         (ok
           {:users
            (db/get-users-by-name
@@ -112,6 +113,7 @@
       (GET "/user/:name" []
         :path-params [name]
         :summary "Get a user by name"
+        :auth-rules admin?
         (let [user (db/get-user-by-name {:name name})]
           (if (nil? user)
             (not-found)
@@ -172,6 +174,10 @@
       :current-user user
       ;:auth-rules authenticated?
       (auth/get-token username pass req))
+    (GET "/whoami" req
+      :auth-rules authenticated?
+      :current-user user
+      :summary "Test endpoint, who is the current user")
 
 
     (context "/running" []
