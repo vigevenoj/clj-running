@@ -16,7 +16,7 @@
 (defonce app-state (r/atom {:running-data []
                             :recent-runs []
                             :sort-val :runid :ascending true
-                            :user {}}))
+                            :user {}})) ; user { :token token :identity session }
 
 (defn nav-link [uri title page]
   [:li.nav-item
@@ -34,11 +34,18 @@
    [:a.navbar-brand {:href "#/"} "running"]
    [:div#collapsing-navbar.collapse.navbar-collapse
     [:ul.nav.navbar-nav.mr-auto
+     ; todo show only home/about in nav when not logged in
+     ; todo show logout link in nav when logged in
      [nav-link "#/" "Home" :home]
      [nav-link "#/about" "About" :about]
-     [nav-link "#/running" "Runs" :running-page]
-     [nav-link "#/recent" "Recent" :running-recent]
-     [nav-link "#/graphs" "Graphs" :running-graph]]]])
+     (when (seq (:user @app-state))
+       (list ; this warns about unique keys (javascript console error every page view, so
+         ; look at https://stackoverflow.com/questions/38242295/how-to-conditionally-unroll-hiccup-data-structures-in-clojure
+         ; for alternatives
+       [nav-link "#/running" "Runs" :running-page]
+       [nav-link "#/recent" "Recent" :running-recent]
+       [nav-link "#/graphs" "Graphs" :running-graph]
+       [nav-link "#/logout" "Logout" :about]))]]])
 
 (defn about-page []
   [:div.container
@@ -46,25 +53,40 @@
     [:div.col-md-12
      [:img {:src "/img/warning_clojure.png"}]]]])
 
+(defn login-handler [response]
+  (.log js/console (str response))
+  (swap! app-state assoc :user (:user response)))
+
+(defn logout-handler [_]
+  (.log js/console ("Logging user " (:user @app-state) "out of the application"))
+  (swap! app-state assoc :user {}))
+
 (defn login-form []
   ; need to watch (:user @app-state), if present change navbar to include logout link
-  [:form {;:action "/api/v1/login", :method "post"}
-          :on-submit
+  [:form
+   {:on-submit
           (fn [e]
             (.preventDefault e)
             (ajax.core/POST "/api/v1/login"
                             {:response-format :json
+                             :keywords? true
                              :params {
                                       :username (.. e -target -elements -username -value)
                                       :pass (.. e -target -elements -password -value)}
-                             :handler #(swap! app-state assoc :user  % )}))}
+                             :handler login-handler}))}
    [:label "Username: "]
-   [:input {:name "username", :id "username", :placeholder "Username"}]
+   [:input {:type "text"
+            :name "username"
+            :id "username"
+            :placeholder "Username"}]
    [:label "Password: "]
-   [:input {:type "password", :name "password", :id "password"}]
+   [:input {:type "password"
+            :name "password"
+            :id "password"}]
    [:button {:type :submit} "Login"]])
 
-(defn run-form []
+(defn run-form [id]
+  (let [value (atom nil)]
   [:div.runform
    [:span.rundate
    [:input {:type "text" :placeholder "Date"}]]
@@ -86,13 +108,13 @@
      [:input {:type "text" :placeholder "Elapsed time"}]]
     [:span
      [:input {:type "text" :placeholder "Comments"}]]
-   [:button {:type :submit} "Save"]])
+   [:button {:type :submit} "Save"]]))
 
 (defn home-page []
   [:div.container
-   (login-form)
-   (run-form)
-   ])
+   (if (not (seq (:user @app-state)))
+            (login-form)
+            (run-form "runform"))])
 
 (defn format-date [date]
   ;(format/unparse (format/formatter "yyyy-MM-dd")
