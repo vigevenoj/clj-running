@@ -55,10 +55,23 @@
   (do
     (try
       (ok (db/get-runs-by-date {:rdate (jt/to-sql-date rdate)}))
-      (catch Exception e (log/error (.getMessage e))))))
+      (catch Exception e
+        (do
+          (log/error (.getMessage e))
+          (internal-server-error))))))
 
 (handler recent-runs [days]
          (ok (db/get-recent-runs {:limit (str days " days")})))
+
+(handler latest-runs [limit]
+         (log/error "Limit is " limit)
+         (do
+           (try
+             (ok (db/get-latest-runs {:limit limit}))
+             (catch Exception e
+               (do
+                (log/error (.printStackTrace e))
+                (internal-server-error))))))
 
 ;(handler delete-run! [runid]
 ;  (ok (db/delete-run! {:runid runid})))

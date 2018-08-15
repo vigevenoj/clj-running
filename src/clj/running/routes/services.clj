@@ -206,6 +206,11 @@
                                    :after-date   after
                                    :min-distance longerThan
                                    :max-distance shorterThan})))
+      (GET "/latest" []
+        :query-params [{limit :- s/Int 1}]
+        :return [runs/Run]
+        :summary "Return the latest runs, regardless of how long ago they were"
+        (runs/latest-runs limit))
 
       ; This context is about runs themselves
       ; /api/v1/running/runs
