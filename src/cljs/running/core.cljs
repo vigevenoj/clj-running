@@ -39,13 +39,12 @@
      [nav-link "#/" "Home" :home]
      [nav-link "#/about" "About" :about]
      (when (seq (:user @app-state))
-       [nav-link "#/running" "Runs" :running-page])
-     (when (seq (:user @app-state))
-       [nav-link "#/recent" "Recent" :running-recent])
-     (when (seq (:user @app-state))
-       [nav-link "#/graphs" "Graphs" :running-graph])
-     (when (seq (:user @app-state))
-       [nav-link "#/logout" "Logout" :about])]]])
+       (for [nav-item (list [nav-link "#/running" "Runs" :running-page]
+                            [nav-link "#/recent" "Recent" :running-recent]
+                            [nav-link "#/graphs" "Graphs" :running-graph]
+                            [nav-link "#/logout" "Logout" :about])]
+         ^{:key nav-item} nav-item))
+       ]]])
 
 (defn about-page []
   [:div.container
