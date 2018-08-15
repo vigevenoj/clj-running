@@ -67,6 +67,8 @@
            (let [user (-> user
                           (dissoc :pass))]
              (log/info "user " username " authenticated for token")
+             ; todo token expiration and signing like
+             ; https://github.com/JarrodCTaylor/authenticated-compojure-api/blob/master/src/leiningen/new/authenticated_compojure_api/src/authenticated_compojure_api/general_functions/user/create_token.clj
              (ok {:token (jwt/sign {:user-id (:user-id user)} secret)}))
            (do
              (log/info "Token request could not be validated")

@@ -24,7 +24,7 @@
   [{:uri "restricted"
    :handler authenticated?}])
 
-(def secret "supersecretsecret") ;; todo get this from config/env
+(def secret "supersecretsecret") ;; todo get this from config/env.core
 (def token-backend (backends/jws {:secret secret
                                   ;:authfn (fn [token-data]
                                   ;          token-data)
@@ -109,10 +109,10 @@
     (-> handler
         ; I had trouble applying multiple backends functionally but
         ; applying them one by one works fine
-        (wrap-authentication auth-backend)
-        (wrap-authentication session-backend)
         (wrap-authorization auth-backend)
-        (wrap-authorization session-backend))))
+        (wrap-authorization session-backend)
+        (wrap-authentication auth-backend)
+        (wrap-authentication session-backend))))
 
 (defn wrap-base [handler]
   (-> ((:middleware defaults) handler)

@@ -177,7 +177,8 @@
     (GET "/whoami" req
       :auth-rules authenticated?
       :current-user user
-      :summary "Test endpoint, who is the current user")
+      :summary "Test endpoint, who is the current user"
+      (ok {:user user}))
 
 
     (context "/running" []
