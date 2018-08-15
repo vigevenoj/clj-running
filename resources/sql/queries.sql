@@ -104,7 +104,7 @@ and distance >= :min-distance and distance <= :max-distance
 
 -- :name get-latest-runs :? :*
 -- :doc get the latest runs regardless of how long ago they happened
-SELECT runid, rdate, timeofay, distance, units, elapsed, effort, comment, shoeid
+SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoeid
 FROM runs
 ORDER BY rdate desc
 LIMIT :limit
