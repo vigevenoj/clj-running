@@ -39,13 +39,13 @@
      [nav-link "#/" "Home" :home]
      [nav-link "#/about" "About" :about]
      (when (seq (:user @app-state))
-       (list ; this warns about unique keys (javascript console error every page view, so
-         ; look at https://stackoverflow.com/questions/38242295/how-to-conditionally-unroll-hiccup-data-structures-in-clojure
-         ; for alternatives
-       [nav-link "#/running" "Runs" :running-page]
-       [nav-link "#/recent" "Recent" :running-recent]
-       [nav-link "#/graphs" "Graphs" :running-graph]
-       [nav-link "#/logout" "Logout" :about]))]]])
+       [nav-link "#/running" "Runs" :running-page])
+     (when (seq (:user @app-state))
+       [nav-link "#/recent" "Recent" :running-recent])
+     (when (seq (:user @app-state))
+       [nav-link "#/graphs" "Graphs" :running-graph])
+     (when (seq (:user @app-state))
+       [nav-link "#/logout" "Logout" :about])]]])
 
 (defn about-page []
   [:div.container
@@ -124,10 +124,11 @@
 (defn format-duration
   "Format an ISO-8601 style duration into something more familiar"
   [duration]
-  (let [duration-regex (re-pattern "^P(?!$)([0-9]+Y)?([0-9]+M)?([0-9]+W)?([0-9]+D)?(T(?=[0-9])([0-9]+H)?([0-9]+M)?([0-9]+S)?)?$")]
-    ; The 6th through 9th elements are hours, minutes, and seconds.
-    ; I don't expect any of our durations to be longer than that but if they are we can test for it
-    (clojure.string/join " " (subvec (re-find duration-regex duration) 6 9))))
+  (when (not (nil? duration))
+    (let [duration-regex (re-pattern "^P(?!$)([0-9]+Y)?([0-9]+M)?([0-9]+W)?([0-9]+D)?(T(?=[0-9])([0-9]+H)?([0-9]+M)?([0-9]+S)?)?$")]
+      ; The 6th through 9th elements are hours, minutes, and seconds.
+      ; I don't expect any of our durations to be longer than that but if they are we can test for it
+      (clojure.string/join " " (subvec (re-find duration-regex duration) 6 9)))))
 
 (defn update-sort-value [new-val]
   (if (= new-val (:sort-val @app-state))
