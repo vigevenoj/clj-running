@@ -73,6 +73,16 @@
                 (log/error (.printStackTrace e))
                 (internal-server-error))))))
 
+
+(handler ytd-runs [units]
+         (do
+           (try
+             (ok (db/get-ytd-mileage {:units units}))
+             (catch Exception e
+               (do
+                 (log/error (.printStackTrace e))
+                 (internal-server-error))))))
+
 ;(handler delete-run! [runid]
 ;  (ok (db/delete-run! {:runid runid})))
 

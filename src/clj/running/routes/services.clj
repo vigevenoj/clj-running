@@ -269,11 +269,12 @@
       ; I think I want: total distance, units, total elapsed time, fastest pace per unit distance, avg pace per unit distance
       (context "/statistics" []
         :tags ["statistics"]
-        (GET "/current" []
-          :path-params [period]
+        (GET "/current/:period" []
+          :path-params [period :- (s/enum "year" "month" "week")]
           :summary "Get information about runs during current [week|month|year]"
-          (ok "not implemented"))
-        (GET "/rolling" []
+          (log/info "Selected period " period)
+          (runs/ytd-runs "miles"))
+        (GET "/rolling/:period" []
           :path-params [period]
           :summary "Get information about runs during the past [week|month|90 days|180 days|year]"
           (ok "not implemented")))))))
