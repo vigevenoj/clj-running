@@ -18,10 +18,33 @@
                             :sort-val :runid :ascending true
                             :user {}})) ; user { :token token :identity session }
 
+(defn format-duration
+  "Format an ISO-8601 style duration into something more familiar"
+  [duration]
+  (when (not (nil? duration))
+    (let [duration-regex (re-pattern "^P(?!$)([0-9]+Y)?([0-9]+M)?([0-9]+W)?([0-9]+D)?(T(?=[0-9])([0-9]+H)?([0-9]+M)?([0-9]+S)?)?$")]
+      ; The 6th through 9th elements are hours, minutes, and seconds.
+      ; I don't expect any of our durations to be longer than that but if they are we can test for it
+      (clojure.string/join " " (subvec (re-find duration-regex duration) 6 9)))))
+
 (defn nav-link [uri title page]
   [:li.nav-item
    {:class (when (= page (:page @session)) "active")}
    [:a.nav-link {:href uri} title]])
+
+(defn logout-handler [_]
+  (.log js/console (str "Logging user " (:user-id (:user @app-state)) "out of the application"))
+  (swap! app-state assoc :user {}))
+
+(defn logout-link []
+  [:li.nav-item
+   [:a.nav-link {:on-click
+                       (fn [e]
+                         (ajax.core/POST "/api/v1/logout"
+                                         {:response-format :json
+                                          :keywords? true
+                                          :handler logout-handler}))
+                 :href "#"} "Logout"]])
 
 (defn navbar []
   [:nav.navbar.navbar-dark.bg-primary.navbar-expand-md
@@ -34,15 +57,14 @@
    [:a.navbar-brand {:href "#/"} "running"]
    [:div#collapsing-navbar.collapse.navbar-collapse
     [:ul.nav.navbar-nav.mr-auto
-     ; todo show only home/about in nav when not logged in
-     ; todo show logout link in nav when logged in
      [nav-link "#/" "Home" :home]
      [nav-link "#/about" "About" :about]
      (when (seq (:user @app-state))
        (for [nav-item (list [nav-link "#/running" "Runs" :running-page]
                             [nav-link "#/recent" "Recent" :running-recent]
                             [nav-link "#/graphs" "Graphs" :running-graph]
-                            [nav-link "#/logout" "Logout" :about])]
+                            [nav-link "#/latest" "Latest" :latest]
+                            [logout-link])]
          ^{:key nav-item} nav-item))
        ]]])
 
@@ -55,10 +77,6 @@
 (defn login-handler [response]
   (.log js/console (str response))
   (swap! app-state assoc :user (:user response)))
-
-(defn logout-handler [_]
-  (.log js/console ("Logging user " (:user @app-state) "out of the application"))
-  (swap! app-state assoc :user {}))
 
 (defn login-form []
   ; need to watch (:user @app-state), if present change navbar to include logout link
@@ -86,48 +104,75 @@
 
 (defn run-form [id]
   (let [value (atom nil)]
-  [:div.runform
-   [:span.rundate
-   [:input {:type "text" :placeholder "Date"}]]
-   [:span
-    [:select
-     [:option "am"]
-     [:option "pm"]
-     [:option "noon"]
-     [:option "night"]]]
-    [:span
-     [:input {:type "text" :placeholder "Distance"}]]
-    [:span
-     [:select {:default-value "miles"}
-      [:option "km"]
-      [:option "m"]
-      [:option "miles"]
-      ]]
-    [:span
-     [:input {:type "text" :placeholder "Elapsed time"}]]
-    [:span
-     [:input {:type "text" :placeholder "Comments"}]]
-   [:button {:type :submit} "Save"]]))
+    [:div.runform
+     [:form {:on-submit (fn [e]
+                          (.preventDefault e)
+                          (.log js/console "run form submitted"))}
+      [:span.rundate
+       [:input {:type "text" :placeholder "Date"}]]
+      [:span
+       [:select
+        [:option "am"]
+        [:option "pm"]
+        [:option "noon"]
+        [:option "night"]]]
+      [:span
+       [:input {:type "text" :placeholder "Distance"}]]
+      [:span
+       [:select {:default-value "miles"}
+        [:option "km"]
+        [:option "m"]
+        [:option "miles"]
+        ]]
+      [:span
+       [:input {:type "text" :placeholder "Elapsed time"}]]
+      [:span
+       [:input {:type "text" :placeholder "Comments"}]]
+      [:button {:type :submit} "Save"]]]))
+
+(defn get-latest-runs
+  "Get the latest [count] runs"
+  [count]
+  ;
+  (GET "/api/v1/running/latest" ; default limit is 1
+       {:response-format :json
+        :keywords? true?
+        :handler #(swap! app-state assoc :latest-runs %)}))
+
+(defn latest-run-card
+  []
+  ; if no "latest" data, then load it up
+  ; and display it
+  (let [run (first  (:latest-runs @app-state))]
+    (fn []
+      [:div.runcard
+       {:id (:runid run)
+        :style  {:border "1px solid black"
+                 :padding 20
+                 :margin 10
+                 :display "inline-block"
+                 :max-width "50%"
+                 }}
+       [:h3 "Latest Run"]
+       [:span.runcard-title
+        [:span.runcard-date {:style {:padding-right 2}} (:rdate run)]
+        [:span.runcard-tod  {:style {:padding-left 2}}(:timeofday run)]]
+       [:span.runcard-distance {:style {:display "block"}}
+        [:span {:style {:padding-right 2}} (:distance run)]
+        [:span {:style {:padding-left 2}} (:units run)]]
+       [:span (format-duration (:elapsed run))]])))
+
 
 (defn home-page []
   [:div.container
    (if (not (seq (:user @app-state)))
-            (login-form)
-            (run-form "runform"))])
+     (login-form)
+     (run-form "runform"))])
 
 (defn format-date [date]
   ;(format/unparse (format/formatter "yyyy-MM-dd")
   ;           (c/from-date date))
   (str date))
-
-(defn format-duration
-  "Format an ISO-8601 style duration into something more familiar"
-  [duration]
-  (when (not (nil? duration))
-    (let [duration-regex (re-pattern "^P(?!$)([0-9]+Y)?([0-9]+M)?([0-9]+W)?([0-9]+D)?(T(?=[0-9])([0-9]+H)?([0-9]+M)?([0-9]+S)?)?$")]
-      ; The 6th through 9th elements are hours, minutes, and seconds.
-      ; I don't expect any of our durations to be longer than that but if they are we can test for it
-      (clojure.string/join " " (subvec (re-find duration-regex duration) 6 9)))))
 
 (defn update-sort-value [new-val]
   (if (= new-val (:sort-val @app-state))
@@ -181,12 +226,6 @@
         :keywords? true
         :handler #(swap! app-state assoc :running-data %)}))
 
-;(defn recent-handler [response]
-;  (.log js/console (str response))
-;  (.log js/console (t/read (t/reader :json) response))
-;  (swap! app-state assoc :recent-runs (t/read (t/reader :json) response)))
-
-
 (defn get-recent-runs
   "Get recent runs"
   []
@@ -213,12 +252,17 @@
 (defn running-graph-page []
   [:div])
 
+(defn latest-page []
+  [:div "latest page"]
+  (latest-run-card))
+
 (def pages
   {:home #'home-page
    :about #'about-page
    :running-page #'running-page
    :running-recent #'recent-runs-page
-   :running-graph #'running-graph-page})
+   :running-graph #'running-graph-page
+   :latest #'latest-page})
 
 (defn page []
   [(pages (:page @session))])
@@ -242,6 +286,9 @@
 
 (secretary/defroute "/graph" []
   (swap! session assoc :page :running-graph))
+
+(secretary/defroute "/latest" []
+  (swap! session assoc :page :latest))
 
 ;; -------------------------
 ;; History
