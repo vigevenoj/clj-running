@@ -271,11 +271,13 @@
         :tags ["statistics"]
         (GET "/current/:period" []
           :path-params [period :- (s/enum "year" "month" "week")]
+          :query-params [{units :- (s/enum "miles" "km" "m") "miles"}]
           :summary "Get information about runs during current [week|month|year]"
           (log/info "Selected period " period)
-          (runs/current-period-distance "miles")) ; this just returns a response with total distance
+          (runs/current-period-distance period units)) ; this just returns a response with total distance
         (GET "/rolling/:period" []
           :path-params [period :- (s/enum "year" "180" "90" "month" "week")]
+          :query-params [{units :- (s/enum "miles" "km" "m") "miles"}]
           :summary "Get information about runs during the past [week|month|90 days|180 days|year]"
           ; todo extract this case statement into something in the services.runs namespace
           ; like the current distance periods above
