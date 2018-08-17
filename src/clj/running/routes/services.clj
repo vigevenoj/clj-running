@@ -193,7 +193,7 @@
         :return [runs/Run]
         :summary "Return runs from the past [days] days"
         (runs/recent-runs [days]))
-      (GET "/filter" []
+      (GET "/filter" [] ; todo filtering can be done on the /api/v1/runnning/runs endpoint
         :query-params [{before :- (describe String "Runs before this date") ""}
                        {after :- (describe String "Runs after this date") ""}
                        {longerThan :- (describe s/Num "Runs longer than this") 0}
@@ -273,8 +273,15 @@
           :path-params [period :- (s/enum "year" "month" "week")]
           :summary "Get information about runs during current [week|month|year]"
           (log/info "Selected period " period)
-          (runs/ytd-runs "miles"))
+          (runs/current-period-distance "miles")) ; this just returns a response with total distance
         (GET "/rolling/:period" []
-          :path-params [period]
+          :path-params [period :- (s/enum "year" "180" "90" "month" "week")]
           :summary "Get information about runs during the past [week|month|90 days|180 days|year]"
-          (ok "not implemented")))))))
+          ; todo extract this case statement into something in the services.runs namespace
+          ; like the current distance periods above
+          (case period
+            "week" (not-implemented "not implemented")
+            "month" (not-implemented "not implemented")
+            "90" (not-implemented "not implemented")
+            "180" (not-implemented "not implemented")
+            "year" (not-implemented "not implemented"))))))))

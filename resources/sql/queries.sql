@@ -109,10 +109,26 @@ FROM runs
 ORDER BY rdate desc
 LIMIT :limit
 
--- :name get-ytd-mileage :? :*
--- :doc get the cumulative distance run in the current year
+-- :name get-current-year-distance :? :*
+-- :doc get the cumulative distance run in the current calendar year
 SELECT sum(r.distance*uc.factor) as distance
 FROM runs r, unit_conversion uc
 WHERE extract(year from r.rdate) = extract(year from now())
 and uc.from_u = r.units
 and uc.to_u = :units
+
+-- :name get-current-month-distance :? :*
+-- :doc get the cumulative distance in the current calendar month
+select sum(r.distance*uc.factor) as distance
+from runs r, unit_conversion uc
+where extract(year from r.rdate) = extract(year from now())
+and extract(month from r.rdate) = extract(month from now())
+and uc.from_u = r.units and uc.to_u = :units;
+
+-- :name get-current-week-distance :? :*
+-- :doc get the cumulative distance in the current week (ISO week, starts on monday)
+select sum(r.distance*uc.factor) as distance
+from runs r, unit_conversion uc
+where extract(year from r.rdate) = extract(year from now())
+and extract(week from r.rdate) = extract(week from now())
+and uc.from_u = r.units and uc.to_u = :units;

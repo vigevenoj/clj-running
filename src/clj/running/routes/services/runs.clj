@@ -74,14 +74,30 @@
                 (internal-server-error))))))
 
 
-(handler ytd-runs [units]
-         (do
-           (try
-             (ok (db/get-ytd-mileage {:units units}))
-             (catch Exception e
-               (do
-                 (log/error (.printStackTrace e))
-                 (internal-server-error))))))
+(handler current-period-distance [period units]
+         (case period
+           "year" (do
+                    (try
+                      (ok (db/get-current-year-distance {:units units}))
+                      (catch Exception e
+                        (do
+                          (log/error (.printStackTrace e))
+                          (internal-server-error)))))
+           "month" (do
+                     (try
+                       (ok (db/get-current-month-distance {:units units}))
+                       (catch Exception e
+                         (do
+                           (log/error (.printStackTrace e))
+                           (internal-server-error)))))
+           "week" (do
+                    (try
+                      (ok (db/get-current-week-distance {:units units}))
+                      (catch Exception e
+                        (do
+                          (log/error (.printStackTrace e))
+                          (internal-server-error)))))))
+
 
 ;(handler delete-run! [runid]
 ;  (ok (db/delete-run! {:runid runid})))
