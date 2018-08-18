@@ -24,7 +24,7 @@
   [{:uri "restricted"
    :handler authenticated?}])
 
-(def secret "supersecretsecret") ;; todo get this from config/env.core
+(def secret (-> env :application-secret))
 (def token-backend (backends/jws {:secret secret
                                   ;:authfn (fn [token-data]
                                   ;          token-data)
