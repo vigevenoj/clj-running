@@ -3,6 +3,7 @@
             [cljs-time.coerce :as c]))
 
 (defn format-date [date]
+  "Format a date for display to the user"
   ;(format/unparse (format/formatter "yyyy-MM-dd")
   ;           (c/from-date date))
   (str date))
