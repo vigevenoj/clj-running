@@ -3,8 +3,6 @@
             [reagent-modals.modals :as modals]
             [running.util :refer [format-date format-duration]]
             [clojure.string :as string]
-            [cljs-time.format :as format]
-            [cljs-time.coerce :as c]
             [cognitect.transit :as t]
             [goog.events :as events]
             [goog.history.EventType :as HistoryEventType]
