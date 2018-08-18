@@ -33,6 +33,7 @@
                  [org.webjars/bootstrap "4.1.3"]
                  [org.webjars/font-awesome "5.2.0"]
                  [org.webjars/webjars-locator "0.34"]
+                 [re-frame "0.10.5"]
                  [reagent "0.8.1"]
                  [reagent-forms "0.5.42"]
                  [rid3 "0.2.1"]

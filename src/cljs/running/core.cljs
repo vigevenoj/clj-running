@@ -1,7 +1,10 @@
 (ns running.core
   (:require [reagent.core :as r]
+            [re-frame.core :as rf]
             [reagent-modals.modals :as modals]
             [running.util :refer [format-date format-duration]]
+            [running.events] ; Needed so the closure compiler loads it
+            [running.subscriptions] ; Needed so the closure compiler loads it
             [clojure.string :as string]
             [cognitect.transit :as t]
             [goog.events :as events]
@@ -61,7 +64,7 @@
                             ;[nav-link "#/graphs" "Graphs" :running-graph]
                             [nav-link "#/latest" "Latest" :latest]
                             [logout-link])]
-         ^{:key (:page nav-item)} nav-item))]]])
+         ^{:key (str nav-item)} nav-item))]]])
 
 (defn about-page []
   [:div.container
@@ -305,6 +308,7 @@
   (r/render [#'page] (.getElementById js/document "app")))
 
 (defn init! []
+  (rf/dispatch-sync [:initialize-db])
   (load-interceptors!)
   ;(fetch-docs!)
   (hook-browser-navigation!)
