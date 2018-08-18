@@ -1,5 +1,6 @@
 (ns running.core
   (:require [reagent.core :as r]
+            [reagent-modals.modals :as modals]
             [clojure.string :as string]
             [cljs-time.format :as format]
             [cljs-time.coerce :as c]
@@ -15,6 +16,8 @@
 (defonce session (r/atom {:page :home}))
 (defonce app-state (r/atom {:running-data []
                             :recent-runs []
+                            :checked-recent false
+                            :checked-latest false
                             :sort-val :runid :ascending true
                             :user {}})) ; user { :token token :identity session }
 
@@ -29,7 +32,8 @@
 
 (defn nav-link [uri title page]
   [:li.nav-item
-   {:class (when (= page (:page @session)) "active")}
+   {:class (when (= page (:page @session)) "active")
+    :key page}
    [:a.nav-link {:href uri} title]])
 
 (defn logout-handler [_]
@@ -61,12 +65,11 @@
      [nav-link "#/about" "About" :about]
      (when (seq (:user @app-state))
        (for [nav-item (list [nav-link "#/running" "Runs" :running-page]
-                            [nav-link "#/recent" "Recent" :running-recent]
-                            [nav-link "#/graphs" "Graphs" :running-graph]
+                            ;[nav-link "#/recent" "Recent" :running-recent]
+                            ;[nav-link "#/graphs" "Graphs" :running-graph]
                             [nav-link "#/latest" "Latest" :latest]
                             [logout-link])]
-         ^{:key nav-item} nav-item))
-       ]]])
+         ^{:key (:page nav-item)} nav-item))]]])
 
 (defn about-page []
   [:div.container
@@ -141,10 +144,12 @@
 
 (defn latest-run-card
   []
-  ; if no "latest" data, then load it up
-  ; and display it
   (let [run (first  (:latest-runs @app-state))]
     (fn []
+      (when (and (empty? (:latest-runs @app-state)) (not (:checked-latest @app-state)))
+        (do
+          (get-latest-runs 1)
+          (swap! app-state assoc :checked-latest true)))
       [:div.runcard
        {:id (:runid run)
         :style  {:border "1px solid black"
@@ -153,7 +158,6 @@
                  :display "inline-block"
                  :max-width "50%"
                  }}
-       [:h3 "Latest Run"]
        [:span.runcard-title
         [:span.runcard-date {:style {:padding-right 2}} (:rdate run)]
         [:span.runcard-tod  {:style {:padding-left 2}}(:timeofday run)]]
@@ -161,7 +165,6 @@
         [:span {:style {:padding-right 2}} (:distance run)]
         [:span {:style {:padding-left 2}} (:units run)]]
        [:span (format-duration (:elapsed run))]])))
-
 
 (defn home-page []
   [:div.container
@@ -232,11 +235,13 @@
   (GET "/api/v1/running/recent/90"
        {:response-format :json
         :keywords? true
-        :handler #(swap! app-state assoc :recent-runs  % )}))
+        :handler #(do (swap! app-state assoc :recent-runs  % )
+                      (swap! app-state assoc :checked-recent true))}))
 
 
 (defn recent-runs-page []
-   (if (empty? (:recent-runs @app-state))
+   ; if the response is empty, this keeps being true and we keep making requests
+   (when (and (empty? (:recent-runs @app-state)) (not (:checked-recent @app-state)))
      (get-recent-runs))
      [:div
       (run-display-table-ui (:recent-runs @app-state))])
