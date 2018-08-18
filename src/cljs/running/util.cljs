@@ -1,4 +1,6 @@
-(ns running.util)
+(ns running.util
+  (:require [cljs-time.format :as format]
+            [cljs-time.coerce :as c]))
 
 (defn format-date [date]
   ;(format/unparse (format/formatter "yyyy-MM-dd")
