@@ -1,6 +1,7 @@
 (ns running.core
   (:require [reagent.core :as r]
             [reagent-modals.modals :as modals]
+            [running.util :refer [format-date]]
             [clojure.string :as string]
             [cljs-time.format :as format]
             [cljs-time.coerce :as c]
@@ -168,14 +169,10 @@
 
 (defn home-page []
   [:div.container
+   [modals/modal-window]
    (if (not (seq (:user @app-state)))
      (login-form)
      (run-form "runform"))])
-
-(defn format-date [date]
-  ;(format/unparse (format/formatter "yyyy-MM-dd")
-  ;           (c/from-date date))
-  (str date))
 
 (defn update-sort-value [new-val]
   (if (= new-val (:sort-val @app-state))
