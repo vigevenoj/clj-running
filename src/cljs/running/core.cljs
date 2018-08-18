@@ -103,7 +103,8 @@
    [:label "Password: "]
    [:input {:type "password"
             :name "password"
-            :id "password"}]
+            :id "password"
+            :placeholder "Password"}]
    [:button {:type :submit} "Login"]])
 
 (defn run-form [id]
