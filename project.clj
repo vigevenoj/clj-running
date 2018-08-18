@@ -23,6 +23,7 @@
                  [metosin/muuntaja "0.5.0"]
                  [metosin/ring-http-response "0.9.0"]
                  [mount "0.1.12"]
+                 [org.clojars.frozenlock/reagent-modals "0.2.8"]
                  [org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.339" :scope "provided"]
                  [org.clojure/tools.cli "0.3.7"]
