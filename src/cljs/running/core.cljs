@@ -1,6 +1,7 @@
 (ns running.core
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
+            [day8.re-frame.http-fx]
             [reagent-modals.modals :as modals]
             [running.util :refer [format-date format-duration]]
             [running.events] ; Needed so the closure compiler loads it
@@ -32,7 +33,7 @@
    [:a.nav-link {:href uri} title]])
 
 (defn logout-handler [_]
-  (.log js/console (str "Logging user " (:user-id (:user @app-state)) "out of the application"))
+  (.log js/console (str "Logging user " (:user-id (:user @app-state)) " out of the application"))
   (swap! app-state assoc :user {}))
 
 (defn logout-link []
@@ -197,21 +198,23 @@
 (defn run-display-table-ui
   "Render a table of runs"
   [data]
-  [:table.runningData
-   [:thead
-    [:tr
-     [:th {:width "200" :on-click #(update-sort-value :rdate) } "Date"]
-     [:th {:width "200" } "Time of Day"]
-     [:th {:width "200" } "Distance"]
-     [:th "Units"]
-     [:th {:width "200" :on-click #(update-sort-value :elapsed) } "Elapsed"]
-     [:th {:width "200" } "Comment"]
-     [:th {:width "200" } "Effort"]]]
-   [:tbody
-    (when (seq data)
-      (for [r (sorted-runs data)]
-        ^{:key (:runid r)}
-        [run-row-ui r]))]])
+  (r/with-let [data (r/atom data)]
+              [:table.runningData
+               [:thead
+                [:tr
+                 [:th {:width "200" :on-click #(update-sort-value :rdate) } "Date"]
+                 [:th {:width "200" } "Time of Day"]
+                 [:th {:width "200" } "Distance"]
+                 [:th "Units"]
+                 [:th {:width "200" :on-click #(update-sort-value :elapsed) } "Elapsed"]
+                 [:th {:width "200" } "Comment"]
+                 [:th {:width "200" } "Effort"]]]
+               [:tbody
+                (when (seq data)
+                  (for [r (sorted-runs data)]
+                    ^{:key (:runid r)}
+                    [run-row-ui r]))]]))
+
 
 (defn get-runs
   "Get all runs"
@@ -304,7 +307,7 @@
 ;  (GET "/docs" {:handler #(swap! session assoc :docs %)}))
 
 (defn mount-components []
-  (r/render [#'navbar] (.getElementById js/document "navbar"))
+  ;(r/render [#'navbar] (.getElementById js/document "navbar"))
   (r/render [#'page] (.getElementById js/document "app")))
 
 (defn init! []
