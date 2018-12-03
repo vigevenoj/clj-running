@@ -160,12 +160,13 @@
   (conman/with-transaction [*db*]
                            (let [existing-user (get-user-by-name {:name name})
                                  user-exists? (not (empty? existing-user))
-                                 {:keys [user-id]} (if user-exists?
+                                 {:keys [id]} (if user-exists?
                                                     existing-user
-                                                    (create-user! {:name name
+                                                    (create-user! {:id "1"
+                                                                   :name name
                                                                    :email email
                                                                    :admin admin
-                                                                   :is-active is-active
+                                                                   :is-active true
                                                                    :pass pass}))]
                              (when user-exists?
                                (if update-password?
@@ -175,15 +176,15 @@
                                                                            :pass
                                                                            :admin
                                                                            :is-active
-                                                                           :user-id])))
-                                 (update-user! {:user-id user-id
+                                                                           :id])))
+                                 (update-user! {:id id
                                                 :name name
                                                 :email email
                                                 :admin admin
                                                 :is-active is-active})))
                              (select-keys
                                (get-user-by-name {:name name})
-                               [:user-id
+                               [:id
                                 :name
                                 :email
                                 :admin

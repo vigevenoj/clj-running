@@ -5,8 +5,9 @@
             [clojure.java.jdbc :as jdbc]
             [running.config :refer [env]]
             [mount.core :as mount]
-            ;[clj-time.coerce :as c]
-            [java-time :as jt]))
+    ;[clj-time.coerce :as c]
+            [java-time :as jt]
+            [buddy.hashers :as hashers]))
 
 (use-fixtures
   :once
@@ -23,18 +24,17 @@
     (is (= 1 (db/create-user!
                t-conn
                {:id         "1"
-                :first_name "Sam"
-                :last_name  "Smith"
+                :name "samsmith"
                 :email      "sam.smith@example.com"
-                :pass       "pass"})))
-    (is (= {:id         "1"
-            :first_name "Sam"
-            :last_name  "Smith"
-            :email      "sam.smith@example.com"
-            :pass       "pass"
-            :admin      nil
-            :last_login nil
-            :is_active  nil}
+                :pass       (hashers/encrypt "pass")
+                :is-active true})))
+    (is (= {:id    "1"
+            :name  "samsmith"
+            :email "sam.smith@example.com"
+            :pass  (hashers/encrypt "pass")
+            :admin nil
+            ;:last_login nil
+            :is-active true}
            (db/get-user t-conn {:id "1"})))))
 
 (deftest test-pginterval-duration-conversion

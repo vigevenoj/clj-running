@@ -6,7 +6,7 @@
             [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]
             [ring.middleware.webjars :refer [wrap-webjars]]
             [muuntaja.core :as muuntaja]
-            [muuntaja.format.json :refer [json-format]]
+            [muuntaja.format.json :as json-format]
             [muuntaja.format.transit :as transit-format]
             [muuntaja.middleware :refer [wrap-format wrap-params]]
             [running.config :refer [env]]
