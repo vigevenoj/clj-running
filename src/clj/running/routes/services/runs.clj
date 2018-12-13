@@ -99,6 +99,45 @@
                           (internal-server-error)))))))
 
 
+(handler rolling-period-distance [period units]
+         (case period
+           "week" (do
+                    (try
+                      (ok (db/get-rolling-week-distance {:units units}))
+                      (catch Exception e
+                        (do
+                          (log/error (.printStackTrace e))
+                          (internal-server-error)))))
+           "month" (do
+                     (try
+                       (ok (db/get-rolling-month-distance {:units units}))
+                       (catch Exception e
+                         (do
+                           (log/error (.printStackTrace e))
+                           (internal-server-error)))))
+           "90" (do
+                  (try
+                    (ok (db/get-rolling-90day-distance {:units units}))
+                    (catch Exception e
+                      (do
+                        (log/error (.printStackTrace e))
+                        (internal-server-error)))))
+           "180" (do
+                   (try
+                     (ok (db/get-rolling-180day-distance {:units units}))
+                     (catch Exception e
+                       (do
+                         (log/error (.printStackTrace e))
+                         (internal-server-error)))))
+           "year" (do
+                    (try
+                      (ok (db/get-rolling-year-distance {:units units}))
+                      (catch Exception e
+                        (do
+                          (log/error (.printStackTrace e))
+                          (internal-server-error)))))))
+
+
 ;(handler delete-run! [runid]
 ;  (ok (db/delete-run! {:runid runid})))
 

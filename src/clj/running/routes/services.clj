@@ -281,9 +281,4 @@
           :summary "Get information about runs during the past [week|month|90 days|180 days|year]"
           ; todo extract this case statement into something in the services.runs namespace
           ; like the current distance periods above
-          (case period
-            "week" (not-implemented "not implemented")
-            "month" (not-implemented "not implemented")
-            "90" (not-implemented "not implemented")
-            "180" (not-implemented "not implemented")
-            "year" (not-implemented "not implemented"))))))))
+          (runs/rolling-period-distance period units)))))))

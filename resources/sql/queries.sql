@@ -133,3 +133,38 @@ from runs r, unit_conversion uc
 where extract(year from r.rdate) = extract(year from now())
 and extract(week from r.rdate) = extract(week from now())
 and uc.from_u = r.units and uc.to_u = :units;
+
+-- :name get-rolling-week-distance :? :*
+-- :doc get the cumulative distance over the last week
+select sum(r.distance*uc.factor) as distance
+from runs r, unit_conversion uc
+where rdate >= current_date - interval '1 week'
+and uc.from_u = r.units and uc.to_u = :units
+
+-- :name get-rolling-month-distance :? :*
+-- :doc get the cumulative distance over the last month
+select sum(r.distance*uc.factor) as distance
+from runs r, unit_conversion uc
+where rdate >= current_date - interval '1 month'
+and uc.from_u = r.units and uc.to_u = :units
+
+-- :name get-rolling-90day-distance :? :*
+-- :doc get the cumulative distance over the 90 days
+select sum(r.distance*uc.factor) as distance
+from runs r, unit_conversion uc
+where rdate >= current_date - interval '90 days'
+and uc.from_u = r.units and uc.to_u = :units
+
+-- :name get-rolling-180day-distance :? :*
+-- :doc get the cumulative distance over the last 180 days
+select sum(r.distance*uc.factor) as distance
+from runs r, unit_conversion uc
+where rdate >= current_date - interval '180 days'
+and uc.from_u = r.units and uc.to_u = :units
+
+-- :name get-rolling-year-distance :? :*
+-- :doc get the cumulative distance over the last year
+select sum(r.distance*uc.factor) as distance
+from runs r, unit_conversion uc
+where rdate >= current_date - interval '1 year'
+and uc.from_u = r.units and uc.to_u = :units
