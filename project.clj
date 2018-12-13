@@ -20,6 +20,7 @@
                  [luminus/ring-ttl-session "0.3.2"]
                  [markdown-clj "1.0.5"]
                  [metosin/compojure-api "2.0.0-alpha21"]
+                 [metosin/jsonista "0.2.2"]
                  [metosin/muuntaja "0.6.1"]
                  [metosin/ring-http-response "0.9.1"]
                  [mount "0.1.14"]
