@@ -26,16 +26,16 @@
                {:id         "1"
                 :name "samsmith"
                 :email      "sam.smith@example.com"
-                :pass       (hashers/encrypt "pass")
+                :pass       (hashers/derive "pass")
                 :is-active true})))
     (is (= {:id    "1"
             :name  "samsmith"
             :email "sam.smith@example.com"
-            :pass  (hashers/encrypt "pass")
+            ;:pass  (hashers/derive "pass")
             :admin nil
             ;:last_login nil
             :is-active true}
-           (db/get-user t-conn {:id "1"})))))
+           (dissoc (db/get-user t-conn {:id "1"}) :pass :last-login)))))
 
 (deftest test-pginterval-duration-conversion
   ())

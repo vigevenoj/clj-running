@@ -87,7 +87,7 @@
            (db/create-user!
              (-> user
                  (dissoc :pass-confirm)
-                 (update-in [:pass] hashers/encrypt)))))
+                 (update-in [:pass] hashers/derive)))))
 
 (handler update-user! [{:keys [pass] :as user}]
          (if-let [errors (v/validate-update-user user)]
@@ -97,5 +97,5 @@
            (ok
              {:user
               (db/update-user! (cond-> user
-                                       pass (update :pass hashers/encrypt)
+                                       pass (update :pass hashers/derive)
                                        pass (assoc :update-password? true)))})))
