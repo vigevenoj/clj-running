@@ -168,3 +168,11 @@ select sum(r.distance*uc.factor) as distance
 from runs r, unit_conversion uc
 where rdate >= current_date - interval '1 year'
 and uc.from_u = r.units and uc.to_u = :units
+
+-- :name get-rolling-distance :? :*
+-- :doc get the cumulative distance over the last period
+-- https://github.com/layerware/hugsql/issues/35
+select sum(r.distance*uc.factor) as distance
+from runs r, unit_conversion uc
+where rdate >= current_date - :period::interval as period
+and uc.from_u = r.units and uc.to_u = :units
