@@ -19,7 +19,7 @@
       (dissoc user :pass))))
 
 (def User
-  {:user-id s/Int
+  {:id s/Int
    :name (s/maybe s/Str)
    :email (s/maybe s/Str)
    :admin s/Bool
