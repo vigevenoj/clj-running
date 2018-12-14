@@ -100,42 +100,19 @@
 
 
 (handler rolling-period-distance [period units]
-         (case period
-           "week" (do
-                    (try
-                      (ok (db/get-rolling-week-distance {:units units}))
-                      (catch Exception e
-                        (do
-                          (log/error (.printStackTrace e))
-                          (internal-server-error)))))
-           "month" (do
-                     (try
-                       (ok (db/get-rolling-month-distance {:units units}))
-                       (catch Exception e
-                         (do
-                           (log/error (.printStackTrace e))
-                           (internal-server-error)))))
-           "90" (do
-                  (try
-                    (ok (db/get-rolling-90day-distance {:units units}))
-                    (catch Exception e
-                      (do
-                        (log/error (.printStackTrace e))
-                        (internal-server-error)))))
-           "180" (do
-                   (try
-                     (ok (db/get-rolling-180day-distance {:units units}))
-                     (catch Exception e
-                       (do
-                         (log/error (.printStackTrace e))
-                         (internal-server-error)))))
-           "year" (do
-                    (try
-                      (ok (db/get-rolling-year-distance {:units units}))
-                      (catch Exception e
-                        (do
-                          (log/error (.printStackTrace e))
-                          (internal-server-error)))))))
+         (do
+           (try
+             (case period
+               "week" (ok (db/get-rolling-period-distance {:period "1 week" :units units}))
+               "month" (ok (db/get-rolling-period-distance {:period "1 month" :units units}))
+               "90" (ok (db/get-rolling-period-distance {:period "90 days" :units units}))
+               "180" (ok (db/get-rolling-period-distance {:period "180 days" :units units}))
+               "year" (ok (db/get-rolling-period-distance {:period "1 year" :units units}))
+               (bad-request))
+             (catch Exception e
+               (do
+                 (log/error (.printStackTrace e))
+                 (internal-server-error))))))
 
 
 ;(handler delete-run! [runid]
