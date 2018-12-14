@@ -75,44 +75,31 @@
 
 
 (handler current-period-distance [period units]
-         (case period
-           "year" (do
-                    (try
-                      (ok (db/get-current-year-distance {:units units}))
-                      (catch Exception e
-                        (do
-                          (log/error (.printStackTrace e))
-                          (internal-server-error)))))
-           "month" (do
-                     (try
-                       (ok (db/get-current-month-distance {:units units}))
-                       (catch Exception e
-                         (do
-                           (log/error (.printStackTrace e))
-                           (internal-server-error)))))
-           "week" (do
-                    (try
-                      (ok (db/get-current-week-distance {:units units}))
-                      (catch Exception e
-                        (do
-                          (log/error (.printStackTrace e))
-                          (internal-server-error)))))))
+         (try
+            (case period
+              "year" (ok (db/get-current-year-distance {:units units}))
+              "month" (ok (db/get-current-month-distance {:units units}))
+              "week" (ok (db/get-current-week-distance {:units units}))
+              (bad-request))
+            (catch Exception e ; likely org.postgresql.util.PSQLException but really we handle anything the same way
+              (do
+                (log/error (.printStackTrace e))
+                (internal-server-error)))))
 
 
 (handler rolling-period-distance [period units]
-         (do
-           (try
-             (case period
-               "week" (ok (db/get-rolling-period-distance {:period "1 week" :units units}))
-               "month" (ok (db/get-rolling-period-distance {:period "1 month" :units units}))
-               "90" (ok (db/get-rolling-period-distance {:period "90 days" :units units}))
-               "180" (ok (db/get-rolling-period-distance {:period "180 days" :units units}))
-               "year" (ok (db/get-rolling-period-distance {:period "1 year" :units units}))
-               (bad-request))
-             (catch Exception e
-               (do
-                 (log/error (.printStackTrace e))
-                 (internal-server-error))))))
+         (try
+           (case period
+             "week" (ok (db/get-rolling-period-distance {:period "1 week" :units units}))
+             "month" (ok (db/get-rolling-period-distance {:period "1 month" :units units}))
+             "90" (ok (db/get-rolling-period-distance {:period "90 days" :units units}))
+             "180" (ok (db/get-rolling-period-distance {:period "180 days" :units units}))
+             "year" (ok (db/get-rolling-period-distance {:period "1 year" :units units}))
+             (bad-request))
+           (catch Exception e ; likely org.postgresql.util.PSQLException but really we handle anything the same way
+             (do
+               (log/error (.printStackTrace e))
+               (internal-server-error)))))
 
 
 ;(handler delete-run! [runid]
