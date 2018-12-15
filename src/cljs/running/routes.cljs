@@ -21,26 +21,7 @@
   (defroute "/recent" []
             (re-frame/dispatch [:set-active-page :running-recent]))
   (defroute "/latest" []
-            (re-frame/dispatch [:set-active-page :latest]))
-  )
-
-;(secretary/defroute "/" []
-;                    (swap! session assoc :page :home))
-;
-;(secretary/defroute "/about" []
-;                    (swap! session assoc :page :about))
-;
-;(secretary/defroute "/running" []
-;                    (swap! session assoc :page :running-page))
-;
-;(secretary/defroute "/recent" []
-;                    (swap! session assoc :page :running-recent))
-;
-;(secretary/defroute "/graph" []
-;                    (swap! session assoc :page :running-graph))
-;
-;(secretary/defroute "/latest" []
-;                    (swap! session assoc :page :latest))
+            (re-frame/dispatch [:set-active-page :latest])))
 
 ;; -------------------------
 ;; History
