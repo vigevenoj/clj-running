@@ -13,7 +13,8 @@
             [markdown.core :refer [md->html]]
             [running.ajax :refer [load-interceptors!]]
             [running.routes :as routes]
-            [ajax.core :refer [GET POST]])
+            [running.events :as events]
+            [ajax.core :refer [GET POST]]))
 
 (defonce session (r/atom {:page :home}))
 (defonce app-state (r/atom {:running-data []
