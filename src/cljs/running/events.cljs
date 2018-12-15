@@ -1,6 +1,6 @@
 (ns running.events
   (:require [running.db :as db]
-            [re-frame.core :refer [reg-event-db reg-event-fx inject-cofx path after]]
+            [re-frame.core :refer [dispatch dispatch-sync reg-event-db reg-event-fx]]
             [ajax.core :as ajax]
             [clojure.string :as string]))
 
