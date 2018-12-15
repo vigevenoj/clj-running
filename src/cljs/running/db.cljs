@@ -11,4 +11,5 @@
    :recent {:checked-recent false
             :recent-runs []}
    :latest {:checked-latest false
-            :latest-runs []}})
+            :latest-runs []}
+   :user {}})
