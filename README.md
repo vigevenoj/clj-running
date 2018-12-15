@@ -2,7 +2,7 @@
 
 Basic CRUD app with a REST API for running daata, with some other things bolted on. API lives at `/api/v1/` and has a swagger UI at /swagger-ui. 
 
-Some of the things bolted on are things I ask myself, like "how far have I run this week/month/year?" or "How far have I run in the past week/month/quarter/year?".
+Some of the things bolted on are things I ask myself, like "how far have I run this calendar week/month/year?" or "How far have I run in the past week/month/quarter/year?".
 
 
 There is a front-end to the service as well, but it is a work in progress.
