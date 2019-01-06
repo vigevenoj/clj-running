@@ -67,11 +67,11 @@
          (log/error "Limit is " limit)
          (do
            (try
-             (ok (db/get-latest-runs {:limit limit}))
+             (db/get-latest-runs {:limit limit})
              (catch Exception e
                (do
-                (log/error (.printStackTrace e))
-                (internal-server-error))))))
+                 (log/error (.printStackTrace e))
+                 (internal-server-error))))))
 
 
 (handler current-period-distance [period units]
