@@ -64,6 +64,7 @@ WHERE name = :name
 INSERT INTO runs
 (rdate, timeofday, distance, units, elapsed, effort, comment, shoeid)
 VALUES (:rdate, :timeofday, :distance, :units, :elapsed, :effort, :comment, :shoeid)
+RETURNING runid
 
 -- :name update-run! :! :n
 -- :doc update an existing run
@@ -140,3 +141,16 @@ select coalesce(sum(r.distance*uc.factor), 0) as distance
 from runs r, unit_conversion uc
 where rdate >= current_date - :period::interval
 and uc.from_u = r.units and uc.to_u = :units
+
+
+-- :name get-all-shoes :? *
+-- :doc get all shoes
+select shoeid, name, description, cumulative_distance, cumulative_distance_units, distance_expiration, distance_expiration_units, is_active
+from shoes;
+
+-- :name get-shoe :? :1
+-- :doc get a single shoe by shoeid
+select shoeid, name, description, cumulative_distance, cumulative_distance_units, distance_expiration, distance_expiration_units, is_active
+from shoes
+where shoeid = :shoeid;
+

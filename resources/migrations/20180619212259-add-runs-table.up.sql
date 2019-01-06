@@ -12,7 +12,7 @@ CREATE SEQUENCE public.runs_runid_seq
     CACHE 1;
 
 CREATE TABLE public.runs (
-    runid bigint,
+    runid bigint default nextval('runs_runid_seq') not null,
     rdate date,
     timeofday character varying(4) DEFAULT NULL::character varying,
     distance numeric(6,2) DEFAULT NULL::numeric,
