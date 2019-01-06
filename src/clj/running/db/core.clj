@@ -20,12 +20,12 @@
            (java.time Duration LocalTime)
            (org.postgresql.util PGInterval)))
 (defstate ^:dynamic *db*
-  :start (if-let [jdbc-url (env :database-url)]
-           (conman/connect! {:jdbc-url jdbc-url})
-           (do
-             (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
-             *db*))
-  :stop (conman/disconnect! *db*))
+          :start (if-let [jdbc-url (env :database-url)]
+                   (conman/connect! {:jdbc-url jdbc-url})
+                   (do
+                     (log/warn "database connection URL was not found, please set :database-url in your config, e.g: dev-config.edn")
+                     *db*))
+          :stop (conman/disconnect! *db*))
 
 (conman/bind-connection *db* "sql/queries.sql")
 
@@ -58,7 +58,7 @@
 
   PGobject
   (result-set-read-column [pgobj _metadata _index]
-    (let [type  (.getType pgobj)
+    (let [type (.getType pgobj)
           value (.getValue pgobj)]
       (case type
         "json" (parse-string value true)
@@ -67,15 +67,15 @@
         value))))
 
 (defn to-pg-json [value]
-      (doto (PGobject.)
-            (.setType "jsonb")
-            (.setValue (generate-string value))))
+  (doto (PGobject.)
+    (.setType "jsonb")
+    (.setValue (generate-string value))))
 
 (extend-type clojure.lang.IPersistentVector
   jdbc/ISQLParameter
   (set-parameter [v ^java.sql.PreparedStatement stmt ^long idx]
-    (let [conn      (.getConnection stmt)
-          meta      (.getParameterMetaData stmt)
+    (let [conn (.getConnection stmt)
+          meta (.getParameterMetaData stmt)
           type-name (.getParameterTypeName meta idx)]
       (if-let [elem-type (when (= (first type-name) \_) (apply str (rest type-name)))]
         (.setObject stmt idx (.createArrayOf conn elem-type (to-array v)))
@@ -110,12 +110,12 @@
   "Convert from a stringified duration like PT1H30M6S to a java.time.Duration"
   [string-duration]
   (try
-     (Duration/parse string-duration)
-     (catch DateTimeParseException e
-       (try
-         (hhmmss-to-duration string-duration)
-         (catch DateTimeParseException e
-           (log/warn (str "Unable to parse " string-duration " as duration")))))))
+    (Duration/parse string-duration)
+    (catch DateTimeParseException e
+      (try
+        (hhmmss-to-duration string-duration)
+        (catch DateTimeParseException e
+          (log/warn (str "Unable to parse " string-duration " as duration")))))))
 
 (defn duration-to-pginterval [^Duration duration]
   "Convert from a java.time.Duration to a postgresql PGInterval"
@@ -123,7 +123,7 @@
     (PGInterval. 0 0 0 (quot seconds 3600) (quot (rem seconds 3600) 60) (rem seconds 60))))
 
 (defn string-duration-to-pginterval [string-duration]
-  (duration-to-pginterval(string-duration-to-duration string-duration)))
+  (duration-to-pginterval (string-duration-to-duration string-duration)))
 
 (extend-protocol jdbc/IResultSetReadColumn
   org.postgresql.util.PGInterval
@@ -161,13 +161,13 @@
                            (let [existing-user (get-user-by-name {:name name})
                                  user-exists? (not (empty? existing-user))
                                  {:keys [id]} (if user-exists?
-                                                    existing-user
-                                                    (create-user! {:id "1"
-                                                                   :name name
-                                                                   :email email
-                                                                   :admin admin
-                                                                   :is-active true
-                                                                   :pass pass}))]
+                                                existing-user
+                                                (create-user! {:id        "1"
+                                                               :name      name
+                                                               :email     email
+                                                               :admin     admin
+                                                               :is-active true
+                                                               :pass      pass}))]
                              (when user-exists?
                                (if update-password?
                                  (update-user-with-pass! (-> user
@@ -177,10 +177,10 @@
                                                                            :admin
                                                                            :is-active
                                                                            :id])))
-                                 (update-user! {:id id
-                                                :name name
-                                                :email email
-                                                :admin admin
+                                 (update-user! {:id        id
+                                                :name      name
+                                                :email     email
+                                                :admin     admin
                                                 :is-active is-active})))
                              (select-keys
                                (get-user-by-name {:name name})
