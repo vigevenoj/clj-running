@@ -23,7 +23,7 @@
         (if (and (string? x) (or
                                (re-matches iso-duration-regex x)
                                (re-matches hhmmss-regex x)))
-                 db/string-duration-to-duration x)))))
+          db/string-duration-to-duration x)))))
 
 ; A schema for runs
 (s/defschema Run
@@ -38,27 +38,27 @@
    (s/optional-key :shoeid)   (s/maybe s/Num)})
 
 (s/defschema RunResult
-  {(s/optional-key :run) Run
+  {(s/optional-key :run)   Run
    (s/optional-key :error) s/Str})
 
 (s/defschema RunsResult
-  {(s/optional-key :runs) [Run]
+  {(s/optional-key :runs)  [Run]
    (s/optional-key :error) s/Str})
 
 (handler all-runs []
-  (ok (db/get-runs)))
+         (ok (db/get-runs)))
 
 (handler run [runid]
-  (ok (db/get-run {:runid runid})))
+         (ok (db/get-run {:runid runid})))
 
 (handler runs-by-date [rdate]
-  (do
-    (try
-      (ok (db/get-runs-by-date {:rdate (jt/to-sql-date rdate)}))
-      (catch Exception e
-        (do
-          (log/error (.getMessage e))
-          (internal-server-error))))))
+         (do
+           (try
+             (ok (db/get-runs-by-date {:rdate (jt/to-sql-date rdate)}))
+             (catch Exception e
+               (do
+                 (log/error (.getMessage e))
+                 (internal-server-error))))))
 
 (handler recent-runs [days]
          (ok (db/get-recent-runs {:limit (str days " days")})))
@@ -76,15 +76,15 @@
 
 (handler current-period-distance [period units]
          (try
-            (case period
-              "year" (ok (db/get-current-year-distance {:units units}))
-              "month" (ok (db/get-current-month-distance {:units units}))
-              "week" (ok (db/get-current-week-distance {:units units}))
-              (bad-request))
-            (catch Exception e ; likely org.postgresql.util.PSQLException but really we handle anything the same way
-              (do
-                (log/error (.printStackTrace e))
-                (internal-server-error)))))
+           (case period
+             "year" (ok (db/get-current-year-distance {:units units}))
+             "month" (ok (db/get-current-month-distance {:units units}))
+             "week" (ok (db/get-current-week-distance {:units units}))
+             (bad-request))
+           (catch Exception e                               ; likely org.postgresql.util.PSQLException but really we handle anything the same way
+             (do
+               (log/error (.printStackTrace e))
+               (internal-server-error)))))
 
 
 (handler rolling-period-distance [period units]
@@ -96,7 +96,7 @@
              "180" (ok (db/get-rolling-period-distance {:period "180 days" :units units}))
              "year" (ok (db/get-rolling-period-distance {:period "1 year" :units units}))
              (bad-request))
-           (catch Exception e ; likely org.postgresql.util.PSQLException but really we handle anything the same way
+           (catch Exception e                               ; likely org.postgresql.util.PSQLException but really we handle anything the same way
              (do
                (log/error (.printStackTrace e))
                (internal-server-error)))))
@@ -106,8 +106,8 @@
 ;  (ok (db/delete-run! {:runid runid})))
 
 (handler filtered-runs [before-date after-date min-distance max-distance]
-         (ok (db/get-filtered-runs {:before-date (jt/to-sql-date :before-date)
-                                    :after-date (jt/to-sql-date :after-date)
+         (ok (db/get-filtered-runs {:before-date  (jt/to-sql-date :before-date)
+                                    :after-date   (jt/to-sql-date :after-date)
                                     :min-distance :min-distance
                                     :max-distance :max-distance})))
 
