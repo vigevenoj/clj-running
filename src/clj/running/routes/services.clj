@@ -8,6 +8,7 @@
             [java-time :as jt]
             [running.routes.services.runs :as runs]
             [running.routes.services.shoes :as shoes]
+            [running.routes.services.goals :as goals]
             [running.routes.services.auth :as auth]
             [clojure.tools.logging :as log]
             [muuntaja.core :as muuntaja]
@@ -188,7 +189,7 @@
                             (ok (shoes/all-shoes)))
                           (GET "/:shoeid" []
                             :return shoes/ShoeResult
-                            :path-params [shoeid :- Long]
+                            :path-params [shoeid :- s/Int]
                             :summary "Return a shoe by ID"
                             (let [shoe (shoes/shoe shoeid)]
                               (if (nil? shoe)
@@ -215,6 +216,30 @@
                             :auth-rules authenticated?
                             :current-user user
                             (not-implemented "not implemented")))
+
+                        (context "/goals" []
+                          :tags ["Goals"]
+                          (GET "/" []
+                            :return [goals/Goal]
+                            :summary "List goals"
+                            (ok (goals/all-goals)))
+                          (GET "/:goalid" []
+                            :return goals/GoalResult
+                            :path-params [goalid :- s/Int]
+                            :summary "Get a single goal"
+                            (ok (goals/goal-by-id goalid)))
+                          (POST "/" []
+                            ;:body
+                            :summary "Add a new goal"
+                            :current-user user
+                            (not-implemented "todo"))
+                          (PUT "/" []
+                            :summary "Update a goal"
+                            (not-implemented "todo"))
+                          (DELETE "/:goalid" []
+                            :path-params [goalid :- s/Int]
+                            :summary "Delete a goal"
+                            (not-implemented "todo")))
 
                         (context "/running" []
                           :tags ["Running data"]

@@ -17,7 +17,7 @@
    :cumulative-distance-units DistanceUnits
    :distance-expiration       s/Num
    :distance-expiration-units DistanceUnits
-   :is-active                    s/Bool})
+   :is-active                 s/Bool})
 
 (s/defschema ShoeResult
   {(s/optional-key :shoe)  Shoe
