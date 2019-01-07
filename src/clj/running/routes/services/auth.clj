@@ -19,20 +19,20 @@
       (dissoc user :pass))))
 
 (def User
-  {:id s/Int
-   :name (s/maybe s/Str)
-   :email (s/maybe s/Str)
-   :admin s/Bool
-   :is-active s/Bool
-   :last-login s/Any
-   (s/optional-key :belongs-to) [(s/maybe s/Str)]
-   (s/optional-key :member-of) [(s/maybe s/Str)]
-   (s/optional-key :account-name) (s/maybe s/Str)
-   (s/optional-key :client-ip) s/Str
+  {:id                              s/Int
+   :name                            (s/maybe s/Str)
+   :email                           (s/maybe s/Str)
+   :admin                           s/Bool
+   :is-active                       s/Bool
+   :last-login                      s/Any
+   (s/optional-key :belongs-to)     [(s/maybe s/Str)]
+   (s/optional-key :member-of)      [(s/maybe s/Str)]
+   (s/optional-key :account-name)   (s/maybe s/Str)
+   (s/optional-key :client-ip)      s/Str
    (s/optional-key :source-address) s/Str})
 
 (def LoginResponse
-  {(s/optional-key :user) User
+  {(s/optional-key :user)  User
    (s/optional-key :error) s/Str})
 
 (def LogoutResponse
@@ -41,7 +41,7 @@
 (defn local-login [username pass]
   (when-let [user (authenticate-local username pass)]
     (-> user
-        (merge {:member-of []
+        (merge {:member-of    []
                 :account-name username}))))
 
 (defn login [username, pass {:keys [remote-addr server-name session]}]
@@ -49,7 +49,7 @@
     (let [user (-> user
                    (dissoc :pass)
                    (merge
-                     {:client-ip remote-addr
+                     {:client-ip      remote-addr
                       :source-address server-name}))]
       (log/info "user:" username "successfully logged in from " remote-addr server-name)
       (-> {:user user}
