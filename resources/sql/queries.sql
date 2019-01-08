@@ -143,6 +143,12 @@ where rdate >= current_date - :period::interval
 and uc.from_u = r.units and uc.to_u = :units
 
 
+-- :name get-total-cumulative-distance :? :1
+-- :doc get the cumulative total distance of all runs
+SELECT sum(r.distance*uc.factor) as distance
+FROM runs r, unit_conversion uc
+WHERE uc.from_u = r.units AND uc.to_u = :units AND r.distance is not null
+
 -- :name get-all-shoes :? :*
 -- :doc get all shoes
 select shoeid, name, description, cumulative_distance, cumulative_distance_units, distance_expiration, distance_expiration_units, is_active
