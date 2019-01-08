@@ -143,7 +143,7 @@ where rdate >= current_date - :period::interval
 and uc.from_u = r.units and uc.to_u = :units
 
 
--- :name get-all-shoes :? *
+-- :name get-all-shoes :? :*
 -- :doc get all shoes
 select shoeid, name, description, cumulative_distance, cumulative_distance_units, distance_expiration, distance_expiration_units, is_active
 from shoes;
@@ -154,3 +154,33 @@ select shoeid, name, description, cumulative_distance, cumulative_distance_units
 from shoes
 where shoeid = :shoeid;
 
+
+-- :name create-goal! ! :! :n
+-- :doc create a new goal
+INSERT INTO goals
+(start_date, end_date, is_met, type, distance, distance_units, pace)
+VALUES
+(:start_date, :end_date, :is_met, :type, :distance, :distance_units, :pace)
+RETURNING goalid;
+
+-- :name get-all-goals :? :*
+-- :doc get all goals
+SELECT goalid, start_date, end_date, is_met, type, distance, distance_units, pace
+FROM goals;
+
+-- :name get-goal :? :1
+-- :doc get a single goal by its ID
+SELECT goalid, start_date, end_date, is_met, type, distance, distance_units, pace
+FROM goals
+WHERE goalid = :goalid;
+
+-- :name update-goal! :! :n
+-- :doc update an existing goal
+UPDATE goals
+SET start_date = :start_date, end_date = :end_date, is_met = :is_met, type = :type, distance = :distance,
+distance_units = :distance_units, pace = :pace
+WHERE goalid = :goalid;
+
+-- :name delete-goal! :! :n
+-- :doc delete a goal by its ID
+DELETE FROM goals WHERE goalid = :goalid;
