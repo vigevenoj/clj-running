@@ -210,3 +210,17 @@ WHERE goalid = :goalid;
 -- :name delete-goal! :! :n
 -- :doc delete a goal by its ID
 DELETE FROM goals WHERE goalid = :goalid;
+
+-- distance goal progress query
+-- :name get-goal-progress :? :1
+select sum(r.distance * uc.factor) as distance,
+    g.distance as goal_distance,
+    sum(r.distance * uc.factor) / g.distance * 100 as percent_to_goal,
+    g.end_date - g.start_date as goal_period_length,
+    cast(current_date - g.start_date as decimal) / (g.end_date - g.start_date) * 100 as goal_period_elapsed_percentage
+from runs r, unit_conversion uc, goals g
+where uc.from_u = r.units
+    and uc.to_u = g.distance_units -- i think this is right?
+    and g.goalid = :goalid
+    and r.distance is not null
+    and rdate >= g.start_date and rdate <= g.end_date;
