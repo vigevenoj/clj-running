@@ -227,7 +227,10 @@
                             :return goals/GoalResult
                             :path-params [goalid :- s/Int]
                             :summary "Get a single goal"
-                            (ok (goals/goal-by-id goalid)))
+                            (let [goal (goals/goald-by-id goalid)]
+                              (if (nil? goal)
+                                (not-found {:error "not found"})
+                                (ok {:goal goal}))))
                           (POST "/" []
                             ;:body
                             :summary "Add a new goal"
@@ -265,7 +268,9 @@
                             (ok (db/get-filtered-runs {:before-date  before
                                                        :after-date   after
                                                        :min-distance longerThan
-                                                       :max-distance shorterThan})))
+                                                       :max-distance shorterThan
+                                                       :faster-than fasterThan
+                                                       :slower-than slowerThan})))
                           (GET "/latest" []
                             :query-params [{limit :- s/Int 1}]
                             :return [runs/Run]
@@ -286,7 +291,10 @@
                               :return runs/Run
                               :path-params [runid :- Long]
                               :summary "Return a run by ID"
-                              (runs/run runid))
+                              (let [run (runs/run runid)]
+                                (if (nil? run)
+                                  (not-found {:error "not found"})
+                                  (ok run))))
                             (POST "/" []
                               :body [run runs/Run]
                               ;:body-params [rdate :- s/Any
@@ -301,7 +309,7 @@
                               :summary "Add a new run"
                               :auth-rules authenticated?
                               :current-user user            ; todo add column for userid into run table
-                              (ok run))
+                              (ok run))        ; todo: actually save this to the db!
                             (PUT "/" []
                               :body [run runs/Run]
                               ;:body-params [runid :- s/Int
@@ -317,7 +325,7 @@
                               :summary "Update an existing run"
                               :auth-rules authenticated?
                               :current-user user            ; todo add column for userid into run table
-                              (ok run))
+                              (ok run))        ; todo: actually save this to the db!
                             (DELETE "/:runid" []
                               :path-params [runid :- s/Int]
                               :return s/Int
