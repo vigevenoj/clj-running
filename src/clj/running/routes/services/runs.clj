@@ -5,8 +5,7 @@
             [running.db.core :as db]
             [running.routes.services.common :refer [handler]]
             [schema.core :as s]
-            [schema.coerce :as coerce])
-  (:import (java.time Duration LocalDate)))
+            [schema.coerce :as coerce]))
 
 ; define some schema information
 (def TimeOfDay (s/enum "am" "pm" "noon" "night"))
