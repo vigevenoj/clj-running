@@ -227,7 +227,7 @@
                             :return goals/GoalResult
                             :path-params [goalid :- s/Int]
                             :summary "Get a single goal"
-                            (let [goal (goals/goald-by-id goalid)]
+                            (let [goal (goals/goal-by-id goalid)]
                               (if (nil? goal)
                                 (not-found {:error "not found"})
                                 (ok {:goal goal}))))
