@@ -6,7 +6,6 @@
   :dependencies [[bouncer "1.0.1"]
                  [buddy "2.0.0"]
                  [camel-snake-kebab "0.4.0"]
-                 ;[clj-time "0.14.4"]
                  [cljs-ajax "0.8.0"]
                  [clojure.java-time "0.3.2"]
                  [compojure "1.6.1"]
