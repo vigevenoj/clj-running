@@ -211,8 +211,8 @@ WHERE goalid = :goalid;
 -- :doc delete a goal by its ID
 DELETE FROM goals WHERE goalid = :goalid;
 
--- distance goal progress query
 -- :name get-goal-progress :? :1
+-- :doc get current goal progress
 select sum(r.distance * uc.factor) as distance,
     g.distance as goal_distance,
     sum(r.distance * uc.factor) / g.distance * 100 as percent_to_goal,
@@ -224,3 +224,12 @@ where uc.from_u = r.units
     and g.goalid = :goalid
     and r.distance is not null
     and rdate >= g.start_date and rdate <= g.end_date;
+
+-- :name get-mileage-goal-progress-history :? :*
+-- :doc get daily history of progress towards a mileage goal, in miles
+select date_trunc('day', dd)::date as the_date,
+    miles, sum(miles) over (order by dd) as total,
+    (sum(miles) over (order by dd)) / :goaltotaldistance * 100 as percent
+from generate_series(:goalstartdate, :goalenddate, '1 day') dd
+left join daily_run_mileage on dd = daily_run_mileage.run_date
+order by dd;
