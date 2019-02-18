@@ -1,4 +1,4 @@
-create sequence if not exists public.goals_goalid_sequence
+create sequence if not exists goals_goalid_seq
     start with 1
     increment by 1
     minvalue 1
