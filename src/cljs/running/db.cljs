@@ -4,7 +4,7 @@
             [re-frame.core :as rf]))
 
 (def default-db
-  {:page :home
+  {:active-page :home
    :running-data []
    :sort-value :runid
    :ascending true

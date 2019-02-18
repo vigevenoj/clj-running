@@ -19,7 +19,7 @@
       (parser/render-file
         template
         (assoc params
-          :page template
+          :active-page template
           :csrf-token *anti-forgery-token*)))
     "text/html; charset=utf-8"))
 

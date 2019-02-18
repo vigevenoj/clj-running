@@ -15,7 +15,7 @@
 (reg-event-fx
   :set-active-page
   (fn [db [_ page]]
-    (assoc db :page page)))
+    (assoc db :active-page page)))
 
 (reg-event-fx
   :login

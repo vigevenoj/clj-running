@@ -4,7 +4,7 @@
             [day8.re-frame.http-fx]
             [reagent-modals.modals :as modals]
             [running.util :refer [format-date format-duration]]
-            [running.events] ; Needed so the closure compiler loads it
+            [running.events :as run-events] ; Needed so the closure compiler loads it
             [running.subscriptions] ; Needed so the closure compiler loads it
             [clojure.string :as string]
             [cognitect.transit :as t]
@@ -13,10 +13,9 @@
             [markdown.core :refer [md->html]]
             [running.ajax :refer [load-interceptors!]]
             [running.routes :as routes]
-            [running.events :as events]
             [ajax.core :refer [GET POST]]))
 
-(defonce session (r/atom {:page :home}))
+(defonce session (r/atom {:active-page :home}))
 (defonce app-state (r/atom {:running-data []
                             :recent-runs []
                             :checked-recent false
@@ -28,7 +27,7 @@
 
 (defn nav-link [uri title page]
   [:li.nav-item
-   {:class (when (= page (:page @session)) "active")
+   {:class (when (= page (:active-page @session)) "active")
     :key page}
    [:a.nav-link {:href uri} title]])
 
@@ -265,7 +264,7 @@
    :latest #'latest-page})
 
 (defn page []
-  [(pages (:page @session))])
+  [(pages (:active-page @session))])
 
 
 
