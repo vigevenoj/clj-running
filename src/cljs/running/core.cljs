@@ -8,8 +8,6 @@
             [running.subscriptions] ; Needed so the closure compiler loads it
             [clojure.string :as string]
             [cognitect.transit :as t]
-            [goog.events :as events]
-            [goog.history.EventType :as HistoryEventType]
             [markdown.core :refer [md->html]]
             [running.ajax :refer [load-interceptors!]]
             [running.routes :as routes]
@@ -278,8 +276,8 @@
   (r/render [#'page] (.getElementById js/document "app")))
 
 (defn init! []
+  (routes/routes)
   (rf/dispatch-sync [:initialize-db])
   (load-interceptors!)
   ;(fetch-docs!)
-  (routes/hook-browser-navigation!)
   (mount-components))

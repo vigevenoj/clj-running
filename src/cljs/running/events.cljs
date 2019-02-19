@@ -1,5 +1,6 @@
 (ns running.events
   (:require [running.db :as db]
+            [running.routes :as routes]
             [re-frame.core :refer [dispatch dispatch-sync reg-event-db reg-event-fx]]
             [ajax.core :as ajax]
             [clojure.string :as string]))
@@ -12,10 +13,14 @@
     db/default-db))
 
 ;; Set which page is active
-(reg-event-fx
-  :set-active-page
-  (fn [db [_ page]]
-    (assoc db :active-page page)))
+;(reg-event-fx
+;  :set-active-page
+;  (fn [db [_ page]]
+;    (assoc db :active-page page)))
+(reg-event-db
+  :change-page
+ (fn [db [_ new-active-page]]
+   (assoc db :active-page new-active-page)))
 
 (reg-event-fx
   :login
