@@ -268,9 +268,6 @@
 
 ;; -------------------------
 ;; Initialize app
-;(defn fetch-docs! []
-;  (GET "/docs" {:handler #(swap! session assoc :docs %)}))
-
 (defn mount-components []
   ;(r/render [#'navbar] (.getElementById js/document "navbar"))
   (r/render [#'page] (.getElementById js/document "app")))
@@ -279,5 +276,4 @@
   (routes/routes)
   (rf/dispatch-sync [:initialize-db])
   (load-interceptors!)
-  ;(fetch-docs!)
   (mount-components))
