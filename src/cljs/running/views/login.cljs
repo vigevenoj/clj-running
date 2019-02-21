@@ -28,6 +28,3 @@
                         :placeholder "Password"
                         :on-change #(swap! params assoc :password (-> % .-target .-value))}]
                [:button {:type :submit} "Login"]]))
-
-(defn login-page []
-  )
