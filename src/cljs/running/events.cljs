@@ -82,9 +82,11 @@
   (fn [{db :db} _]
     {:http {:method :get
             :uri "/api/v1/running/runs"
+            :timeout              5000
+            :format               (ajax/json-request-format)
             :response-format (ajax/json-response-format {:keywords? true})
-            :on-sucess [] ; this is where the state db update should happen
-            :on-failure []}}))
+            :on-sucess [] ; this function is where the state db update should happen
+            :on-failure []}})) ; add a function to handle failure to load runs
 
 ;; -----
 ;; running events
@@ -95,6 +97,8 @@
  (fn [{db :db} _]
    {:http {:method :get
            :uri "/ai/v1/running/recent/90"
-           :response-format :json
-           :on-success [] ; here is where the update should happen
-           :on-failure []}}))
+           :timeout              5000
+           :format               (ajax/json-request-format)
+           :response-format (ajax/json-response-format {:keywords? true})
+           :on-success [] ; add function for where the update should happen
+           :on-failure []}})) ; add function to handle failure to load recent runs
