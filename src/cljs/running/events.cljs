@@ -2,36 +2,41 @@
   (:require [running.db :as db]
             [running.routes :as routes]
             [re-frame.core :refer [dispatch dispatch-sync reg-event-db reg-event-fx]]
+            [day8.re-frame.http-fx ]
             [ajax.core :as ajax]
             [clojure.string :as string]))
 
 
 ;; establish our initial application state
-(reg-event-fx
-  :initialize-db
+(reg-event-db
+  ::initialize-db
   (fn [_ _]
     db/default-db))
 
 ;; Set which page is active
-;(reg-event-fx
-;  :set-active-page
-;  (fn [db [_ page]]
-;    (assoc db :active-page page)))
 (reg-event-db
-  :change-page
+  :set-active-page
  (fn [db [_ new-active-page]]
    (assoc db :active-page new-active-page)))
 
+(reg-event-db
+  :set-error
+ (fn [db [_ error]]
+   (assoc db :error error)))
+
 (reg-event-fx
-  :login
-  (fn [_ [_ username password]]
-       (if (or (string/blank? username) (string/blank? password))
-         {:dispatch [:set-error "Username and password are required."]}
-         {:http {:method ajax/POST
-                 :url "/api/v1/login"
-                 :ajax-map {:params {:username username :pass password}}
-                 :success-event [:handle-login]
-                 :error-event [:handle-login-error]}})))
+ :login
+ (fn [_ [_ username password]]
+   (if (or (string/blank? username) (string/blank? password))
+     {:dispatch [:set-error "Username and password are required."]}
+     {:http-xhrio {:method        :post
+                   :uri          "/api/v1/login"
+                   :params        {:username username :pass password}
+                   :timeout       5000
+                   :format          (ajax/json-request-format)
+                   :response-format (ajax/json-response-format {:keywords? true})
+                   :on-success [:handle-login]
+                   :on-failure   [:handle-login-error]}})))
 
 (reg-event-fx
   :handle-login
@@ -50,16 +55,20 @@
     {:reload-page true}))
 
 (reg-event-fx
-  :logout
-  (fn [_ _]
-    {:http {:method ajax/POST
-            :url "/api/v1/logout"
-            :ignore-response-body true ; might change this if we need the body
-            :success-event [:handle-logout]
-            :error-handler [:handle-logout]}
-     :db db/default-db})) ; clear the database. memory-hole also sets the user to nil explicitly, not sure why
+ :logout
+ (fn [_ _]
+   {:http-xhrio {:method               :post
+                 :url                  "/api/v1/logout"
+                 :ignore-response-body true
+                 ; might change this if we need the body
+                 :timeout              5000
+                 :format               (ajax/json-request-format)
+                 :response-format      (ajax/json-response-format {:keywords? true})
+                 :on-success           [:handle-logout]
+                 :on-failure           [:handle-logout]}
+    :db         db/default-db}))  ; clear the database. memory-hole also sets the user to nil explicitly, not sure why
 
-(reg-event-fx
+(reg-event-db
   :change-sort-field
   (fn [{:keys [db]} [_ field]]
     (if (= field (:sort-value db)) ; there is probably a more re-framey way to do this
@@ -67,14 +76,25 @@
       (swap! db assoc :ascending true))
     (swap! db assoc :sort-value field)))
 
+; This should update the state db on success to set :running-data to the results of the request
 (reg-event-fx
   :load-runs
   (fn [{db :db} _]
     {:http {:method :get
             :uri "/api/v1/running/runs"
             :response-format (ajax/json-response-format {:keywords? true})
-            :on-sucess []
+            :on-sucess [] ; this is where the state db update should happen
             :on-failure []}}))
 
 ;; -----
 ;; running events
+
+; This should update the state db to set :recent :checked-recent to true, and load the runs into :recent :recent-runs
+(reg-event-fx
+  :get-recent-runs
+ (fn [{db :db} _]
+   {:http {:method :get
+           :uri "/ai/v1/running/recent/90"
+           :response-format :json
+           :on-success [] ; here is where the update should happen
+           :on-failure []}}))

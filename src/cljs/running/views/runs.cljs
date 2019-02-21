@@ -1,7 +1,46 @@
 (ns running.views.runs
   (:require [reagent.core :as r]
+            [ajax.core :refer [GET POST]]
             [re-frame.core :refer [dispatch subscribe]]
             [running.util :refer [format-date format-duration]]))
+
+; todo refactor this into an event we dispatch and subscribe to
+;(defn get-latest-runs
+;  "Get the latest [count] runs"
+;  [count]
+;  ;
+;  (GET "/api/v1/running/latest" ; default limit is 1
+;       {:response-format :json
+;        :keywords? true?
+;        :handler #(swap! app-state assoc :latest-runs %)}))
+
+(defn run-form [id]
+  (let [value (atom nil)]
+    [:div.runform
+     [:form {:on-submit (fn [e]
+                          (.preventDefault e)
+                          (.log js/console "run form submitted"))}
+      [:span.rundate
+       [:input {:type "text" :placeholder "Date"}]]
+      [:span
+       [:select
+        [:option "am"]
+        [:option "pm"]
+        [:option "noon"]
+        [:option "night"]]]
+      [:span
+       [:input {:type "text" :placeholder "Distance"}]]
+      [:span
+       [:select {:default-value "miles"}
+        [:option "km"]
+        [:option "m"]
+        [:option "miles"]
+        ]]
+      [:span
+       [:input {:type "text" :placeholder "Elapsed time"}]]
+      [:span
+       [:input {:type "text" :placeholder "Comments"}]]
+      [:button {:type :submit} "Save"]]]))
 
 (defn run-row-ui
   "Display a single run"
@@ -58,3 +97,28 @@
         [:span {:style {:padding-right 2}} (:distance run)]
         [:span {:style {:padding-left 2}} (:units run)]]
        [:span.runcard-duration (format-duration (:elapsed run))]])))
+
+;(defn latest-run-card [data]
+;  []
+;  (let [run (first data)]
+;    (fn []
+;      (when
+;;      (when (and (empty? data) (not (:checked-latest @app-state)))
+;        (do
+;          (get-latest-runs 1)
+;          (swap! app-state assoc :checked-latest true)))
+;      [:div.runcard
+;       {:id (:runid run)
+;        :style  {:border "1px solid black"
+;                 :padding 20
+;                 :margin 10
+;                 :display "inline-block"
+;                 :max-width "50%"
+;                 }}
+;       [:span.runcard-title
+;        [:span.runcard-date {:style {:padding-right 2}} (:rdate run)]
+;        [:span.runcard-tod  {:style {:padding-left 2}}(:timeofday run)]]
+;       [:span.runcard-distance {:style {:display "block"}}
+;        [:span {:style {:padding-right 2}} (:distance run)]
+;        [:span {:style {:padding-left 2}} (:units run)]]
+;       [:span (format-duration (:elapsed run))]])))

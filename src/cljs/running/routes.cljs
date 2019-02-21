@@ -28,7 +28,7 @@
 (defn- dispatch-route [matched-route]
   (let [handler (:handler matched-route)
         params (:route-params matched-route)]
-    (re-frame/dispatch [:change-page handler params])))
+    (re-frame/dispatch [:set-active-page handler params])))
 
 ; add history
 (def history (pushy/pushy dispatch-route parse-url))
