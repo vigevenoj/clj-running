@@ -122,3 +122,7 @@
 ;        [:span {:style {:padding-right 2}} (:distance run)]
 ;        [:span {:style {:padding-left 2}} (:units run)]]
 ;       [:span (format-duration (:elapsed run))]])))
+
+(defn run-index []
+  [:div.container
+   [:div "run index"]])
