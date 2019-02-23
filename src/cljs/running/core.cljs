@@ -40,17 +40,25 @@
 
 (defn navbar []
   [:nav.navbar.navbar-expand-lg
-   [:a.navbar-brand  {:href "#"} "Home"]
+   [:a.navbar-brand  {:href (routes/url-for :home)} "Home"]
    [:div#navbarNav.collapse.navbar-collapse
     [:ul.navbar-nav
+     [:li.nav-item.dropdown
+      [:a.nav-link.dropdown-toggle {:href "#"
+                                    :role "button"
+                                    :data-toggle "dropdown"
+                                    :aria-haspopup "true"
+                                    :aria-expanded "false"} "Runs"]
+      [:div.dropdown-menu
+       [:a.dropdown-item {:href (routes/url-for :run-index)} "Index"]
+       [:a.dropdown-item {:href (routes/url-for :recent-runs)} "Recent"]
+       [:a.dropdown-item {:href (routes/url-for :latest-runs)} "Latest"]]]
+     [:li.nav-item.dropdown
+      [:a.nav-link {:href (routes/url-for :shoe-index)} "Shoes"]]
      [:li.nav-item
-      [:a.nav-link {:href "#"} "Runs"]]
+      [:a.nav-link {:href (routes/url-for :goal-index)} "Goals"]]
      [:li.nav-item
-      [:a.nav-link {:href "#"} "Shoes"]]
-     [:li.nav-item
-      [:a.nav-link {:href "#"} "Goals"]]
-     [:li.nav-item
-      [:a.nav-link {:href "/about"} "About"]]]]]
+      [:a.nav-link {:href (routes/url-for :about)} "About"]]]]]
   )
 
 (defn login-handler [response]
