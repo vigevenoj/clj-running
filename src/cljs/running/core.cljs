@@ -39,25 +39,19 @@
                  :href "#"} "Logout"]])
 
 (defn navbar []
-  [:nav.navbar.navbar-dark.bg-primary.navbar-expand-md
-   {:role "navigation"}
-   [:button.navbar-toggler.hidden-sm-up
-    {:type "button"
-     :data-toggle "collapse"
-     :data-target "#collapsing-navbar"}
-    [:span.navbar-toggler-icon]]
-   [:a.navbar-brand {:href "#/"} "running"]
-   [:div#collapsing-navbar.collapse.navbar-collapse
-    [:ul.nav.navbar-nav.mr-auto
-     [nav-link "#/" "Home" :home]
-     [nav-link "#/about" "About" :about]
-
-       (for [nav-item (list [nav-link "#/running" "Runs" :running-page]
-                            ;[nav-link "#/recent" "Recent" :running-recent]
-                            ;[nav-link "#/graphs" "Graphs" :running-graph]
-                            [nav-link "#/latest" "Latest" :latest]
-                            [logout-link])]
-         ^{:key (str nav-item)} nav-item)]]])
+  [:nav.navbar.navbar-expand-lg
+   [:a.navbar-brand  {:href "#"} "Home"]
+   [:div#navbarNav.collapse.navbar-collapse
+    [:ul.navbar-nav
+     [:li.nav-item
+      [:a.nav-link {:href "#"} "Runs"]]
+     [:li.nav-item
+      [:a.nav-link {:href "#"} "Shoes"]]
+     [:li.nav-item
+      [:a.nav-link {:href "#"} "Goals"]]
+     [:li.nav-item
+      [:a.nav-link {:href "/about"} "About"]]]]]
+  )
 
 (defn login-handler [response]
   (.log js/console (str response))
@@ -71,6 +65,7 @@
   (let [active-page (rf/subscribe [:active-page])]
     (fn []
       [:div#wrapper
+       [navbar]
        (views/active-panel @active-page)])))
 
 
