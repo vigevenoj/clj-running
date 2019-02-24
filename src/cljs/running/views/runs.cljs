@@ -98,6 +98,15 @@
         [:span {:style {:padding-left 2}} (:units run)]]
        [:span.runcard-duration (format-duration (:elapsed run))]])))
 
+(defn mock-card-ui []
+  (let [run {:runid 1
+             :rdate "2019-02-23"
+             :timeofday "pm"
+             :distance "16.4"
+             :units "miles"
+             :elapsed "PT2H30M6S"}]
+    [run-card-ui run]))
+
 ;(defn latest-run-card [data]
 ;  []
 ;  (let [run (first data)]

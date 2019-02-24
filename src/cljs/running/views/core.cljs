@@ -39,6 +39,7 @@
                                       :aria-expanded "false"} "Runs"]
         [:div.dropdown-menu
          [:a.dropdown-item {:href (routes/url-for :run-index)} "Index"]
+         [:a.dropdown-item {:href (routes/url-for :run-page :id 1)} "1"]
          [:a.dropdown-item {:href (routes/url-for :recent-runs)} "Recent"]
          [:a.dropdown-item {:href (routes/url-for :latest-runs)} "Latest"]]]
        [:li.nav-item.dropdown
@@ -72,7 +73,7 @@
 (defmethod active-panel :run-index [] (run-views/run-index))
 (defmethod active-panel :recent-runs [] [:div.container [:div "recent runs"]])
 (defmethod active-panel :latest-runs [] [:div.container [:div "latest runs"]])
-;(defmethod active-panel :run-page [] (run-views/run-card-ui 1))
+(defmethod active-panel :run-page [] (run-views/mock-card-ui))
 (defmethod active-panel :shoe-index [] (shoe-views/shoe-index))
 (defmethod active-panel :goal-index [] (goal-views/goal-index))
 (defmethod active-panel :default [] [:div.container [:div "default text"]])
