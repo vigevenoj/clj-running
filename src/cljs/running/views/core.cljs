@@ -70,6 +70,8 @@
 (defmethod active-panel :home [] (home-page))
 (defmethod active-panel :about [] (about-page))
 (defmethod active-panel :run-index [] (run-views/run-index))
+(defmethod active-panel :recent-runs [] [:div.container [:div "recent runs"]])
+(defmethod active-panel :latest-runs [] [:div.container [:div "latest runs"]])
 ;(defmethod active-panel :run-page [] (run-views/run-card-ui 1))
 (defmethod active-panel :shoe-index [] (shoe-views/shoe-index))
 (defmethod active-panel :goal-index [] (goal-views/goal-index))
