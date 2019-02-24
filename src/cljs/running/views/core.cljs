@@ -67,9 +67,10 @@
 ; https://pupeno.com/2015/08/26/no-hashes-bidirectional-routing-in-re-frame-with-bidi-and-pushy/
 ; uses this technique to dispatch their routes so the right view is returned
 (defmulti active-panel identity)
-(defmethod active-panel :home [] [home-page])
-(defmethod active-panel :about [] [about-page])
-(defmethod active-panel :run-index [] [run-views/run-index]) ; maybe change that to params?
-(defmethod active-panel :shoe-index [] [shoe-views/shoe-index])
-(defmethod active-panel :goal-index [] [goal-views/goal-index])
+(defmethod active-panel :home [] (home-page))
+(defmethod active-panel :about [] (about-page))
+(defmethod active-panel :run-index [] (run-views/run-index))
+;(defmethod active-panel :run-page [] (run-views/run-card-ui 1))
+(defmethod active-panel :shoe-index [] (shoe-views/shoe-index))
+(defmethod active-panel :goal-index [] (goal-views/goal-index))
 (defmethod active-panel :default [] [:div.container [:div "default text"]])
