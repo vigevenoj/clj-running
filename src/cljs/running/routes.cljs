@@ -18,15 +18,6 @@
                   "goals/" {"" :goal-index
                             [:id] :goal-page}}])
 
-; this is from https://github.com/jasich/re-frame-routing-demo
-; (see their implementation in their routes.cljs and events.cljs)
-; but I don't think it works for my case
-(def preload {:home :runs
-              :run-form :recent-runs
-              :latest-runs :run-page
-              :shoe-index :shoe-page
-              :goal-index :goal-page})
-
 ; turn url into data structure
 (defn- parse-url [url]
   (bidi/match-route routes url))

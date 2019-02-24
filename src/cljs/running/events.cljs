@@ -20,25 +20,6 @@
    (.log js/console (str "setting new page to " new-active-page))
    (assoc db :active-page new-active-page)))
 
- ; See https://github.com/jasich/re-frame-routing-demo for their implementation
- ; but I don't think it works for me
-; (fn [{:keys [db]} [_ new-active-page route-params]]
-;   (.log js/console (str "setting active page to " new-active-page " with params '" route-params "'"))
-;   (let [event-name (get routes/preload new-active-page)
-;         route-id   (:id route-params)
-;         event      (if event-name [event-name route-id] nil)]
-;     (.log js/console (str "event is " event-name))
-;     (.log js/console (str "route id is " route-id))
-;     (.log js/console (str "event is " event))
-;     (if event
-;       {:db       (-> db
-;                      (assoc :active-page new-active-page)
-;                      (assoc :route-id route-id))
-;        :dispatch event}
-;       {:db (-> db
-;                (assoc :active-page new-active-page)
-;                (assoc :route-id route-id))}))))
-
 (reg-event-db
  :set-error
  (fn [db [_ error]]
