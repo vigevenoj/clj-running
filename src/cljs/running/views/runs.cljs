@@ -4,16 +4,6 @@
             [re-frame.core :refer [dispatch subscribe]]
             [running.util :refer [format-date format-duration]]))
 
-; todo refactor this into an event we dispatch and subscribe to
-;(defn get-latest-runs
-;  "Get the latest [count] runs"
-;  [count]
-;  ;
-;  (GET "/api/v1/running/latest" ; default limit is 1
-;       {:response-format :json
-;        :keywords? true?
-;        :handler #(swap! app-state assoc :latest-runs %)}))
-
 (defn run-form [id]
   (let [value (atom nil)]
     [:div.runform
@@ -133,5 +123,4 @@
 ;       [:span (format-duration (:elapsed run))]])))
 
 (defn run-index []
-  [:div.container
-   [:div "run index"]])
+   [:div "run index"])

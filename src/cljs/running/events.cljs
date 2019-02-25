@@ -80,7 +80,7 @@
 (reg-event-fx
  :load-runs
  (fn [{db :db} _]
-   {:http {:method          :get
+   {:http--xhrio {:method          :get
            :uri             "/api/v1/running/runs"
            :timeout         5000
            :format          (ajax/json-request-format)
@@ -96,11 +96,35 @@
 (reg-event-fx
  :get-recent-runs
  (fn [{db :db} _]
-   {:http {:method          :get
-           :uri             "/ai/v1/running/recent/90"
+   {:http-xhrio {:method          :get
+           :uri             "/api/v1/running/recent/90"
            :timeout         5000
            :format          (ajax/json-request-format)
            :response-format (ajax/json-response-format {:keywords? true})
            :on-success      []
            ; add function for where the update should happen
            :on-failure      []}})) ; add function to handle failure to load recent runs
+
+; Load the latest run (just the one most-recent run)
+(reg-event-fx
+  :get-latest-run
+ (fn [{db :db} _]
+   {:http-xhrio {:method :get
+           :uri "/api/v1/running/latest/1"
+           :timeout 5000
+           :format (ajax/json-request-format)
+           :response-format (ajax/json-response-format)
+           :on-success [::latest-run-success]
+           :on-failure [::failed-remote-request]}}))
+
+
+(reg-event-db
+  :latest-run-success
+ (fn [db [_ result]]
+   (assoc db :latest :latest-runs result)))
+
+(reg-event-db
+  :failed-remote-request
+ (fn [db [_ result]]
+   (.log js/console "failed to query remote api")))
+

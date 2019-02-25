@@ -20,7 +20,8 @@
     (fn []
       [:div#wrapper
        (views/navbar)
-       (views/active-panel @active-page)])))
+       [:div.container
+        (views/active-panel @active-page)]])))
 
 
 

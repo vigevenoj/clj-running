@@ -3,5 +3,4 @@
             [re-frame.core :as re-frame]))
 
 (defn goal-index []
-  [:div.container
-   [:div "goal index"]])
+   [:div "goal index"])

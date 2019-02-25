@@ -3,5 +3,4 @@
             [re-frame.core :as re-frame]))
 
 (defn shoe-index []
-  [:div.container
-   [:div "shoe index"]])
+   [:div "shoe index"])
