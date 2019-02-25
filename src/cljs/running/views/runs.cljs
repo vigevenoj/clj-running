@@ -102,8 +102,7 @@
     (if (empty? latest-run)
       (re-frame.core/dispatch [:get-latest-run])
       (.log js/console (str "No fetch required for latest run, " latest-run)))
-    [:div (:rdate latest-run)]
-    [run-card-ui latest-run]))
+    [run-card-ui (first (first latest-run))]))
 
 
 
