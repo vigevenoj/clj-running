@@ -1,6 +1,6 @@
 (ns running.core
   (:require [reagent.core :as r]
-            [re-frame.core :as rf]
+            [re-frame.core :as re-frame]
             [day8.re-frame.http-fx]
             [reagent-modals.modals :as modals]
             [running.util :refer [format-date format-duration]]
@@ -16,7 +16,7 @@
             [ajax.core :refer [GET POST]]))
 
 (defn page []
-  (let [active-page (rf/subscribe [:active-page])]
+  (let [active-page (re-frame/subscribe [:active-page])]
     (fn []
       [:div#wrapper
        (views/navbar)
@@ -29,12 +29,12 @@
 ;; -------------------------
 ;; Initialize app
 (defn mount-components []
-  (rf/clear-subscription-cache!)
+  (re-frame/clear-subscription-cache!)
   ;(r/render [#'navbar] (.getElementById js/document "navbar"))
   (r/render [#'page] (.getElementById js/document "app")))
 
 (defn init! []
   (routes/app-routes)
-  (rf/dispatch-sync [::run-events/initialize-db])
+  (re-frame/dispatch-sync [::run-events/initialize-db])
 ;  (load-interceptors!)
   (mount-components))

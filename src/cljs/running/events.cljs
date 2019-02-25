@@ -110,21 +110,21 @@
   :get-latest-run
  (fn [{db :db} _]
    {:http-xhrio {:method :get
-           :uri "/api/v1/running/latest/1"
+           :uri "/api/v1/running/latest?limit=1"
            :timeout 5000
            :format (ajax/json-request-format)
-           :response-format (ajax/json-response-format)
+           :response-format (ajax/json-response-format {:keywords? true})
            :on-success [::latest-run-success]
            :on-failure [::failed-remote-request]}}))
 
 
 (reg-event-db
-  :latest-run-success
- (fn [db [_ result]]
-   (assoc db :latest :latest-runs result)))
+  ::latest-run-success
+ (fn [db [_ response]]
+   (merge db {:latest {:latest-runs [response]} })))
 
 (reg-event-db
-  :failed-remote-request
+  ::failed-remote-request
  (fn [db [_ result]]
    (.log js/console "failed to query remote api")))
 

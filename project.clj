@@ -36,6 +36,9 @@
                  [re-frame "0.10.6"]
                  [day8.re-frame/http-fx "0.1.6"]
                  [re-frame-datatable "0.6.0"]
+                 [day8.re-frame/re-frame-10x "0.3.6"]
+                 [day8.re-frame/tracing "0.5.1"]
+                 [re-frisk "0.5.4"]
                  [reagent "0.8.1"]
                  [reagent-forms "0.5.43"]
                  [rid3 "0.2.1"]
@@ -96,6 +99,9 @@
                                  [com.cemerick/piggieback "0.2.2"]
                                  [doo "0.1.11"]
                                  [expound "0.7.2"]
+                                 [day8.re-frame/re-frame-10x "0.3.6"]
+                                 [day8.re-frame/tracing "0.5.1"]
+                                 [re-frisk "0.5.4"]
                                  [figwheel-sidecar "0.5.18"]
                                  [pjstadig/humane-test-output "0.9.0"]
                                  [prone "1.6.1"]
@@ -117,6 +123,9 @@
                       :output-dir "target/cljsbuild/public/js/out"
                       :source-map true
                       :optimizations :none
+                      :closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true
+                                             "day8.re_frame.tracing.trace_enabled_QMARK_" true}
+                      :preloads             [day8.re-frame-10x.preload]
                       :pretty-print true}}}}
                   
                   

@@ -97,6 +97,17 @@
              :elapsed "PT2H30M6S"}]
     [run-card-ui run]))
 
+(defn latest-run-card []
+  (let [latest-run @(subscribe [:latest-runs-data])]
+    (if (empty? latest-run)
+      (re-frame.core/dispatch [:get-latest-run])
+      (.log js/console (str "No fetch required for latest run, " latest-run)))
+    [:div (:rdate latest-run)]
+    [run-card-ui latest-run]))
+
+
+
+
 ;(defn latest-run-card [data]
 ;  []
 ;  (let [run (first data)]

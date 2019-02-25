@@ -11,3 +11,8 @@
   :active-page
  (fn [db _]
    (:active-page db)))
+
+(reg-sub
+  :latest-runs-data
+ (fn [db _]
+   (:latest-runs (:latest db))))
