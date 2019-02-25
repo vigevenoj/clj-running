@@ -101,9 +101,13 @@
            :timeout         5000
            :format          (ajax/json-request-format)
            :response-format (ajax/json-response-format {:keywords? true})
-           :on-success      []
-           ; add function for where the update should happen
-           :on-failure      []}})) ; add function to handle failure to load recent runs
+           :on-success      [::recent-90-loaded]
+           :on-failure      [::failed-remote-request]}})) ; add function to handle failure to load recent runs
+
+(reg-event-db
+  ::recent-90-loaded
+ (fn [db [_ response]]
+   (merge db {:running-data response})))
 
 ; Load the latest run (just the one most-recent run)
 (reg-event-fx
@@ -121,7 +125,7 @@
 (reg-event-db
   ::latest-run-success
  (fn [db [_ response]]
-   (merge db {:latest {:latest-runs [response]} })))
+   (merge db {:latest {:latest-runs response} })))
 
 (reg-event-db
   ::failed-remote-request

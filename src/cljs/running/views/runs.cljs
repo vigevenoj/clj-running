@@ -48,8 +48,7 @@
 (defn run-display-table-ui
   "Render a table of runs"
   [data]
-  (r/with-let [data @(subscribe [:running-data])
-               sort-order @(subscribe [:sort-value])
+  (r/with-let [sort-order @(subscribe [:sort-value])
                sort-ascending @(subscribe [:ascending])]
               [:table.runningData
                [:thead
@@ -102,9 +101,11 @@
     (if (empty? latest-run)
       (re-frame.core/dispatch [:get-latest-run])
       (.log js/console (str "No fetch required for latest run, " latest-run)))
-    [run-card-ui (first (first latest-run))]))
+    [run-card-ui (first latest-run)]))
 
-
+(defn recent-runs-table []
+  (let [data @(subscribe [:running-data])]
+    run-display-table-ui data))
 
 
 ;(defn latest-run-card [data]
