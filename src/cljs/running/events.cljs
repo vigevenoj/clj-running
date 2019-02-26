@@ -52,8 +52,9 @@
 
 (reg-event-fx
  :handle-logout
- (fn [_ _]
-   {:reload-page true}))
+ (fn [{:keys [db]} [_ _]]
+   {:db       (assoc db :user nil)
+    :dispatch [:set-active-page :home]}))
 
 (reg-event-fx
  :logout
@@ -88,6 +89,7 @@
            :on-success       [::runs-fetched]
            :on-failure      [::failed-remote-request]}})) ; add a function to handle failure to load runs
 
+; todo: this and :recent-90-loaded duplicate a lot of code. extract it out to something sensible
 (reg-event-db
  ::runs-fetched
  (fn [db [_ response]]
@@ -108,6 +110,7 @@
            :on-success      [::recent-90-loaded]
            :on-failure      [::failed-remote-request]}})) ; add function to handle failure to load recent runs
 
+; todo: this and :runs-fetched duplicate a lot of code. extract it out to something sensible
 (reg-event-db
   ::recent-90-loaded
  (fn [db [_ response]]
