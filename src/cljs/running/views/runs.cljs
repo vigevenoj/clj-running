@@ -107,9 +107,11 @@
 
 (defn recent-runs-table []
   (let [data @(subscribe [:running-data])]
-    (.log js/console data)))
-    ;run-display-table-ui data))
+    (.log js/console data))) ; <-- todo: see note one line down for why this just logs for now
+    ;run-display-table-ui data)) ; <-- todo: this doesn't handle empty collections well
 
+
+; todo: use re-frame-datatable code to display the runs in (:running-data db)
 
 ;(defn latest-run-card [data]
 ;  []
