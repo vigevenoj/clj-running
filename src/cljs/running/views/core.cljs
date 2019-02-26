@@ -68,7 +68,9 @@
 (defmulti active-panel identity)
 (defmethod active-panel :home [] (home-page))
 (defmethod active-panel :about [] (about-page))
-(defmethod active-panel :run-index [] (run-views/run-index))
+(defmethod active-panel :run-index [] (do
+                                        (re-frame/dispatch [:load-runs])
+                                        (run-views/run-index)))
 (defmethod active-panel :recent-runs [] (do
                                           (re-frame/dispatch [:get-recent-runs])
                                           (run-views/recent-runs-table)))

@@ -80,14 +80,18 @@
 (reg-event-fx
  :load-runs
  (fn [{db :db} _]
-   {:http--xhrio {:method          :get
+   {:http-xhrio {:method          :get
            :uri             "/api/v1/running/runs"
            :timeout         5000
            :format          (ajax/json-request-format)
            :response-format (ajax/json-response-format {:keywords? true})
-           :on-sucess       []
-           ; this function is where the state db update should happen
-           :on-failure      []}})) ; add a function to handle failure to load runs
+           :on-success       [::runs-fetched]
+           :on-failure      [::failed-remote-request]}})) ; add a function to handle failure to load runs
+
+(reg-event-db
+ ::runs-fetched
+ (fn [db [_ response]]
+   (merge db {:running-data response})))
 
 ;; -----
 ;; running events
