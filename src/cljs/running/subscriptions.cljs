@@ -16,3 +16,8 @@
   :latest-runs-data
  (fn [db _]
    (:latest-runs (:latest db))))
+
+(reg-sub
+  :running-data
+ (fn [db _]
+   (:running-data db)))

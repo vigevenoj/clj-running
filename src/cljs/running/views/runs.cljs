@@ -2,6 +2,8 @@
   (:require [reagent.core :as r]
             [ajax.core :refer [GET POST]]
             [re-frame.core :refer [dispatch subscribe]]
+            [re-frame-datatable.core :as dt]
+            [running.subscriptions :as subs]
             [running.util :refer [format-date format-duration]]))
 
 (defn run-form [id]
@@ -105,7 +107,8 @@
 
 (defn recent-runs-table []
   (let [data @(subscribe [:running-data])]
-    run-display-table-ui data))
+    (.log js/console data)))
+    ;run-display-table-ui data))
 
 
 ;(defn latest-run-card [data]
