@@ -9,20 +9,11 @@
             [running.routes :as routes]
             ))
 
-(defn logout-handler [_]
-  (let [user (re-frame/subscribe [::subs/user])]
-    (.log js/console (str "Logging user " (:user-id user) " out of the application"))
-    (re-frame/dispatch [:logout])))
-
 ; todo: this should either dispatch the event for :logout itself, or not make the ajax request
 (defn logout-link []
   [:li.nav-item
    [:a.nav-link {:on-click
-                 (fn [e]
-                   (ajax.core/POST "/api/v1/logout"
-                                   {:response-format :json
-                                    :keywords? true
-                                    :handler logout-handler}))
+                 #(re-frame/dispatch [:logout])
                  :href "#"} "Logout"]])
 
 (defn navbar []

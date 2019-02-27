@@ -53,22 +53,24 @@
 (reg-event-fx
  :handle-logout
  (fn [{:keys [db]} [_ _]]
-   {:db       (assoc db :user nil)
-    :dispatch [:set-active-page :home]}))
+   (.log js/console "handling logout")
+   {:db       db/default-db
+    :dispatch [:set-active-page :home]}
+   (aset js/document "location" "/")))
 
 (reg-event-fx
  :logout
  (fn [_ _]
+   (.log js/console "post to logout" )
    {:http-xhrio {:method               :post
-                 :url                  "/api/v1/logout"
+                 :uri                  "/api/v1/logout"
                  :ignore-response-body true
                  ; might change this if we need the body
                  :timeout              5000
                  :format               (ajax/json-request-format)
                  :response-format      (ajax/json-response-format {:keywords? true})
                  :on-success           [:handle-logout]
-                 :on-failure           [:handle-logout]}
-    :db         db/default-db})) ; clear the database. memory-hole also sets the user to nil explicitly, not sure why
+                 :on-failure           [:handle-logout]}})) ; clear the database. memory-hole also sets the user to nil explicitly, not sure why
 
 (reg-event-db
  :change-sort-field
