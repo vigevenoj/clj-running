@@ -138,5 +138,31 @@
 ;        [:span {:style {:padding-left 2}} (:units run)]]
 ;       [:span (format-duration (:elapsed run))]])))
 
+(defn run-datatable []
+  [dt/datatable
+   :runs
+   [::subs/running-data]
+   [{::dt/sorting {::dt/enabled? true}
+     ::dt/column-key [:runid]
+     ::dt/column-label "#"}
+    {::dt/sorting {::dt/enabled? true}
+     ::dt/column-key [:rdate]
+     ::dt/column-label "Date"}
+    {::dt/column-key [:timeofday]
+     ::dt/column-label "Time of day"}
+    {::dt/column-key [:distance]
+     ::dt/column-label "Distance"}
+    {::dt/column-key [:units]
+     ::dt/column-label "Units"}
+    {::dt/column-key [:elapsed]
+     ::dt/column-label "Elapsed"
+     ::dt/render-fn (fn [val]
+                      (format-duration val))}
+    {::dt/column-key [:comment]
+     ::dt/column-label "Comment"}
+    {::dt/column-key [:effort]
+     ::dt/column-label "Effort"}]])
+
 (defn run-index []
-   [:div "run index"])
+   [:div "run index"]
+  [run-datatable []])
