@@ -21,3 +21,8 @@
   ::running-data
  (fn [db _]
    (:running-data db)))
+
+(reg-sub
+  ::recent-runs-data
+ (fn [db _]
+   (:recent-runs (:recent db))))

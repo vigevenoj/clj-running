@@ -116,7 +116,7 @@
 (reg-event-db
   ::recent-90-loaded
  (fn [db [_ response]]
-   (merge db {:running-data response})))
+   (merge db {:recent {:recent-runs response} })))
 
 ; Load the latest run (just the one most-recent run)
 (reg-event-fx

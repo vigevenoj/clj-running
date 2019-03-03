@@ -106,7 +106,7 @@
     [run-card-ui (first latest-run)]))
 
 (defn recent-runs-table []
-  (let [data @(subscribe [::subs/running-data])]
+  (let [data @(subscribe [::subs/recent-runs-data])]
     (.log js/console data))) ; <-- todo: see note one line down for why this just logs for now
     ;run-display-table-ui data)) ; <-- todo: this doesn't handle empty collections well
 
