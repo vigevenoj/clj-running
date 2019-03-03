@@ -9,8 +9,11 @@
   (layout/render "home.html"))
 
 (defroutes home-routes
-  (GET "/" []
-       (home-page))
+  (GET "/" [] (home-page))
+  (GET "/about" [] (home-page))
+  (GET "/goals/*" [] (home-page))
+  (GET "/shoes/*" [] (home-page))
+  (GET "/runs/*" [] (home-page))
   (GET "/docs" []
        (-> (response/ok (-> "docs/docs.md" io/resource slurp))
            (response/header "Content-Type" "text/plain; charset=utf-8"))))
