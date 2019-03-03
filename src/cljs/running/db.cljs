@@ -5,6 +5,7 @@
 
 (def default-db
   {:active-page :home
+   :route-params nil
    :running-data []
    :sort-value :runid
    :ascending true

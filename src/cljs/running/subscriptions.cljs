@@ -13,6 +13,11 @@
    (:active-page db)))
 
 (reg-sub
+  ::route-params
+ (fn [db _]
+   (:route-params db)))
+
+(reg-sub
   :latest-runs-data
  (fn [db _]
    (:latest-runs (:latest db))))

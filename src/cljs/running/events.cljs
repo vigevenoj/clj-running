@@ -16,9 +16,10 @@
 ;; Set which page is active
 (reg-event-db
  :set-active-page
- (fn [db [_ new-active-page]]
-   (.log js/console (str "setting new page to " new-active-page))
-   (assoc db :active-page new-active-page)))
+ (fn [db [_ new-active-page params]]
+   (.log js/console (str "setting new page to " new-active-page ", params: " params))
+   (merge db {:active-page new-active-page
+              :route-params params} )))
 
 (reg-event-db
  :set-error

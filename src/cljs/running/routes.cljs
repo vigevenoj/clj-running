@@ -40,4 +40,4 @@
 (def url-for (partial bidi/path-for routes))
 
 (defn path-for-run [runid]
-  (bidi/path-for routes :runs :id runid))
+  (bidi/path-for routes :run-page :id runid))

@@ -7,6 +7,7 @@
             [running.subscriptions :as subs]
             [running.events :as events]
             [running.routes :as routes]
+            [bidi.bidi :as bidi]
             ))
 
 ; todo: this should either dispatch the event for :logout itself, or not make the ajax request
@@ -68,5 +69,7 @@
 (defmethod active-panel :latest-runs [] (run-views/latest-run-card))
 (defmethod active-panel :run-page [] (run-views/mock-card-ui))
 (defmethod active-panel :shoe-index [] (shoe-views/shoe-index))
+(defmethod active-panel :shoe-page [id] (.log js/console "setting active panel to" (bidi/match-route routes/routes "/shoes/1") "with ")
+  [shoe-views/shoe-page (bidi/path-for routes/routes :shoe-page :id id)])
 (defmethod active-panel :goal-index [] (goal-views/goal-index))
 (defmethod active-panel :default [] [:div "default text"])
