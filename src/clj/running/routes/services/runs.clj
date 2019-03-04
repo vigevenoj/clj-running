@@ -76,6 +76,8 @@
 (handler current-period-distance [period units]
          (try
            (case period
+             ; todo: clean this up, extract common logic
+             ; todo be consistent about handling response logic here or in services
              "year" (ok
                      (merge (first(db/get-current-year-distance {:units units}))
                             {:units units}))
