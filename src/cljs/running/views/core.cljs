@@ -45,10 +45,15 @@
 
 (defn home-page []
 ;   [modals/modal-window]
-   (let [user (re-frame/subscribe [::subs/user])]
+   (let [user (re-frame/subscribe [::subs/user])
+         ytd-distance @(re-frame/subscribe [::subs/ytd-distance])]
      (if (not (seq @user))
        (login-form)
-       [:div "home page"])))
+       [:div "home page"
+        (when (not (nil? ytd-distance))
+          [:div
+           (str "ytd distance is " (:distance ytd-distance)
+                " " (:units ytd-distance))])])))
 
 (defn about-page []
    [:div.row
@@ -58,7 +63,9 @@
 ; https://pupeno.com/2015/08/26/no-hashes-bidirectional-routing-in-re-frame-with-bidi-and-pushy/
 ; uses this technique to dispatch their routes so the right view is returned
 (defmulti active-panel identity)
-(defmethod active-panel :home [] (home-page))
+(defmethod active-panel :home [] (do
+                                   (re-frame/dispatch [:get-ytd-distance])
+                                   (home-page)))
 (defmethod active-panel :about [] (about-page))
 (defmethod active-panel :run-index [] (do
                                         (re-frame/dispatch [:load-runs])

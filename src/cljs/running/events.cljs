@@ -142,3 +142,18 @@
  (fn [db [_ result]]
    (.log js/console "failed to query remote api")))
 
+(reg-event-fx
+  :get-ytd-distance
+ (fn [{db :db} _]
+   {:http-xhrio {:method :get
+                 :uri "/api/v1/running/statistics/current/year"
+                 :timeout 5000
+                 :format (ajax/json-request-format)
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success [::ytd-distance-success]
+                 :on-failure [::failed-remote-request]}}))
+
+(reg-event-db
+  ::ytd-distance-success
+ (fn [db [_ response]]
+   (merge db {:statistics {:ytd-distance response}})))

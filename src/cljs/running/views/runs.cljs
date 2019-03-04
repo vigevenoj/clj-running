@@ -160,7 +160,8 @@
     {::dt/column-key [:comment]
      ::dt/column-label "Comment"}
     {::dt/column-key [:effort]
-     ::dt/column-label "Effort"}]])
+     ::dt/column-label "Effort"}]
+   {::dt/table-classes ["ui" "celled" "stripped" "table"]}])
 
 (defn run-index []
    [:div "run index"]

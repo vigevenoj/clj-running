@@ -286,7 +286,7 @@
                             (GET "/" []
                               :return [runs/Run]
                               :summary "Return all runs"
-                              (runs/all-runs))
+                                 (ok (runs/all-runs)))
                             (GET "/:runid" []
                               :return runs/Run
                               :path-params [runid :- Long]

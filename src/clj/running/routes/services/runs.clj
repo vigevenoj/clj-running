@@ -45,10 +45,10 @@
    (s/optional-key :error) s/Str})
 
 (handler all-runs []
-         (ok (db/get-runs)))
+         (db/get-runs))
 
 (handler run [runid]
-         (ok (db/get-run {:runid runid})))
+         (db/get-run {:runid runid}))
 
 (handler runs-by-date [rdate]
          (do
@@ -76,9 +76,15 @@
 (handler current-period-distance [period units]
          (try
            (case period
-             "year" (ok (db/get-current-year-distance {:units units}))
-             "month" (ok (db/get-current-month-distance {:units units}))
-             "week" (ok (db/get-current-week-distance {:units units}))
+             "year" (ok
+                     (merge (first(db/get-current-year-distance {:units units}))
+                            {:units units}))
+             "month" (ok
+                      (merge (first (db/get-current-month-distance {:units units}))
+                             {:units units}))
+             "week" (ok
+                     (merge (first (db/get-current-week-distance {:units units}))
+                            {:units units}))
              (bad-request))
            (catch Exception e                               ; likely org.postgresql.util.PSQLException but really we handle anything the same way
              (do

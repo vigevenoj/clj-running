@@ -31,3 +31,8 @@
   ::recent-runs-data
  (fn [db _]
    (:recent-runs (:recent db))))
+
+(reg-sub
+  ::ytd-distance
+ (fn [db _]
+   (:ytd-distance (:statistics db))))
