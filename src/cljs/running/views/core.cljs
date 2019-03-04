@@ -52,7 +52,7 @@
        [:div "home page"
         (when (not (nil? ytd-distance))
           [:div
-           (str "ytd distance is " (:distance ytd-distance)
+           (str "ytd distance is " (:distance ytd-distance) ; todo format this more nicely (trim some trailing decimal places)
                 " " (:units ytd-distance))])])))
 
 (defn about-page []
