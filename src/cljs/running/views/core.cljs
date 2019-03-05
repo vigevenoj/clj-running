@@ -8,6 +8,7 @@
             [running.events :as events]
             [running.routes :as routes]
             [bidi.bidi :as bidi]
+            [goog.string :as gstr]
             ))
 
 ; todo: this should either dispatch the event for :logout itself, or not make the ajax request
@@ -44,16 +45,14 @@
         [:a.nav-link {:href (routes/url-for :about)} "About"]]]]]))
 
 (defn home-page []
-;   [modals/modal-window]
-   (let [user (re-frame/subscribe [::subs/user])
-         ytd-distance @(re-frame/subscribe [::subs/ytd-distance])]
-     (if (not (seq @user))
-       (login-form)
-       [:div "home page"
-        (when (not (nil? ytd-distance))
-          [:div
-           (str "ytd distance is " (:distance ytd-distance) ; todo format this more nicely (trim some trailing decimal places)
-                " " (:units ytd-distance))])])))
+  (let [user (re-frame/subscribe [::subs/user])
+        ytd-distance @(re-frame/subscribe [::subs/ytd-distance])]
+    (if (not (seq @user))
+      (login-form)
+      (when (not (nil? ytd-distance))
+        [:div
+         (str "ytd distance is " (gstr/format "%.1f" (:distance ytd-distance))
+              " " (:units  ytd-distance))]))))
 
 (defn about-page []
    [:div.row
