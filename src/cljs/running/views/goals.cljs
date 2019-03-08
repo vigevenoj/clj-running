@@ -7,9 +7,15 @@
 (defn goal-index []
    [:div "goal index"])
 
-(defn shoe-page [id]
+(defn goal-page [id]
   (let [route-params @(subscribe [::subs/route-params])]
-    [:div
-     (str "this div represents shoe id #"
-          (:id route-params)
-          " if it were really being rendered")]))
+    [:div.col-sm-4
+     [:div.card
+      [:div.card-body
+       [:h5.card-title.text-primary ;(:runid run)
+        "this is where the goal name goes"
+       [:ul.list-group.list-group-flush
+        [:li.list-group-item
+         "this is where the goal details go"
+        [:li.list-group-item
+         "this is where some other goal stuff goes"]]]]]]]))

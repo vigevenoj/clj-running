@@ -44,15 +44,24 @@
        [:li.nav-item
         [:a.nav-link {:href (routes/url-for :about)} "About"]]]]]))
 
+; Display a card containing the YTD mileage
+(defn ytd-card [data]
+  (fn [data]
+    [:div.card
+     [:div.card-body
+      [:h5.card-title.text-primary "YTD Distance"]
+      [:p.card-text
+       (str "ytd distance is " (gstr/format "%.1f" (:distance data))
+            " " (:units data))]]]))
+
 (defn home-page []
-  (let [user (re-frame/subscribe [::subs/user])
+  (let [user         (re-frame/subscribe [::subs/user])
         ytd-distance @(re-frame/subscribe [::subs/ytd-distance])]
     (if (not (seq @user))
       (login-form)
       (when (not (nil? ytd-distance))
-        [:div
-         (str "ytd distance is " (gstr/format "%.1f" (:distance ytd-distance))
-              " " (:units  ytd-distance))]))))
+        [:div.col-sm-4
+         [ytd-card ytd-distance]]))))
 
 (defn about-page []
    [:div.row
@@ -63,6 +72,9 @@
 ; uses this technique to dispatch their routes so the right view is returned
 (defmulti active-panel identity)
 (defmethod active-panel :home [] (do
+                                   ; should probably hold off on dispatching this until the user logs in
+                                   ; or there will be a request before the user logs in. Maybe move that
+                                   ; logic up into here instead of being in home-page?
                                    (re-frame/dispatch [:get-ytd-distance])
                                    (home-page)))
 (defmethod active-panel :about [] (about-page))

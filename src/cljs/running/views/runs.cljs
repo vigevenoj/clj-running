@@ -74,20 +74,18 @@
   [data]
   (let [run data] ; for now, at least
     (fn [run]
-      [:div.runcard
-       {:id (:runid run)
-        :style {:border "1xp solid black"
-                :padding 20
-                :margin 10
-                :display "inline-block"
-                :max-width "50%"}}
-       [:span.runcard-title
-        [:span.runcard-date {:style {:padding-right 2}} (:rdate run)]
-        [:span.runcard-tod {:style {:padding-left 2}} (:timeofday run)]]
-       [:span.runcard-distance {:style {:display "block"}}
-        [:span {:style {:padding-right 2}} (:distance run)]
-        [:span {:style {:padding-left 2}} (:units run)]]
-       [:span.runcard-duration (format-duration (:elapsed run))]])))
+      [:div.col-sm-4
+       [:div.card
+        [:div.card-body
+         [:h5.card-title.text-primary ;(:runid run)
+          [:span.runcard-date {:style {:padding-right 2}} (:rdate run)]
+          [:span.runcard-tod {:style {:padding-left 2}} (:timeofday run)]]
+         [:ul.list-group.list-group-flush
+          [:li.list-group-item
+           [:span.runcard-distance {:style {:padding-right 2}} (:distance run)]
+           [:span.runcard-distance-units {:style {:padding-left 2}} (:units run)]]
+          [:li.list-group-item
+           [:span.runcard-duration (format-duration (:elapsed run))]]]]]])))
 
 (defn mock-card-ui []
   (let [run {:runid 1
