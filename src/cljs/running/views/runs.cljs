@@ -70,8 +70,7 @@
                     ^{:key (:runid r)}
                     [run-row-ui r]))]]))
 
-(defn run-card-ui
-  [data]
+(defn run-card-ui [data]
   (let [run data] ; for now, at least
     (fn [run]
       [:div.col-sm-4
@@ -88,6 +87,7 @@
            [:span.runcard-duration (format-duration (:elapsed run))]]]]]])))
 
 (defn mock-card-ui []
+
   (let [run {:runid 1
              :rdate "2019-02-23"
              :timeofday "pm"
@@ -111,33 +111,6 @@
   (let [data @(subscribe [::subs/recent-runs-data])]
     (.log js/console data))) ; <-- todo: see note one line down for why this just logs for now
     ;run-display-table-ui data)) ; <-- todo: this doesn't handle empty collections well
-
-
-
-;(defn latest-run-card [data]
-;  []
-;  (let [run (first data)]
-;    (fn []
-;      (when
-;;      (when (and (empty? data) (not (:checked-latest @app-state)))
-;        (do
-;          (get-latest-runs 1)
-;          (swap! app-state assoc :checked-latest true)))
-;      [:div.runcard
-;       {:id (:runid run)
-;        :style  {:border "1px solid black"
-;                 :padding 20
-;                 :margin 10
-;                 :display "inline-block"
-;                 :max-width "50%"
-;                 }}
-;       [:span.runcard-title
-;        [:span.runcard-date {:style {:padding-right 2}} (:rdate run)]
-;        [:span.runcard-tod  {:style {:padding-left 2}}(:timeofday run)]]
-;       [:span.runcard-distance {:style {:display "block"}}
-;        [:span {:style {:padding-right 2}} (:distance run)]
-;        [:span {:style {:padding-left 2}} (:units run)]]
-;       [:span (format-duration (:elapsed run))]])))
 
 (defn run-datatable []
   [dt/datatable
