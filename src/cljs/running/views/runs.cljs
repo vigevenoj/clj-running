@@ -4,6 +4,7 @@
             [re-frame.core :refer [dispatch subscribe]]
             [re-frame-datatable.core :as dt]
             [running.subscriptions :as subs]
+            [running.routes :as routes]
             [running.util :refer [format-date format-duration]]))
 
 (defn run-form [id]
@@ -34,35 +35,26 @@
        [:input {:type "text" :placeholder "Comments"}]]
       [:button {:type :submit} "Save"]]]))
 
-(defn run-card-ui [data]
-  (let [run data] ; for now, at least
-    (fn [run]
-      [:div.col-sm-4
-       [:div.card
-        [:div.card-body
-         [:h5.card-title.text-primary ;(:runid run)
-          [:span.runcard-date {:style {:padding-right 2}} (:rdate run)]
-          [:span.runcard-tod {:style {:padding-left 2}} (:timeofday run)]]
-         [:ul.list-group.list-group-flush
-          [:li.list-group-item
-           [:span.runcard-distance {:style {:padding-right 2}} (:distance run)]
-           [:span.runcard-distance-units {:style {:padding-left 2}} (:units run)]]
-          [:li.list-group-item
-           [:span.runcard-duration (format-duration (:elapsed run))]]]]]])))
+(defn run-card-ui [run]
+  [:div.col-sm-4
+   [:div.card
+    [:div.card-body
+     [:h5.card-title.text-primary ;(:runid run)
+      [:span.runcard-date {:style {:padding-right 2}} (:rdate run)]
+      [:span.runcard-tod {:style {:padding-left 2}} (:timeofday run)]]
+     [:ul.list-group.list-group-flush
+      [:li.list-group-item
+       [:span.runcard-distance {:style {:padding-right 2}} (:distance run)]
+       [:span.runcard-distance-units {:style {:padding-left 2}} (:units run)]]
+      [:li.list-group-item
+       [:span.runcard-duration (format-duration (:elapsed run))]]]]]])
 
-(defn mock-card-ui []
-
-  (let [run {:runid 1
-             :rdate "2019-02-23"
-             :timeofday "pm"
-             :distance "16.4"
-             :units "miles"
-             :elapsed "PT2H30M6S"}]
-    [run-card-ui run]))
 
 (defn run-page [id]
-  (let [route-params @(subscribe [::subs/route-params])]
-    (mock-card-ui)))
+  (let [id (:id @(subscribe [::subs/route-params]))
+        running-data @(subscribe [::subs/running-data])
+        r            (->> running-data (filter #(= (str (:runid %)) id)) first)] ;(some #(if (= id (:runid %)) %) running-data)]
+    (run-card-ui r)))
 
 (defn latest-run-card []
   (let [latest-run @(subscribe [:latest-runs-data])]
@@ -76,13 +68,17 @@
     (.log js/console data))) ; <-- todo: see note one line down for why this just logs for now
     ;run-display-table-ui data)) ; <-- todo: this doesn't handle empty collections well
 
+(defn runid-formatter [runid]
+  [:a {:href (routes/url-for :run-page :id runid)} runid])
+
 (defn run-datatable []
   [dt/datatable
    :runs
    [::subs/running-data]
    [{::dt/sorting {::dt/enabled? true}
      ::dt/column-key [:runid]
-     ::dt/column-label "#"}
+     ::dt/column-label "#"
+     ::dt/render-fn runid-formatter}
     {::dt/sorting {::dt/enabled? true}
      ::dt/column-key [:rdate]
      ::dt/column-label "Date"}
