@@ -96,6 +96,10 @@
              :elapsed "PT2H30M6S"}]
     [run-card-ui run]))
 
+(defn run-page [id]
+  (let [route-params @(subscribe [::subs/route-params])]
+    (mock-card-ui)))
+
 (defn latest-run-card []
   (let [latest-run @(subscribe [:latest-runs-data])]
     (if (empty? latest-run)

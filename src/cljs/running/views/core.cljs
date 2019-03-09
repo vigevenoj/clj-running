@@ -85,9 +85,12 @@
                                           (re-frame/dispatch [:get-recent-runs])
                                           (run-views/recent-runs-table)))
 (defmethod active-panel :latest-runs [] (run-views/latest-run-card))
-(defmethod active-panel :run-page [] (run-views/mock-card-ui))
+(defmethod active-panel :run-page [id]
+  [run-views/run-page (bidi/path-for routes/routes :run-page :id id)])
 (defmethod active-panel :shoe-index [] (shoe-views/shoe-index))
-(defmethod active-panel :shoe-page [id] (.log js/console "setting active panel to" (bidi/match-route routes/routes "/shoes/1") "with ")
+(defmethod active-panel :shoe-page [id]
   [shoe-views/shoe-page (bidi/path-for routes/routes :shoe-page :id id)])
 (defmethod active-panel :goal-index [] (goal-views/goal-index))
+(defmethod active-panel :goal-page [id]
+  [goal-views/goal-page (bidi/path-for routes/routes :goal-page :id id)])
 (defmethod active-panel :default [] [:div "default text"])
