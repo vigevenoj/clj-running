@@ -15,16 +15,18 @@
                 (fn [e]
                   (.preventDefault e)
                   (login params))}
-               [:label "Username: "]
-               [:input {:type "text"
+               [:div.form-group
+                [:label {:for "username"} "Username"]
+               [:input.form-control {:type "text"
                         :name "username"
                         :id "username"
                         :placeholder "Username"
-                        :on-change #(swap! params assoc :username (-> % .-target .-value))}]
-               [:label "Password: "]
-               [:input {:type "password"
+                        :on-change #(swap! params assoc :username (-> % .-target .-value))}]]
+               [:div.form-group
+               [:label  {:for "password"} "Password: "]
+               [:input.form-control {:type "password"
                         :name "password"
                         :id "password"
                         :placeholder "Password"
-                        :on-change #(swap! params assoc :password (-> % .-target .-value))}]
-               [:button {:type :submit} "Login"]]))
+                        :on-change #(swap! params assoc :password (-> % .-target .-value))}]]
+               [:button.btn.btn-primary {:type :submit} "Login"]]))
