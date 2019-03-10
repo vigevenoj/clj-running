@@ -21,22 +21,34 @@
 (defn navbar []
   (let [user (re-frame/subscribe [::subs/user])]
     [:nav.navbar.navbar-expand-lg
-     [:a.navbar-brand  {:href (routes/url-for :home)} "Home"]
+     [:a.navbar-brand {:href (routes/url-for :home)} "Home"]
      [:div#navbarNav.collapse.navbar-collapse
       [:ul.navbar-nav
        [:li.nav-item.dropdown
-        [:a.nav-link.dropdown-toggle {:href "#"
-                                      :role "button"
-                                      :data-toggle "dropdown"
-                                      :aria-haspopup "true"
-                                      :aria-expanded "false"} "Runs"]
+        [:a.nav-link.dropdown-toggle
+         {:href          "#"
+          :role          "button"
+          :data-toggle   "dropdown"
+          :aria-haspopup "true"
+          :aria-expanded "false"}
+         "Runs"]
         [:div.dropdown-menu
          [:a.dropdown-item {:href (routes/url-for :run-index)} "Index"]
          [:a.dropdown-item {:href (routes/url-for :run-page :id 1)} "1"]
          [:a.dropdown-item {:href (routes/url-for :recent-runs)} "Recent"]
-         [:a.dropdown-item {:href (routes/url-for :latest-runs)} "Latest"]]]
+         [:a.dropdown-item {:href (routes/url-for :latest-runs)} "Latest"]
+         [:a.dropdown-item {:href (routes/url-for :run-form)} "New"]]]
        [:li.nav-item.dropdown
-        [:a.nav-link {:href (routes/url-for :shoe-index)} "Shoes"]]
+        [:a.nav-link.dropdown-toggle
+         {:href          "#"
+          :role          "button"
+          :data-toggle   "dropdown"
+          :aria-haspopup "true"
+          :aria-expanded "false"}
+         "Shoes"]
+        [:div.dropdown-menu
+         [:a.dropdown-item {:href (routes/url-for :shoe-index)} "Index"]
+         [:a.dropdown-item {:href (routes/url-for :shoe-form)}]]]
        [:li.nav-item
         [:a.nav-link {:href (routes/url-for :goal-index)} "Goals"]]
        (when (seq @user)
@@ -79,6 +91,7 @@
                                    (home-page)))
 (defmethod active-panel :about [] (about-page))
 (defmethod active-panel :run-index [] (do
+                                        ; same as above, should dispatch this event only if logged in
                                         (re-frame/dispatch [:load-runs])
                                         (run-views/run-index)))
 (defmethod active-panel :recent-runs [] (do
@@ -87,6 +100,7 @@
 (defmethod active-panel :latest-runs [] (run-views/latest-run-card))
 (defmethod active-panel :run-page [id]
   [run-views/run-page (bidi/path-for routes/routes :run-page :id id)])
+(defmethod active-panel :run-form [] (run-views/run-form ""))
 (defmethod active-panel :shoe-index [] (shoe-views/shoe-index))
 (defmethod active-panel :shoe-page [id]
   [shoe-views/shoe-page (bidi/path-for routes/routes :shoe-page :id id)])
