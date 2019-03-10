@@ -80,7 +80,9 @@ WHERE runid = :runid
 
 -- :name get-runs :? :*
 -- :doc retrieves all runs
-SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoeid FROM runs
+SELECT runid, rdate, timeofday, distance, units, elapsed, effort, comment, shoeid
+FROM runs
+ORDER BY runid desc
 
 -- :name get-run :? :1
 -- :doc retrieve a run given the id
