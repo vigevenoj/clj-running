@@ -48,7 +48,7 @@
          "Shoes"]
         [:div.dropdown-menu
          [:a.dropdown-item {:href (routes/url-for :shoe-index)} "Index"]
-         [:a.dropdown-item {:href (routes/url-for :shoe-form)}]]]
+         [:a.dropdown-item {:href (routes/url-for :shoe-form)} "New"]]]
        [:li.nav-item
         [:a.nav-link {:href (routes/url-for :goal-index)} "Goals"]]
        (when (seq @user)
@@ -104,6 +104,7 @@
 (defmethod active-panel :shoe-index [] (shoe-views/shoe-index))
 (defmethod active-panel :shoe-page [id]
   [shoe-views/shoe-page (bidi/path-for routes/routes :shoe-page :id id)])
+(defmethod active-panel :shoe-form [] (shoe-views/shoe-form))
 (defmethod active-panel :goal-index [] (goal-views/goal-index))
 (defmethod active-panel :goal-page [id]
   [goal-views/goal-page (bidi/path-for routes/routes :goal-page :id id)])

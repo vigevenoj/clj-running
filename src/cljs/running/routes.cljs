@@ -14,8 +14,8 @@
                            "latest" :latest-runs
                            [:id] :run-page}
                   "shoes/" {"" :shoe-index
-                            [:id] :shoe-page
-                            "new" :shoe-form}
+                            "new" :shoe-form
+                            [:id] :shoe-page}
                   "goals/" {"" :goal-index
                             [:id] :goal-page}}])
 
