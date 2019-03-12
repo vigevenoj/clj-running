@@ -3,6 +3,7 @@
             [running.views.runs :as run-views]
             [running.views.shoes :as shoe-views]
             [running.views.goals :as goal-views]
+            [running.views.graphs :as graphs]
             [running.views.login :refer [login-form]]
             [running.subscriptions :as subs]
             [running.events :as events]
@@ -51,6 +52,8 @@
          [:a.dropdown-item {:href (routes/url-for :shoe-form)} "New"]]]
        [:li.nav-item
         [:a.nav-link {:href (routes/url-for :goal-index)} "Goals"]]
+       [:li.nav-item
+        [:a.nav-link {:href (routes/url-for :graph-page)} "Graphs"]]
        (when (seq @user)
          (logout-link))
        [:li.nav-item
@@ -108,4 +111,5 @@
 (defmethod active-panel :goal-index [] (goal-views/goal-index))
 (defmethod active-panel :goal-page [id]
   [goal-views/goal-page (bidi/path-for routes/routes :goal-page :id id)])
+(defmethod active-panel :graph-page [] [graphs/graph-page])
 (defmethod active-panel :default [] [:div "default text"])
