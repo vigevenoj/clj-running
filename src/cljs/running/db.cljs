@@ -13,4 +13,5 @@
             :recent-runs []}
    :latest {:checked-latest false
             :latest-runs []}
+   :heatmap-data {}
    :user {}})

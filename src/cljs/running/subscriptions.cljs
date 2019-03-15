@@ -36,3 +36,8 @@
   ::ytd-distance
  (fn [db _]
    (:ytd-distance (:statistics db))))
+
+(reg-sub
+  ::heatmap-data
+ (fn [db _]
+   (:heatmap-data db)))

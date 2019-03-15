@@ -144,6 +144,14 @@ from runs r, unit_conversion uc
 where rdate >= current_date - :period::interval
 and uc.from_u = r.units and uc.to_u = :units
 
+-- :name get-distance-with-pace :? :*
+-- :do get distance and pace information about runs
+select r.rdate, r.distance * uc.factor as distance,
+r.elapsed, uc.to_u as units,
+extract(epoch from elapsed) / (r.distance * uc.factor) * '1 second'::interval as pace
+from runs r, unit_conversion uc
+where uc.from_u = r.units and uc.to_u = :units
+
 
 -- :name get-total-cumulative-distance :? :1
 -- :doc get the cumulative total distance of all runs
