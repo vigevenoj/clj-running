@@ -145,13 +145,22 @@ where rdate >= current_date - :period::interval
 and uc.from_u = r.units and uc.to_u = :units
 
 -- :name get-distance-with-pace :? :*
--- :do get distance and pace information about runs
+-- :doc get distance and pace information about runs
 select r.rdate, r.distance * uc.factor as distance,
 r.elapsed, uc.to_u as units,
 extract(epoch from elapsed) / (r.distance * uc.factor) * '1 second'::interval as pace
 from runs r, unit_conversion uc
 where uc.from_u = r.units and uc.to_u = :units
 
+-- :name get-daily-distance :? :*
+-- :doc get total daily distance per day for one or more years
+-- this is for the heatmap data
+select r.rdate, coalesce(sum(r.distance * uc.factor), 0) as distance
+from runs r, unit_conversion uc
+where uc.from_u = r.units and uc.to_u = :units
+and extract(year from r.rdate) in (:years)
+group by r.rdate
+order by r.rdate asc
 
 -- :name get-total-cumulative-distance :? :1
 -- :doc get the cumulative total distance of all runs

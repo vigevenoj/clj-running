@@ -328,6 +328,13 @@
                             (bad-request {:error "limit must be positive"})
                             (ok (runs/latest-runs limit))))
 
+                     (GET "/daily-distance" []
+                          :summary "Return a list of maps containing dates and the distance run on each date"
+                          :return [{:rdate java.time.LocalDate :distance s/Num}]
+                          :query-params [{years :- s/Int 2019}
+                                          {units :- (s/enum "miles" "km" "m") "miles"}]
+                          (ok (runs/daily-distance years units)))
+
                      ; This context is about runs themselves
                      ; /api/v1/running/runs
                      (context "/runs" []
