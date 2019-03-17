@@ -157,3 +157,19 @@
   ::ytd-distance-success
  (fn [db [_ response]]
    (merge db {:statistics {:ytd-distance response}})))
+
+(reg-event-db
+  ::heatmap-request-success
+ (fn [db [_ response]]
+    (merge db {:heatmap-data (get-in response ["runs"])})))
+
+(reg-event-fx
+  ::get-heatmap-data
+ (fn [{db :db} _]
+   {:http-xhrio {:method :get
+                 :uri "/api/v1/running/daily-distance?years=2019&units=miles"
+                 :timeout 5000
+                 :format (ajax/json-request-format)
+                 :response-format (ajax/json-response-format)
+                 :on-success [::heatmap-request-success]
+                 :on-failure [::failed-remote-request]}}))
