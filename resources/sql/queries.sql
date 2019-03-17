@@ -158,7 +158,7 @@ where uc.from_u = r.units and uc.to_u = :units
 select r.rdate, coalesce(sum(r.distance * uc.factor), 0) as distance
 from runs r, unit_conversion uc
 where uc.from_u = r.units and uc.to_u = :units
-and extract(year from r.rdate) in (:years)
+and extract(year from r.rdate) in (:v*:years)
 group by r.rdate
 order by r.rdate asc
 
