@@ -161,7 +161,7 @@
 (reg-event-db
   ::heatmap-request-success
  (fn [db [_ response]]
-    (merge db {:heatmap-data (get-in response ["runs"])})))
+    (merge db {:heatmap-data (:runs response)})))
 
 (reg-event-fx
   ::get-heatmap-data
@@ -170,6 +170,6 @@
                  :uri "/api/v1/running/daily-distance?years=2019&units=miles"
                  :timeout 5000
                  :format (ajax/json-request-format)
-                 :response-format (ajax/json-response-format)
+                 :response-format (ajax/json-response-format {:keywords? true})
                  :on-success [::heatmap-request-success]
                  :on-failure [::failed-remote-request]}}))
