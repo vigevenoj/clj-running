@@ -161,7 +161,7 @@
 (reg-event-db
   ::heatmap-request-success
  (fn [db [_ response]]
-    (merge db {:heatmap-data (:runs response)})))
+    (merge db {:heatmap-data {:dataset (:runs response)}})))
 
 (reg-event-fx
   ::get-heatmap-data

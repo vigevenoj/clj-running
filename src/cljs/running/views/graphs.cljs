@@ -44,20 +44,38 @@
         (.map (.range js/d3 6) ; output range has six values: "q0-6" "q1-6" "q2-6" "q3-6" "q4-6" "q5-6"
               (fn [distance] (str "q" distance "-6")))))) ; these are the blue colors defined in the original js
 
-(defn year-cell-did-mount
+(defn day-cell-did-mount
   [node ratom]
-  (.log js/console "mounting a cell: " node)
-  (-> node
-      (.attr "width" cell-size)
-      (.attr "height" cell-size)
-      (.attr "x" (offset-x "2019-01-01"))))
+  (let [data (get @ratom :dataset)]
+    (.log js/console "data is " data)
+    (rid3-> node
+            {:width cell-size
+             :height cell-size
+             :stroke "#ccc"
+             :fill "#fff"
+             :class (fn [d] (str "day " (color (goog.object/get d "distance"))))
+             :x (fn [d] (offset-x (goog.object/get d "rdate")))
+             :y (fn [d] (offset-y (goog.object/get d "rdate")))}
+            (.text (fn [d] (goog.object/get d "distance"))))
+
+;    (-> node
+;        (.attr "width" cell-size)
+;        (.attr "height" cell-size)
+;        (.attr "stroke" "#ccc")
+;        (.attr "fill" "#fff")
+;        (.attr "class" (do (.log js/console "help" node)
+;                         (fn [d] (str "day "))))
+;        (.attr "x" (fn [d] (offset-x (goog.object/get d "rdate"))))
+;        (.attr "y" (fn [d] (offset-y (goog.object/get d "rdate"))))
+;        (.text (fn [d] (goog.object/get d "distance"))))
+    ))
 
 (defn bleep-boop
   "this is a logging method and will be removed when i'm done"
   []
   (let [data @(subscribe [::subscriptions/heatmap-data])]
-    (.log js/console "there are " (count data) " items in heatmap-data")
-    (.log js/console "max in data is " (find-max-distance data))))
+    (.log js/console "there are " (count (get data :dataset)) " items in heatmap-data")
+    (.log js/console "max in data is " (find-max-distance (get data :dataset)))))
 
 (defn heatmap []
   (let [height year-height
@@ -70,9 +88,13 @@
        {:id "heatmap"
         :ratom (subscribe [::subscriptions/heatmap-data])
         :svg {:did-mount (fn [node ratom]
-                           (rid3-> node
-                                   {:height height
-                                    :width width}))}}])))
+                           (-> node
+                               (.attr "width" width)
+                               (.attr "height" height)))}
+        :pieces [{:kind :elem-with-data
+                  :class "day"
+                  :tag "rect"
+                  :did-mount day-cell-did-mount}]}])))
 
 (defn graph-page []
   [:div "imagine a graph"]
