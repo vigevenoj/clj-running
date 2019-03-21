@@ -12,6 +12,8 @@
 ; todo define some colors
 
 ;  data is fetched and lives in app-db's :heatmap-data key
+; equivalent to index.html's d3.range(2003, 2019) call is something like
+; (-> js/d3 (.range 2003 2019)) to produce a js array [2003 2004 ... 2018]
 
 ;
 (def year-height 136) ; Height of the svg container for a year
