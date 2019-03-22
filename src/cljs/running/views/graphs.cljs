@@ -49,29 +49,25 @@
 (defn day-cell-did-mount
   [node ratom]
   (let [data (get @(subscribe [::subscriptions/heatmap-data]) :dataset)]
-    (.log js/console "data is " data)
-    (.log js/console "type of data is " data)
-    (if (empty? data)
-      (.log js/console "no data!")
-      (rid3-> node
-              {:width cell-size
-               :height cell-size
-               :stroke "#ccc"
-               :fill "#fff"
-               :class (fn [d] (str "day " (color (goog.object/get d "distance"))))
-               :x (fn [d] (offset-x (goog.object/get d "rdate")))
-               :y (fn [d] (offset-y (goog.object/get d "rdate")))}
-              (.text (fn [d] (goog.object/get d "distance")))))
-;    (-> node
-;        (.attr "width" cell-size)
-;        (.attr "height" cell-size)
-;        (.attr "stroke" "#ccc")
-;        (.attr "fill" "#fff")
-;        (.attr "class" (do (.log js/console "help" node)
-;                         (fn [d] (str "day "))))
-;        (.attr "x" (fn [d] (offset-x (goog.object/get d "rdate"))))
-;        (.attr "y" (fn [d] (offset-y (goog.object/get d "rdate"))))
-;        (.text (fn [d] (goog.object/get d "distance"))))
+    (rid3-> node
+            {:width cell-size
+             :height cell-size
+             :stroke "#ccc"
+             :fill "#fff"
+             :class (fn [d] (str "day " (color (goog.object/get d "distance"))))
+             :x (fn [d] (offset-x (goog.object/get d "rdate")))
+             :y (fn [d] (offset-y (goog.object/get d "rdate")))}
+            (.text (fn [d] (goog.object/get d "distance"))))
+    ;    (-> node
+    ;        (.attr "width" cell-size)
+    ;        (.attr "height" cell-size)
+    ;        (.attr "stroke" "#ccc")
+    ;        (.attr "fill" "#fff")
+    ;        (.attr "class" (do (.log js/console "help" node)
+    ;                         (fn [d] (str "day "))))
+    ;        (.attr "x" (fn [d] (offset-x (goog.object/get d "rdate"))))
+    ;        (.attr "y" (fn [d] (offset-y (goog.object/get d "rdate"))))
+    ;        (.text (fn [d] (goog.object/get d "distance"))))
     ))
 
 (defn bleep-boop
