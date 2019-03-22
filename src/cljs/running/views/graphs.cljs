@@ -21,6 +21,36 @@
 (def cell-size 16) ; Cell for each day is this big
 (def date-format (format/formatters :date)) ; YYYY-MM-dd
 
+(defn generate-dates-for-year
+  "Generate a js array of dates for an entire year"
+  [year]
+  (js/d3.timeDays (js/Date. year 0 1) (js/Date. (+ year 1) 0 1)))
+
+(defn year-range
+  "Generate a range of years"
+  [begin end]
+  (-> js/d3 (.range begin end)))
+
+; this is the equivalent of lines 83-86-ish:
+(defn ugly-svg []
+  (.attr
+    (.append
+      (.enter
+        (.data
+          (js/d3.selectAll "svg" (js/d3.select "body"))
+          (year-range 2003 2019))) "svg")
+    "class" "Blues")
+  ; this then adds the correct attributes to the svgs with class "Blues"
+  (-> (.filter (js/d3.selectAll "svg") ".Blues")
+      (.attr "width" 900)
+      (.attr "height" 136))
+  ; todo should be able to add the transform/translate attribute here as well
+  ; todo should be able to append the text node here
+  ; todo and we should be able to follow a similar pattern for day rects as well
+  )
+
+
+
 (defn offset-x
   "Calculate x-offset (horizontal) for a given day. This is based on the week in which the day is found."
   [date-string]
