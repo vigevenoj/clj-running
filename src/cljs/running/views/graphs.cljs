@@ -48,18 +48,20 @@
 
 (defn day-cell-did-mount
   [node ratom]
-  (let [data (get @ratom :dataset)]
+  (let [data (get @(subscribe [::subscriptions/heatmap-data]) :dataset)]
     (.log js/console "data is " data)
-    (rid3-> node
-            {:width cell-size
-             :height cell-size
-             :stroke "#ccc"
-             :fill "#fff"
-             :class (fn [d] (str "day " (color (goog.object/get d "distance"))))
-             :x (fn [d] (offset-x (goog.object/get d "rdate")))
-             :y (fn [d] (offset-y (goog.object/get d "rdate")))}
-            (.text (fn [d] (goog.object/get d "distance"))))
-
+    (.log js/console "type of data is " data)
+    (if (empty? data)
+      (.log js/console "no data!")
+      (rid3-> node
+              {:width cell-size
+               :height cell-size
+               :stroke "#ccc"
+               :fill "#fff"
+               :class (fn [d] (str "day " (color (goog.object/get d "distance"))))
+               :x (fn [d] (offset-x (goog.object/get d "rdate")))
+               :y (fn [d] (offset-y (goog.object/get d "rdate")))}
+              (.text (fn [d] (goog.object/get d "distance")))))
 ;    (-> node
 ;        (.attr "width" cell-size)
 ;        (.attr "height" cell-size)
@@ -75,28 +77,31 @@
 (defn bleep-boop
   "this is a logging method and will be removed when i'm done"
   []
-  (let [data @(subscribe [::subscriptions/heatmap-data])]
-    (.log js/console "there are " (count (get data :dataset)) " items in heatmap-data")
-    (.log js/console "max in data is " (find-max-distance (get data :dataset)))))
+  (let [data (subscribe [::subscriptions/heatmap-data])]
+    (.log js/console "there are " (count (get data :dataset)) " items in heatmap-data dataset")
+    (when (not (empty? (get data :dataset)))
+      (.log js/console "max in data is " (find-max-distance (get data :dataset))))))
 
 (defn heatmap []
   (let [height year-height
         width year-width
-        cell-size cell-size]
+        cell-size cell-size
+        data (subscribe [::subscriptions/heatmap-data])]
     (bleep-boop) ; logging
     (fn []
       [:h4 "text"]
-      [rid3/viz
-       {:id "heatmap"
-        :ratom (subscribe [::subscriptions/heatmap-data])
-        :svg {:did-mount (fn [node ratom]
-                           (-> node
-                               (.attr "width" width)
-                               (.attr "height" height)))}
-        :pieces [{:kind :elem-with-data
-                  :class "day"
-                  :tag "rect"
-                  :did-mount day-cell-did-mount}]}])))
+      (when (not-empty @data) ; If this is empty, then things explode
+        [rid3/viz
+         {:id "heatmap"
+          :ratom data
+          :svg {:did-mount (fn [node ratom]
+                             (-> node
+                                 (.attr "width" width)
+                                 (.attr "height" height)))}
+          :pieces [{:kind :elem-with-data
+                    :class "day"
+                    :tag "rect"
+                    :did-mount day-cell-did-mount}]}]))))
 
 (defn graph-page []
   [:div "imagine a graph"]
