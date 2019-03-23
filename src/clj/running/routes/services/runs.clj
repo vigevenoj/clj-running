@@ -118,9 +118,12 @@
                                     :min-distance :min-distance
                                     :max-distance :max-distance})))
 
-(handler daily-distance [years units]
-         (db/get-daily-distance {:years years
+(handler daily-distance-by-years [units years]
+         (db/get-daily-distance-by-years {:years years
                                  :units "miles"}))
+
+(handler daily-distance-all-years [units]
+         (db/get-daily-distance-all-years {:units units}))
 
 ;-- :snip filter-select-snip
 ;select :i*:cols

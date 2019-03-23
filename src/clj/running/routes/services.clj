@@ -331,9 +331,12 @@
                      (GET "/daily-distance" []
                           :summary "Return a list of maps containing dates and the distance run on each date"
                           :return {:runs [{:rdate java.time.LocalDate :distance s/Num}]}
-                          :query-params [{years :- [s/Int] 2019}
+                          :query-params [{years :- [s/Int] 0}
                                           {units :- (s/enum "miles" "km" "m") "miles"}]
-                          (ok {:runs (runs/daily-distance years units)}))
+                          (log/warn (str "years is " years))
+                          (if (= 0 years)
+                            (ok {:runs (runs/daily-distance-all-years units)})
+                            (ok {:runs (runs/daily-distance-by-years years units)})))
 
                      ; This context is about runs themselves
                      ; /api/v1/running/runs

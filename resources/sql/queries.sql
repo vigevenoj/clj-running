@@ -152,13 +152,22 @@ extract(epoch from elapsed) / (r.distance * uc.factor) * '1 second'::interval as
 from runs r, unit_conversion uc
 where uc.from_u = r.units and uc.to_u = :units
 
--- :name get-daily-distance :? :*
+-- :name get-daily-distance-by-years :? :*
 -- :doc get total daily distance per day for one or more years
 -- this is for the heatmap data
 select r.rdate, coalesce(sum(r.distance * uc.factor), 0) as distance
 from runs r, unit_conversion uc
 where uc.from_u = r.units and uc.to_u = :units
 and extract(year from r.rdate) in (:v*:years)
+group by r.rdate
+order by r.rdate asc
+
+-- :name get-daily-distance-all-years :? :*
+-- :doc get total daily distance per day for one or more years
+-- this is for the heatmap data
+select r.rdate, coalesce(sum(r.distance * uc.factor), 0) as distance
+from runs r, unit_conversion uc
+where uc.from_u = r.units and uc.to_u = :units
 group by r.rdate
 order by r.rdate asc
 
