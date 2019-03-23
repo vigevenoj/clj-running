@@ -335,7 +335,7 @@
                                           {units :- (s/enum "miles" "km" "m") "miles"}]
                           (if (= 0 years)
                             (ok {:runs (runs/daily-distance-all-years units)})
-                            (ok {:runs (runs/daily-distance-by-years years units)})))
+                            (ok {:runs (runs/daily-distance-by-years units years)})))
 
                      ; This context is about runs themselves
                      ; /api/v1/running/runs
