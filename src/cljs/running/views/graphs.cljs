@@ -115,7 +115,6 @@
         data (subscribe [::subscriptions/heatmap-data])]
     (bleep-boop) ; logging
     (fn []
-      [:h4 "text"]
       (when (not-empty @data) ; If this is empty, then things explode
         [rid3/viz
          {:id "heatmap"
