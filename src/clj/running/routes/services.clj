@@ -293,7 +293,7 @@
             (context "/running" []
                      :tags ["Running data"]
                      (GET "/bydate" []
-                          :query-params [rdate :- s/Any]
+                          :query-params [rdate :- (describe s/Any "yyyy-MM-dd format date to look up")]
                           :return       [runs/Run]
                           :summary      "Return runs that occurred on a given date"
                           (runs/runs-by-date rdate))
@@ -333,7 +333,6 @@
                           :return {:runs [{:rdate java.time.LocalDate :distance s/Num}]}
                           :query-params [{years :- [s/Int] 0}
                                           {units :- (s/enum "miles" "km" "m") "miles"}]
-                          (log/warn (str "years is " years))
                           (if (= 0 years)
                             (ok {:runs (runs/daily-distance-all-years units)})
                             (ok {:runs (runs/daily-distance-by-years years units)})))
