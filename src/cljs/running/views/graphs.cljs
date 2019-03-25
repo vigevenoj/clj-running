@@ -154,7 +154,7 @@
 (defn year-viz [year]
   (r/create-class
    {:display-name "year-viz"
-    :component-did-mount (fn [this] (full-year-iterate 2019))
+    :component-did-mount (fn [this] (full-year-iterate year))
     :reagent-render (fn [] [:div#viz "imagine a graph"])
     }))
 
@@ -204,6 +204,6 @@
                     :did-mount day-cell-did-mount}]}]))))
 
 (defn graph-page []
-  (year-viz 2019)
+  (year-viz 2019) ; todo fix this: hardcoded request in events.cljs also references 2019
 ;  [heatmap]
   )
