@@ -91,6 +91,12 @@
   ; todo probably worth the cost of parsing/unparsing dates here to be sure about this
   (subs (str (apply max (map :rdate elements))) 0 4))
 
+
+(defn find-by-date
+  "Find distance for a given date. Returns () if that date does not have distance present in the elements provided"
+  [elements date]
+  (:distance (first (->> elements (filter #(= (:rdate %) date))))))
+
 (def color
   (-> js/d3 .scaleQuantize ; todo domain should use maximum distance function above
       (.domain #js [0 45]) ; Domain: our runs are 0-45 miles long (todo adjust for km)
@@ -104,23 +110,29 @@
       (.selectAll "#viz svg")
       (.remove)))
 
+; I think I want to either take the elements of the dataset and merge them into the list of dates
+; so that every date has distance data (or nil, if no distance measured). Not sure which way the merge
+; would need to go (dataset info merged into list of dates, or dates inserted into dataset with nil distance)
+; or if I should just look in the dataset for each day
 (defn full-year-iterate [year]
   (let [days (generate-dates-for-year year)
-        node (js/d3.select "#viz")]
+        node (js/d3.select "#viz")
+        data (get @(subscribe [::subscriptions/heatmap-data]) :dataset)]
     (.log js/console "There are " (count days) "elements")
     (.log js/console "adding svg to #viz element")
     (-> node
         (.append "svg")
         (.attr "height" year-height)
         (.attr "width" year-width)
-        (.attr "class" (str "year year-" year)))
+        (.attr "class" (str "year year-" year " Blues")))
     ; what i want here is for the days data to be appended to the selection
     ; so i can append them all as rects to the svg
     (let [svg-element (js/d3.select "#viz svg")]
-      (.log js/console svg-element)
       (goog.object/forEach days
                            (fn [day]
-                             (let [formatted-day (-> day formatTime)]
+                             (let [formatted-day (-> day formatTime)
+                                   distance (find-by-date data formatted-day)]
+                               (.log js/console formatted-day ":" distance)
                                (-> svg-element
                                    (.append "rect")
                                    (.attr "class" "day")
@@ -130,7 +142,9 @@
                                    (.attr "y" (fn [d] (offset-y formatted-day)))
                                    (.attr "fill" "#fff")
                                    (.attr "stroke" "#ccc")
-                                   (.text formatted-day))))))))
+                                   (.attr "class" (str "day " (color distance)))
+                                   (.text (fn [d] (str formatted-day " "
+                                                       (find-by-date data formatted-day)))))))))))
 
 (defn year-viz [year]
   (r/create-class
@@ -164,20 +178,12 @@
     ;        (.text (fn [d] (goog.object/get d "distance"))))
     ))
 
-(defn bleep-boop
-  "this is a logging method and will be removed when i'm done"
-  []
-  (let [data @(subscribe [::subscriptions/heatmap-data])]
-    (.log js/console "there are " (count (get data :dataset)) " items in heatmap-data dataset")
-    (when (not (empty? (get data :dataset)))
-      (.log js/console "max in data is " (find-max-distance (get data :dataset))))))
 
 (defn heatmap []
   (let [height year-height
         width year-width
         cell-size cell-size
         data (subscribe [::subscriptions/heatmap-data])]
-    (bleep-boop) ; logging
     (fn []
       (when (not-empty @data) ; If this is empty, then things explode
         [rid3/viz
