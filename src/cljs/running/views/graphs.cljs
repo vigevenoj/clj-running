@@ -101,7 +101,7 @@
   (-> js/d3 .scaleQuantize ; todo domain should use maximum distance function above
       (.domain #js [0 45]) ; Domain: our runs are 0-45 miles long (todo adjust for km)
       (.range              ; define our output range
-        (.map (.range js/d3 6) ; output range has six values: "q0-6" "q1-6" "q2-6" "q3-6" "q4-6" "q5-6"
+        (.map (.range js/d3 7) ; output range has six values: "q0-6" "q1-6" "q2-6" "q3-6" "q4-6" "q5-6"
               (fn [distance] (str "q" distance "-6")))))) ; these are the blue colors defined in the original js
 
 ; This method is used in testing to remove the svg from the viz element to try out different things
@@ -132,19 +132,24 @@
                            (fn [day]
                              (let [formatted-day (-> day formatTime)
                                    distance (find-by-date data formatted-day)]
-                               (.log js/console formatted-day ":" distance)
+;                               (.log js/console formatted-day ":" distance)
                                (-> svg-element
                                    (.append "rect")
-                                   (.attr "class" "day")
                                    (.attr "height" cell-size)
                                    (.attr "width" cell-size)
                                    (.attr "x" (fn [d] (offset-x formatted-day)))
                                    (.attr "y" (fn [d] (offset-y formatted-day)))
                                    (.attr "fill" "#fff")
                                    (.attr "stroke" "#ccc")
-                                   (.attr "class" (str "day " (color distance)))
-                                   (.text (fn [d] (str formatted-day " "
-                                                       (find-by-date data formatted-day)))))))))))
+                                   (.attr "class"
+                                          (fn [d] ; todo extract this out, or move to color function
+                                            (if (< 0 distance)
+                                              (str "day " (color distance))
+                                              (str "day"))))
+                                   (.text
+                                     (fn [d]
+                                       (str formatted-day " "
+                                            (find-by-date data formatted-day)))))))))))
 
 (defn year-viz [year]
   (r/create-class
