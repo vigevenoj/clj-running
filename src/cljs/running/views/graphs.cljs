@@ -104,15 +104,16 @@
       (.selectAll "#viz svg")
       (.remove)))
 
-(defn full-year-iterate []
-  (let [days (generate-dates-for-year 2019)]
+(defn full-year-iterate [year]
+  (let [days (generate-dates-for-year year)
+        node (js/d3.select "#viz")]
     (.log js/console "There are " (count days) "elements")
-    (let [node (js/d3.select "#viz")]
       (.log js/console "adding svg to #viz element")
       (-> node
           (.append "svg")
           (.attr "height" year-height)
-          (.attr "width" year-width))
+          (.attr "width" year-width)
+          (.attr "class" (str "year year-" year)))
       ; what i want here is for the days data to be appended to the selection
       ; so i can append them all as rects to the svg
       (let [svg-element (js/d3.select "#viz svg")]
@@ -120,7 +121,7 @@
         (goog.object/forEach days
                              (fn [day]
                                (let [formatted-day (-> day formatTime)]
-                                 (.log js/console "writing node for " formatted-day)
+;                                 (.log js/console "writing node for " formatted-day)
                                  (-> svg-element
                                      (.append "rect")
                                      (.attr "class" "day")
@@ -130,8 +131,7 @@
                                      (.attr "y" (fn [d] (offset-y formatted-day)))
                                      (.attr "fill" "#fff")
                                      (.attr "stroke" "#ccc")
-                                     (.text formatted-day)))))
-        ))))
+                                     (.text formatted-day))))))))
 
 
 (defn day-cell-did-mount
@@ -188,5 +188,6 @@
 
 (defn graph-page []
   [:div#viz "imagine a graph"]
+;  (full-year-iterate 2019)
 ;  [heatmap]
   )
