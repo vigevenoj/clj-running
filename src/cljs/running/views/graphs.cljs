@@ -108,30 +108,29 @@
   (let [days (generate-dates-for-year year)
         node (js/d3.select "#viz")]
     (.log js/console "There are " (count days) "elements")
-      (.log js/console "adding svg to #viz element")
-      (-> node
-          (.append "svg")
-          (.attr "height" year-height)
-          (.attr "width" year-width)
-          (.attr "class" (str "year year-" year)))
-      ; what i want here is for the days data to be appended to the selection
-      ; so i can append them all as rects to the svg
-      (let [svg-element (js/d3.select "#viz svg")]
-        (.log js/console svg-element)
-        (goog.object/forEach days
-                             (fn [day]
-                               (let [formatted-day (-> day formatTime)]
-;                                 (.log js/console "writing node for " formatted-day)
-                                 (-> svg-element
-                                     (.append "rect")
-                                     (.attr "class" "day")
-                                     (.attr "height" cell-size)
-                                     (.attr "width" cell-size)
-                                     (.attr "x" (fn [d] (offset-x formatted-day)))
-                                     (.attr "y" (fn [d] (offset-y formatted-day)))
-                                     (.attr "fill" "#fff")
-                                     (.attr "stroke" "#ccc")
-                                     (.text formatted-day))))))))
+    (.log js/console "adding svg to #viz element")
+    (-> node
+        (.append "svg")
+        (.attr "height" year-height)
+        (.attr "width" year-width)
+        (.attr "class" (str "year year-" year)))
+    ; what i want here is for the days data to be appended to the selection
+    ; so i can append them all as rects to the svg
+    (let [svg-element (js/d3.select "#viz svg")]
+      (.log js/console svg-element)
+      (goog.object/forEach days
+                           (fn [day]
+                             (let [formatted-day (-> day formatTime)]
+                               (-> svg-element
+                                   (.append "rect")
+                                   (.attr "class" "day")
+                                   (.attr "height" cell-size)
+                                   (.attr "width" cell-size)
+                                   (.attr "x" (fn [d] (offset-x formatted-day)))
+                                   (.attr "y" (fn [d] (offset-y formatted-day)))
+                                   (.attr "fill" "#fff")
+                                   (.attr "stroke" "#ccc")
+                                   (.text formatted-day))))))))
 
 
 (defn day-cell-did-mount
