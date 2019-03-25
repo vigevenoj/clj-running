@@ -132,6 +132,13 @@
                                    (.attr "stroke" "#ccc")
                                    (.text formatted-day))))))))
 
+(defn year-viz [year]
+  (r/create-class
+   {:display-name "year-viz"
+    :component-did-mount (fn [this] (full-year-iterate 2019))
+    :reagent-render (fn [] [:div#viz "imagine a graph"])
+    }))
+
 
 (defn day-cell-did-mount
   [node ratom]
@@ -186,7 +193,6 @@
                     :did-mount day-cell-did-mount}]}]))))
 
 (defn graph-page []
-  [:div#viz "imagine a graph"]
-;  (full-year-iterate 2019)
+  (year-viz 2019)
 ;  [heatmap]
   )
