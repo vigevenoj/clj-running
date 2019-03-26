@@ -113,14 +113,18 @@
 
 (defn year-list []
   (fn []
-    [:form
-     [:div.form-group
-      [:label {:for "years"} "Years"]
-      [:select.form-control {:id "year-selection"
-                             :name "year-selection"
-                             :multiple "multiple"}
-       (map (fn [x] ^{:key x} [:option {:value x} x]) (range 2003 2019))]]
-     [:button.btn.btn-primary {:type :submit} "Fetch"]]))
+    (r/with-let [form-params (r/atom nil)]
+              [:form {:on-submit (fn [e]
+                                   (.preventDefault e)
+                                   (.log js/console "list changed!" e))}
+               [:div.form-group
+                [:label {:for "years"} "Years"]
+                [:select.form-control {:id "year-selection"
+                                       :name "year-selection"
+                                       :multiple "multiple"
+                                       :on-change #(.log js/console (-> % .-target .-value))}
+                 (map (fn [x] ^{:key x} [:option {:value x} x]) (range 2003 2019))]]
+               [:button.btn.btn-primary {:type :submit} "Fetch"]])))
 
 (defn year-viz [year]
   (r/create-class
