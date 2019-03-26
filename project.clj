@@ -41,7 +41,6 @@
                  [re-frisk "0.5.4"]
                  [reagent "0.8.1"]
                  [reagent-forms "0.5.43"]
-                 [rid3 "0.2.1"]
                  [ring-webjars "0.2.0"]
                  [ring/ring-core "1.7.1"]
                  [ring/ring-defaults "0.3.2"]

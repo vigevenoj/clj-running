@@ -3,7 +3,6 @@
             [re-frame.core :as re-frame]
             [re-frame.core :refer [subscribe]]
             [running.subscriptions :as subscriptions]
-            [rid3.core :as rid3 :refer [rid3->]]
             [goog.object :as gobj]
             [cljs-time.format :as format]))
 
@@ -168,51 +167,6 @@
     :component-did-mount (fn [] (full-year-iterate year))
     :reagent-render (fn [] [:div#viz-2019 "imagine a graph"])
     }))
-
-
-(defn day-cell-did-mount
-  [node ratom]
-  (let [data (get @(subscribe [::subscriptions/heatmap-data]) :dataset)]
-    (rid3-> node
-            {:width cell-size
-             :height cell-size
-             :stroke "#ccc"
-             :fill "#fff"
-             :class (fn [d] (str "day " (color (goog.object/get d "distance"))))
-             :x (fn [d] (offset-x (goog.object/get d "rdate")))
-             :y (fn [d] (offset-y (goog.object/get d "rdate")))}
-            (.text (fn [d] (goog.object/get d "distance"))))
-    ;    (-> node
-    ;        (.attr "width" cell-size)
-    ;        (.attr "height" cell-size)
-    ;        (.attr "stroke" "#ccc")
-    ;        (.attr "fill" "#fff")
-    ;        (.attr "class" (do (.log js/console "help" node)
-    ;                         (fn [d] (str "day "))))
-    ;        (.attr "x" (fn [d] (offset-x (goog.object/get d "rdate"))))
-    ;        (.attr "y" (fn [d] (offset-y (goog.object/get d "rdate"))))
-    ;        (.text (fn [d] (goog.object/get d "distance"))))
-    ))
-
-
-(defn heatmap []
-  (let [height year-height
-        width year-width
-        cell-size cell-size
-        data (subscribe [::subscriptions/heatmap-data])]
-    (fn []
-      (when (not-empty @data) ; If this is empty, then things explode
-        [rid3/viz
-         {:id "heatmap"
-          :ratom data
-          :svg {:did-mount (fn [node ratom]
-                             (-> node
-                                 (.attr "width" width)
-                                 (.attr "height" height)))}
-          :pieces [{:kind :elem-with-data
-                    :class "day"
-                    :tag "rect"
-                    :did-mount day-cell-did-mount}]}]))))
 
 ; Have to stick both components into a parent component for both to render correctly
 (defn input-and-graphs []
