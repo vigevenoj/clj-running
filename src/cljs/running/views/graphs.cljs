@@ -6,20 +6,10 @@
             [goog.object :as gobj]
             [cljs-time.format :as format]))
 
-; todo define a cursor or a subscription here
-
-; todo define some colors
-
 ;  data is fetched and lives in app-db's :heatmap-data key
 ; equivalent to index.html's d3.range(2003, 2019) call is something like
 ; (-> js/d3 (.range 2003 2020)) to produce a js array [2003 2004 ... 2019]
 
-
-; this gives a selection that contains something maybe useful, (it's rather long)
-; (.datum (.attr (.attr (.attr (.attr (.attr (.append (.enter (.data (js/d3.selectAll ".day") (fn [d] (graphs/generate-dates-for-year d)))) "rect") "class" "day") "width" 16) "height" 16) "x" (fn [d] (graphs/offset-x d))) "y" (fn [d] (graphs/offset-y d))) (js/d3.timeFormat "%Y-%m-%d"))
-; but i don't know how to use that selection
-
-;
 (def year-height 136) ; Height of the svg container for a year
 (def year-width 900) ; Width of the svg container for a year
 (def cell-size 16) ; Cell for each day is this big
@@ -36,27 +26,6 @@
   [begin end]
   (-> js/d3 (.range begin end)))
 
-; this is the equivalent of lines 83-86-ish:
-; (ugly-svg (year-range 2003 2020))
-(defn create-svg-containers-for-years [years]
-  (.attr
-    (.append
-      (.enter
-        (.data
-          (js/d3.selectAll "svg" (js/d3.select "body"))
-          years)) "svg")
-    "class" "Blues")
-  ; this then adds the correct attributes to the svgs with class "Blues"
-  (-> (.filter (js/d3.selectAll "svg") ".Blues")
-      (.attr "width" 900)
-      (.attr "height" 136))
-  ; todo should be able to add the transform/translate attribute here as well
-  ; todo should be able to append the text node here
-  ; todo and we should be able to follow a similar pattern for day rects as well
-  )
-
-
-
 (defn offset-x
   "Calculate x-offset (horizontal) for a given day. This is based on the week in which the day is found."
   [date-string]
@@ -71,7 +40,6 @@
   [date-string]
   (let [date (format/parse date-format date-string)]
     (* cell-size (format/unparse (cljs-time.format/formatter "e") date))))
-
 
 (defn find-max-distance
   "Find max of of a list"
@@ -89,7 +57,6 @@
   [elements]
   ; todo probably worth the cost of parsing/unparsing dates here to be sure about this
   (subs (str (apply max (map :rdate elements))) 0 4))
-
 
 (defn find-by-date
   "Find distance for a given date. Returns () if that date does not have distance present in the elements provided"
@@ -109,10 +76,6 @@
       (.selectAll "#viz-2019 svg")
       (.remove)))
 
-; I think I want to either take the elements of the dataset and merge them into the list of dates
-; so that every date has distance data (or nil, if no distance measured). Not sure which way the merge
-; would need to go (dataset info merged into list of dates, or dates inserted into dataset with nil distance)
-; or if I should just look in the dataset for each day
 (defn full-year-iterate [year]
   (let [days (generate-dates-for-year year)
         node (js/d3.select (str "#viz-" year)) ; "#viz-2019"
@@ -124,14 +87,11 @@
         (.attr "height" year-height)
         (.attr "width" year-width)
         (.attr "class" (str "year year-" year " Blues")))
-    ; what i want here is for the days data to be appended to the selection
-    ; so i can append them all as rects to the svg
     (let [svg-element (js/d3.select (str "#viz-" year " svg"))]
       (goog.object/forEach days
                            (fn [day]
                              (let [formatted-day (-> day formatTime)
                                    distance (find-by-date data formatted-day)]
-;                               (.log js/console formatted-day ":" distance)
                                (-> svg-element
                                    (.append "rect")
                                    (.attr "height" cell-size)
