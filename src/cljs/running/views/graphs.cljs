@@ -107,7 +107,7 @@
 ; This method is used in testing to remove the svg from the viz element to try out different things
 (defn remove-viz-svg []
   (-> js/d3
-      (.selectAll "#viz svg")
+      (.selectAll "#viz-2019 svg")
       (.remove)))
 
 ; I think I want to either take the elements of the dataset and merge them into the list of dates
@@ -116,7 +116,7 @@
 ; or if I should just look in the dataset for each day
 (defn full-year-iterate [year]
   (let [days (generate-dates-for-year year)
-        node (js/d3.select "#viz")
+        node (js/d3.select (str "#viz-" year)) ; "#viz-2019"
         data (get @(subscribe [::subscriptions/heatmap-data]) :dataset)]
     (.log js/console "There are " (count days) "elements")
     (.log js/console "adding svg to #viz element")
@@ -127,7 +127,7 @@
         (.attr "class" (str "year year-" year " Blues")))
     ; what i want here is for the days data to be appended to the selection
     ; so i can append them all as rects to the svg
-    (let [svg-element (js/d3.select "#viz svg")]
+    (let [svg-element (js/d3.select (str "#viz-" year " svg"))]
       (goog.object/forEach days
                            (fn [day]
                              (let [formatted-day (-> day formatTime)
@@ -151,11 +151,22 @@
                                        (str formatted-day " "
                                             (find-by-date data formatted-day)))))))))))
 
+(defn year-list []
+  (fn []
+    [:form
+     [:div.form-group
+      [:label {:for "years"} "Years"]
+      [:select.form-control {:id "year-selection"
+                             :name "year-selection"
+                             :multiple "multiple"}
+       (map (fn [x] ^{:key x} [:option {:value x} x]) (range 2003 2019))]]
+     [:button.btn.btn-primary {:type :submit} "Fetch"]]))
+
 (defn year-viz [year]
   (r/create-class
    {:display-name "year-viz"
-    :component-did-mount (fn [this] (full-year-iterate year))
-    :reagent-render (fn [] [:div#viz "imagine a graph"])
+    :component-did-mount (fn [] (full-year-iterate year))
+    :reagent-render (fn [] [:div#viz-2019 "imagine a graph"])
     }))
 
 
@@ -204,6 +215,8 @@
                     :did-mount day-cell-did-mount}]}]))))
 
 (defn graph-page []
-  (year-viz 2019) ; todo fix this: hardcoded request in events.cljs also references 2019
+
+  [year-viz 2019] ; todo fix this: hardcoded request in events.cljs also references 2019
 ;  [heatmap]
+  [year-list]
   )
