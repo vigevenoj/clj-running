@@ -164,7 +164,7 @@
 
 (defn year-viz [year]
   (r/create-class
-   {:display-name "year-viz"
+   {:display-name "RunningYearViz"
     :component-did-mount (fn [] (full-year-iterate year))
     :reagent-render (fn [] [:div#viz-2019 "imagine a graph"])
     }))
@@ -214,9 +214,14 @@
                     :tag "rect"
                     :did-mount day-cell-did-mount}]}]))))
 
-(defn graph-page []
+; Have to stick both components into a parent component for both to render correctly
+(defn input-and-graphs []
+  (fn []
+    [:div.row
+     [:div.col-md-2
+      [year-list]]
+     [:div.col-md-5
+      [year-viz 2019]]])) ; todo change this to come out of app state via events from year-list
 
-  [year-viz 2019] ; todo fix this: hardcoded request in events.cljs also references 2019
-;  [heatmap]
-  [year-list]
-  )
+(defn graph-page []
+  (input-and-graphs))
