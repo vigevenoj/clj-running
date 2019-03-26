@@ -4,6 +4,7 @@
             [re-frame.core :refer [subscribe]]
             [running.subscriptions :as subscriptions]
             [goog.object :as gobj]
+            [rid3.core :as rid3 :refer [rid3->]] ; todo: remove this dependency and use cljsjs d3 directly
             [cljs-time.format :as format]))
 
 ;  data is fetched and lives in app-db's :heatmap-data key
