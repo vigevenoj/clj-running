@@ -16,3 +16,13 @@
       ; The 6th through 9th elements are hours, minutes, and seconds.
       ; I don't expect any of our durations to be longer than that but if they are we can test for it
       (clojure.string/join " " (subvec (re-find duration-regex duration) 6 9)))))
+
+(defn get-select-options
+  "Returns an array of HTMLOptionElement js objects"
+  [select-name]
+  (array-seq (.-selectedOptions (js/document.getElementById select-name))))
+
+(defn values-of-selected-options
+  "Filters an array of HTMLOptionElement js objects to only the selected options"
+  [array-of-options]
+  (map (fn [e] (.-value e)) (filter #(.-selected %) array-of-options)))

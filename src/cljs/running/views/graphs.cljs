@@ -3,9 +3,11 @@
             [re-frame.core :as re-frame]
             [re-frame.core :refer [subscribe]]
             [running.subscriptions :as subscriptions]
+            [running.util :as util]
             [goog.object :as gobj]
             [rid3.core :as rid3 :refer [rid3->]] ; todo: remove this dependency and use cljsjs d3 directly
-            [cljs-time.format :as format]))
+            [cljs-time.format :as format]
+            [cljs-time.core :refer [now year]]))
 
 ;  data is fetched and lives in app-db's :heatmap-data key
 ; equivalent to index.html's d3.range(2003, 2019) call is something like
@@ -116,14 +118,18 @@
     (r/with-let [form-params (r/atom nil)]
               [:form {:on-submit (fn [e]
                                    (.preventDefault e)
-                                   (.log js/console "list changed!" e))}
-               [:div.form-group
+                                   (.log js/console "list changed!" @form-params))}
+               [:div#year-form.form-group
                 [:label {:for "years"} "Years"]
                 [:select.form-control {:id "year-selection"
                                        :name "year-selection"
-                                       :multiple "multiple"
-                                       :on-change #(.log js/console (-> % .-target .-value))}
-                 (map (fn [x] ^{:key x} [:option {:value x} x]) (range 2003 2019))]]
+                                       :multiple true
+                                       :on-change #(do
+                                                    (swap! form-params assoc :years
+                                                           (util/values-of-selected-options
+                                                            (util/get-select-options "year-selection")))
+                                                    (.log js/console "form change: " @form-params ))}
+                 (map (fn [x] ^{:key x} [:option {:value x} x]) (range (year (now)) 2003 -1))]]
                [:button.btn.btn-primary {:type :submit} "Fetch"]])))
 
 (defn year-viz [year]
