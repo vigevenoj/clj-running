@@ -1,9 +1,10 @@
 (ns running.views.graphs
   (:require [reagent.core :as r]
             [re-frame.core :as re-frame]
-            [re-frame.core :refer [subscribe]]
+            [re-frame.core :refer [dispatch subscribe]]
             [running.subscriptions :as subscriptions]
             [running.util :as util]
+            [running.events :as events]
             [goog.object :as gobj]
             [rid3.core :as rid3 :refer [rid3->]] ; todo: remove this dependency and use cljsjs d3 directly
             [cljs-time.format :as format]
@@ -113,22 +114,25 @@
                                        (str formatted-day " "
                                             (find-by-date data formatted-day)))))))))))
 
+(defn get-new-heatmap-data [params]
+  (let [{:keys [years]} @params]
+    (.log js/console "get new heatmap:" years)
+    (dispatch [::events/get-heatmap-data years])))
+
 (defn year-list []
   (fn []
     (r/with-let [form-params (r/atom nil)]
               [:form {:on-submit (fn [e]
                                    (.preventDefault e)
-                                   (.log js/console "list changed!" @form-params))}
+                                   (get-new-heatmap-data form-params))}
                [:div#year-form.form-group
                 [:label {:for "years"} "Years"]
                 [:select.form-control {:id "year-selection"
                                        :name "year-selection"
                                        :multiple true
-                                       :on-change #(do
-                                                    (swap! form-params assoc :years
+                                       :on-change #(swap! form-params assoc :years
                                                            (util/values-of-selected-options
-                                                            (util/get-select-options "year-selection")))
-                                                    (.log js/console "form change: " @form-params ))}
+                                                            (util/get-select-options "year-selection")))}
                  (map (fn [x] ^{:key x} [:option {:value x} x]) (range (year (now)) 2003 -1))]]
                [:button.btn.btn-primary {:type :submit} "Fetch"]])))
 
@@ -136,7 +140,7 @@
   (r/create-class
    {:display-name "RunningYearViz"
     :component-did-mount (fn [] (full-year-iterate year))
-    :reagent-render (fn [] [:div#viz-2019 "imagine a graph"])
+    :reagent-render (fn [] [:div#viz-2019 (str "imagine a graph:" year)])
     }))
 
 ; Have to stick both components into a parent component for both to render correctly

@@ -112,6 +112,6 @@
 (defmethod active-panel :goal-page [id]
   [goal-views/goal-page (bidi/path-for routes/routes :goal-page :id id)])
 (defmethod active-panel :graph-page [] (do
-                                         (re-frame/dispatch [::events/get-heatmap-data])
+                                         (re-frame/dispatch [::events/get-heatmap-data (list "2019")])
                                          [graphs/graph-page]))
 (defmethod active-panel :default [] [:div "default text"])

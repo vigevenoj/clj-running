@@ -165,11 +165,14 @@
 
 (reg-event-fx
   ::get-heatmap-data
- (fn [{db :db} _]
-   {:http-xhrio {:method :get
-                 :uri "/api/v1/running/daily-distance?years=2019&units=miles"
-                 :timeout 5000
-                 :format (ajax/json-request-format)
-                 :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success [::heatmap-request-success]
-                 :on-failure [::failed-remote-request]}}))
+ (fn [{db :db} [_ years]]
+   (let [url-param-years (clojure.string/join
+                          (map (fn [x] (str "&years=" x)) years))
+         uri (str "/api/v1/running/daily-distance?units=miles" url-param-years)]
+     {:http-xhrio {:method :get
+                   :uri uri
+                   :timeout 5000
+                   :format (ajax/json-request-format)
+                   :response-format (ajax/json-response-format {:keywords? true})
+                   :on-success [::heatmap-request-success]
+                   :on-failure [::failed-remote-request]}})))
