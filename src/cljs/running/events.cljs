@@ -163,6 +163,11 @@
  (fn [db [_ response]]
     (merge db {:heatmap-data {:dataset (:runs response)}})))
 
+(reg-event-db
+  ::heatmap-update-years
+ (fn [db [_ years]]
+   (swap! db assoc :heatmap-years years)))
+
 (reg-event-fx
   ::get-heatmap-data
  (fn [{db :db} [_ years]]

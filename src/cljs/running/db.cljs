@@ -14,4 +14,5 @@
    :latest {:checked-latest false
             :latest-runs []}
    :heatmap-data {}
+   :heatmap-years [2019]
    :user {}})

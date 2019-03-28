@@ -41,3 +41,8 @@
   ::heatmap-data
  (fn [db _]
    (:heatmap-data db)))
+
+(reg-sub
+  ::heatmap-years
+ (fn [db _]
+   (:heatmap-years db)))
