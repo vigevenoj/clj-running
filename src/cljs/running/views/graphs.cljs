@@ -81,11 +81,11 @@
       (.remove)))
 
 (defn full-year-iterate [year]
-  (let [days (generate-dates-for-year year)
+  (let [days (generate-dates-for-year (js/parseInt year))
         node (js/d3.select (str "#viz-" year)) ; "#viz-2019"
-        data (get @(subscribe [::subscriptions/heatmap-data]) :dataset)]
+        dataset (subscribe [::subscriptions/heatmap-data])]
     (.log js/console "There are " (count days) "elements")
-    (.log js/console "adding svg to #viz element")
+    (or (get @dataset :dataset) (.log js/console "no data yet!"))
     (-> node
         (.append "svg")
         (.attr "height" year-height)
@@ -95,7 +95,7 @@
       (goog.object/forEach days
                            (fn [day]
                              (let [formatted-day (-> day formatTime)
-                                   distance (find-by-date data formatted-day)]
+                                   distance (find-by-date (get @dataset :dataset) formatted-day)]
                                (-> svg-element
                                    (.append "rect")
                                    (.attr "height" cell-size)
@@ -112,16 +112,18 @@
                                    (.text
                                      (fn [d]
                                        (str formatted-day " "
-                                            (find-by-date data formatted-day)))))))))))
+                                            (find-by-date (get @dataset :dataset) formatted-day)))))))))))
 
 (defn get-new-heatmap-data [params]
   (let [{:keys [years]} @params]
     (.log js/console "get new heatmap:" years)
-    (dispatch [::events/get-heatmap-data years])))
+      (dispatch [::events/heatmap-update-years years])
+      (dispatch [::events/get-heatmap-data years])))
 
 (defn year-list []
   (fn []
-    (r/with-let [form-params (r/atom nil)]
+    (r/with-let [form-params (r/atom nil)
+                 selected-years @(subscribe [::subscriptions/heatmap-years])]
               [:form {:on-submit (fn [e]
                                    (.preventDefault e)
                                    (get-new-heatmap-data form-params))}
@@ -130,27 +132,39 @@
                 [:select.form-control {:id "year-selection"
                                        :name "year-selection"
                                        :multiple true
+                                       :default-value (or selected-years (list (year (now))))
                                        :on-change #(swap! form-params assoc :years
                                                            (util/values-of-selected-options
                                                             (util/get-select-options "year-selection")))}
                  (map (fn [x] ^{:key x} [:option {:value x} x]) (range (year (now)) 2003 -1))]]
                [:button.btn.btn-primary {:type :submit} "Fetch"]])))
 
+(defn render-year-viz [year]
+  [:div {:id (str "viz-" year)}
+   (str "imagine a graph: " year)])
+
 (defn year-viz [year]
+  (.log js/console "in viz year for " year)
   (r/create-class
-   {:display-name "RunningYearViz"
-    :component-did-mount (fn [] (full-year-iterate year))
-    :reagent-render (fn [] [:div#viz-2019 (str "imagine a graph:" year)])
+   {:display-name (str "RunningYearViz" year)
+    :component-did-mount (fn [this] (full-year-iterate year))
+    :component-did-update (fn [this] (do
+                                   (full-year-iterate year)
+                                   (fn [] [:div {:id (str "viz-" year)}
+                                           (str "imagine a graph: " year)])))
+    :reagent-render render-year-viz
     }))
 
 ; Have to stick both components into a parent component for both to render correctly
 (defn input-and-graphs []
-  (fn []
-    [:div.row
-     [:div.col-md-2
-      [year-list]]
-     [:div.col-md-5
-      [year-viz 2019]]])) ; todo change this to come out of app state via events from year-list
-
+  (let [years @(subscribe [::subscriptions/heatmap-years])]
+    (fn []
+      [:div.row
+       [:div.col-md-2
+        [year-list]]
+       [:div.col-md-5
+        (.log js/console "input-and-graphs for " years)
+        [year-viz (first years)]]]))) ; todo change this to come out of app state via events from year-list
+; todo year-viz subscription to list of years will need to be a collection of year-viz elements
 (defn graph-page []
   (input-and-graphs))

@@ -166,7 +166,7 @@
 (reg-event-db
   ::heatmap-update-years
  (fn [db [_ years]]
-   (swap! db assoc :heatmap-years years)))
+   (assoc db :heatmap-years years)))
 
 (reg-event-fx
   ::get-heatmap-data
