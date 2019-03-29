@@ -117,8 +117,8 @@
 (defn get-new-heatmap-data [params]
   (let [{:keys [years]} @params]
     (.log js/console "get new heatmap:" years)
-      (dispatch [::events/heatmap-update-years years])
-      (dispatch [::events/get-heatmap-data years])))
+    (dispatch [::events/get-heatmap-data years])
+    (dispatch [::events/heatmap-update-years years])))
 
 (defn year-list []
   (fn []
@@ -150,21 +150,24 @@
     :component-did-mount (fn [this] (full-year-iterate year))
     :component-did-update (fn [this] (do
                                    (full-year-iterate year)
-                                   (fn [] [:div {:id (str "viz-" year)}
-                                           (str "imagine a graph: " year)])))
+                                       (render-year-viz year)))
     :reagent-render render-year-viz
     }))
 
 ; Have to stick both components into a parent component for both to render correctly
 (defn input-and-graphs []
-  (let [years @(subscribe [::subscriptions/heatmap-years])]
+  (let [years (subscribe [::subscriptions/heatmap-years])]
     (fn []
       [:div.row
        [:div.col-md-2
         [year-list]]
        [:div.col-md-5
-        (.log js/console "input-and-graphs for " years)
-        [year-viz (first years)]]]))) ; todo change this to come out of app state via events from year-list
+        (.log js/console "years is " (type years) " and dereferenced is " @years)
+        (.log js/console "input-and-graphs for " @years)
+        (for [year @years]
+          ^{:key year} [year-viz year])
+;        [year-viz (first years)]
+        ]]))) ; todo change this to come out of app state via events from year-list
 ; todo year-viz subscription to list of years will need to be a collection of year-viz elements
 (defn graph-page []
   (input-and-graphs))
