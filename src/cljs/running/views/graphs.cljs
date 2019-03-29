@@ -75,16 +75,17 @@
               (fn [distance] (str "q" distance "-6")))))) ; these are the blue colors defined in the original js
 
 ; This method is used in testing to remove the svg from the viz element to try out different things
-(defn remove-viz-svg []
+(defn remove-viz-svg [year]
+  (.log js/console "removing svg element for " year)
   (-> js/d3
-      (.selectAll "#viz-2019 svg")
+      (.selectAll (str "#viz-" year "svg"))
       (.remove)))
 
+; this returns nil, which means we can't use it as the thing that returns in a reagent component
 (defn full-year-iterate [year]
   (let [days (generate-dates-for-year (js/parseInt year))
         node (js/d3.select (str "#viz-" year)) ; "#viz-2019"
         dataset (subscribe [::subscriptions/heatmap-data])]
-    (.log js/console "There are " (count days) "elements")
     (or (get @dataset :dataset) (.log js/console "no data yet!"))
     (-> node
         (.append "svg")
@@ -140,19 +141,29 @@
                [:button.btn.btn-primary {:type :submit} "Fetch"]])))
 
 (defn render-year-viz [year]
+  (full-year-iterate year)
   [:div {:id (str "viz-" year)}
-   (str "imagine a graph: " year)])
+   (str "Runs in " year ", darker is longer")])
+
+; todo This renders the heatmap on load but seems slow
+;(defn viz-component [year]
+;  (let [year year]
+;    (fn []
+;      (do
+;        (full-year-iterate year)
+;        (render-year-viz year)))))
 
 (defn year-viz [year]
-  (.log js/console "in viz year for " year)
   (r/create-class
    {:display-name (str "RunningYearViz" year)
-    :component-did-mount (fn [this] (full-year-iterate year))
-    :component-did-update (fn [this] (do
-                                   (full-year-iterate year)
+    :component-did-mount (fn [this]  (do
+                                       ;(full-year-iterate year)
                                        (render-year-viz year)))
-    :reagent-render render-year-viz
-    }))
+    :component-did-update (fn [this] (do
+;                                       (remove-viz-svg year)
+                                       ;(full-year-iterate year)
+                                       (render-year-viz year)))
+    :reagent-render render-year-viz}))
 
 ; Have to stick both components into a parent component for both to render correctly
 (defn input-and-graphs []
@@ -162,12 +173,12 @@
        [:div.col-md-2
         [year-list]]
        [:div.col-md-5
-        (.log js/console "years is " (type years) " and dereferenced is " @years)
-        (.log js/console "input-and-graphs for " @years)
         (for [year @years]
-          ^{:key year} [year-viz year])
-;        [year-viz (first years)]
-        ]]))) ; todo change this to come out of app state via events from year-list
-; todo year-viz subscription to list of years will need to be a collection of year-viz elements
+          (do
+;            (remove-viz-svg year)
+;            ^{:key year} [viz-component year])
+            ^{:key year} [year-viz year]))
+        ]]))) ;
+
 (defn graph-page []
   (input-and-graphs))
