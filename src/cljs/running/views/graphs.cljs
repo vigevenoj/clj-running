@@ -76,7 +76,6 @@
 
 ; This method is used in testing to remove the svg from the viz element to try out different things
 (defn remove-viz-svg [year]
-  (.log js/console "removing svg element for " year)
   (-> js/d3
       (.selectAll (str "#viz-" year "svg"))
       (.remove)))
@@ -86,7 +85,7 @@
   (let [days (generate-dates-for-year (js/parseInt year))
         node (js/d3.select (str "#viz-" year)) ; "#viz-2019"
         dataset (subscribe [::subscriptions/heatmap-data])]
-    (or (get @dataset :dataset) (.log js/console "no data yet!"))
+    (or (get @dataset :dataset) (.log js/console "no data yet!")) ; this gets called twice on page load, but then the data is loaded
     (-> node
         (.append "svg")
         (.attr "height" year-height)
@@ -117,7 +116,6 @@
 
 (defn get-new-heatmap-data [params]
   (let [{:keys [years]} @params]
-    (.log js/console "get new heatmap:" years)
     (dispatch [::events/get-heatmap-data years])
     (dispatch [::events/heatmap-update-years years])))
 
