@@ -20,6 +20,10 @@ You will need [Leiningen][1] 2.0 or above installed. You'll also need a PosgreSQ
 To start a web server for the application, run:
 
     lein run 
+    
+The application also supports a reloaded workflow in development, using `lein figwheel`.
+
+For a production build, run `lein uberjar`, and then you can run the in any way you wish.
 
 ## License
 
