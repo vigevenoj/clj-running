@@ -18,7 +18,8 @@
                             [:id] :shoe-page}
                   "goals/" {"" :goal-index
                             [:id] :goal-page}
-                  "graphs/" :graph-page}])
+                  "graphs/" :graph-page
+                  "logout" :logout}])
 
 ; turn url into data structure
 (defn- parse-url [url]

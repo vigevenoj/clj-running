@@ -3,6 +3,8 @@
   :description "API for running data"
   :url "https://github.com/vigevenoj/"
 
+  :managed-dependencies [[org.clojure/core.rrb-vector "0.0.14"]
+                         [org.flatland/ordered "1.5.7"]]
   :dependencies [[bouncer "1.0.1"]
                  [buddy "2.0.0"]
                  [camel-snake-kebab "0.4.0"]

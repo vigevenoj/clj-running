@@ -17,7 +17,7 @@
   [:li.nav-item
    [:a.nav-link {:on-click
                  #(re-frame/dispatch [:logout])
-                 :href "#"} "Logout"]])
+                 :href (routes/url-for :logout)} "Logout"]])
 
 (defn navbar []
   (let [user (re-frame/subscribe [::subs/user])]
@@ -112,4 +112,5 @@
 (defmethod active-panel :goal-page [id]
   [goal-views/goal-page (bidi/path-for routes/routes :goal-page :id id)])
 (defmethod active-panel :graph-page [] [graphs/graph-page])
+(defmethod active-panel :logout [] [:div "You're logged out"])
 (defmethod active-panel :default [] [:div "default text"])

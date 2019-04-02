@@ -59,7 +59,7 @@ WHERE id = :id
 DELETE FROM users
 WHERE name = :name
 
--- :name create-run! :! :n
+-- :name create-run! :<! :n
 -- :doc create a new run
 INSERT INTO runs
 (rdate, timeofday, distance, units, elapsed, effort, comment, shoeid)
