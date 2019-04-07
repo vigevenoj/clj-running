@@ -19,7 +19,20 @@
                  #(re-frame/dispatch [:logout])
                  :href (routes/url-for :logout)} "Logout"]])
 
-(defn navbar []
+(defn logged-out-navbar []
+  [:nav.navbar.navbar-expand-lg
+   [:a.navbar-brand {:href (routes/url-for :home)} "Home"]
+   [:div#navbarNav.collapse.navbar-collapse
+    [:ul.navbar-nav
+     [:li.nav-item.nav-link "Runs"]
+     [:li.nav-item.nav-link "Shoes"]
+     [:li.nav-item.nav-link "Goals"]
+     [:li.nav-item
+      [:a.nav-link {:href (routes/url-for :about)} "About"]]
+;     [:li.nav-item "Log in"]
+     ]]])
+
+(defn logged-in-navbar []
   (let [user (re-frame/subscribe [::subs/user])]
     [:nav.navbar.navbar-expand-lg
      [:a.navbar-brand {:href (routes/url-for :home)} "Home"]
@@ -35,7 +48,6 @@
          "Runs"]
         [:div.dropdown-menu
          [:a.dropdown-item {:href (routes/url-for :run-index)} "Index"]
-         [:a.dropdown-item {:href (routes/url-for :run-page :id 1)} "1"]
          [:a.dropdown-item {:href (routes/url-for :recent-runs)} "Recent"]
          [:a.dropdown-item {:href (routes/url-for :latest-runs)} "Latest"]
          [:a.dropdown-item {:href (routes/url-for :run-form)} "New"]]]
@@ -59,6 +71,13 @@
        [:li.nav-item
         [:a.nav-link {:href (routes/url-for :about)} "About"]]]]]))
 
+(defn navbar []
+  (let [user (re-frame/subscribe [::subs/user])]
+    (if (not (seq @user))
+      (logged-out-navbar)
+      (logged-in-navbar))
+    ))
+
 ; Display a card containing the YTD mileage
 (defn ytd-card [data]
   (fn [data]
@@ -74,9 +93,11 @@
         ytd-distance @(re-frame/subscribe [::subs/ytd-distance])]
     (if (not (seq @user))
       (login-form)
-      (when (not (nil? ytd-distance))
-        [:div.col-sm-4
-         [ytd-card ytd-distance]]))))
+      (do
+        (re-frame/dispatch [:get-ytd-distance])
+        (when (not (nil? ytd-distance))
+          [:div.col-sm-4
+           [ytd-card ytd-distance]])))))
 
 (defn about-page []
    [:div.row
@@ -86,12 +107,7 @@
 ; https://pupeno.com/2015/08/26/no-hashes-bidirectional-routing-in-re-frame-with-bidi-and-pushy/
 ; uses this technique to dispatch their routes so the right view is returned
 (defmulti active-panel identity)
-(defmethod active-panel :home [] (do
-                                   ; should probably hold off on dispatching this until the user logs in
-                                   ; or there will be a request before the user logs in. Maybe move that
-                                   ; logic up into here instead of being in home-page?
-                                   (re-frame/dispatch [:get-ytd-distance])
-                                   (home-page)))
+(defmethod active-panel :home [] (home-page))
 (defmethod active-panel :about [] (about-page))
 (defmethod active-panel :run-index [] (do
                                         ; same as above, should dispatch this event only if logged in

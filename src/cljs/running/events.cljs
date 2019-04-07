@@ -18,6 +18,7 @@
  :set-active-page
  (fn [db [_ new-active-page params]]
    (.log js/console (str "setting new page to " new-active-page ", params: " params))
+;   (.log js/console (:user db))
    (merge db {:active-page new-active-page
               :route-params params} )))
 
