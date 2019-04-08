@@ -97,7 +97,7 @@
 (reg-event-db
  ::runs-fetched
  (fn [db [_ response]]
-   (merge db {:running-data response})))
+   (merge db {:running-data response} {:running-data-loaded true})))
 
 ;; -----
 ;; running events

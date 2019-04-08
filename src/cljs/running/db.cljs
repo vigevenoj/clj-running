@@ -7,6 +7,7 @@
   {:active-page :home
    :route-params nil
    :running-data []
+   :running-data-loaded false
    :sort-value :runid
    :ascending true
    :recent {:checked-recent false

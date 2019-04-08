@@ -69,7 +69,19 @@
     ;run-display-table-ui data)) ; <-- todo: this doesn't handle empty collections well
 
 (defn runid-formatter [runid]
+  "Format runid into link to that run"
   [:a {:href (routes/url-for :run-page :id runid)} runid])
+
+(defn elapsed-time-formatter [elapsed-time-string]
+  "Add a css class named 'elapsed' to the elapsed column"
+    ["elapsed"])
+
+(defn empty-runs-list-formatter []
+  "Let user know if datatable is empty waiting for data or no results"
+  (let [checked (subscribe [::subs/running-data-loaded])]
+    (if (false? @checked)
+      [:em "Waiting for data..."]
+      [:em "No results available"])))
 
 (defn run-datatable []
   [dt/datatable
@@ -91,12 +103,15 @@
     {::dt/column-key [:elapsed]
      ::dt/column-label "Elapsed"
      ::dt/render-fn (fn [val]
-                      (format-duration val))}
+                      [:span (format-duration val)])
+     ::dt/td-class-fn elapsed-time-formatter
+     }
     {::dt/column-key [:comment]
      ::dt/column-label "Comment"}
     {::dt/column-key [:effort]
      ::dt/column-label "Effort"}]
-   {::dt/table-classes ["ui" "celled" "stripped" "table"]}])
+   {::dt/table-classes ["ui" "celled" "table"]
+    ::dt/empty-tbody-component empty-runs-list-formatter}])
 
 (defn run-index []
    [:div "run index"]

@@ -69,3 +69,9 @@ body {
 table.runningData {
     text-align: center;
 }
+table.re-frame-datatable th {
+    text-align: center;
+}
+td.elapsed {
+    text-align: right;
+}

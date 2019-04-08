@@ -27,6 +27,14 @@
  (fn [db _]
    (:running-data db)))
 
+; This is a flag, initially false, used to indicate if running data
+;has been loaded from the server, in order to discriminate between
+; waiting for results and empty results
+(reg-sub
+  ::running-data-loaded
+ (fn [db _]
+   (:running-data-loaded db)))
+
 (reg-sub
   ::recent-runs-data
  (fn [db _]
