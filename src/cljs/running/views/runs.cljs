@@ -68,9 +68,21 @@
     (.log js/console data))) ; <-- todo: see note one line down for why this just logs for now
     ;run-display-table-ui data)) ; <-- todo: this doesn't handle empty collections well
 
+(defn runs-by-date []
+  (let [original-data @(subscribe [::subs/running-data])
+        date-param (:date @(subscribe [::subs/route-params]))
+        data (filter #(= (str date-param) (str (:rdate %))) original-data)]
+    [:div.col-sm-4 "runs by date"]
+    (for [run data]
+        ^{:key (:runid run)}[run-card-ui run])))
+
 (defn runid-formatter [runid]
   "Format runid into link to that run"
   [:a {:href (routes/url-for :run-page :id runid)} runid])
+
+(defn rdate-formatter [rdate]
+  "Format a run date into a link to runs on that date"
+  [:a {:href (routes/url-for :runs-by-date :date rdate)} rdate])
 
 (defn elapsed-time-formatter [elapsed-time-string]
   "Add a css class named 'elapsed' to the elapsed column"
@@ -93,7 +105,8 @@
      ::dt/render-fn runid-formatter}
     {::dt/sorting {::dt/enabled? true}
      ::dt/column-key [:rdate]
-     ::dt/column-label "Date"}
+     ::dt/column-label "Date"
+     ::dt/render-fn rdate-formatter}
     {::dt/column-key [:timeofday]
      ::dt/column-label "Time of day"}
     {::dt/column-key [:distance]

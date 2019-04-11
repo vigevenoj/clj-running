@@ -12,6 +12,7 @@
                            "new" :run-form
                            "recent" :recent-runs
                            "latest" :latest-runs
+                           "date/" {[:date] :runs-by-date}
                            [:id] :run-page}
                   "shoes/" {"" :shoe-index
                             "new" :shoe-form

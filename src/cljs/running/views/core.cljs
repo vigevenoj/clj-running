@@ -119,6 +119,7 @@
 (defmethod active-panel :latest-runs [] (run-views/latest-run-card))
 (defmethod active-panel :run-page [id]
   [run-views/run-page (bidi/path-for routes/routes :run-page :id id)])
+(defmethod active-panel :runs-by-date [date] (run-views/runs-by-date))
 (defmethod active-panel :run-form [] (run-views/run-form ""))
 (defmethod active-panel :shoe-index [] (shoe-views/shoe-index))
 (defmethod active-panel :shoe-page [id]
