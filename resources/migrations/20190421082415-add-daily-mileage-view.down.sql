@@ -1,0 +1,1 @@
+drop view daily_run_mileage;

@@ -152,6 +152,25 @@ extract(epoch from elapsed) / (r.distance * uc.factor) * '1 second'::interval as
 from runs r, unit_conversion uc
 where uc.from_u = r.units and uc.to_u = :units
 
+
+-- :name daily-miles-all-years :? :*
+-- :doc get sum of miles run per day for all years
+-- this query uses the daily_run_mileage view
+-- this query returns a row for every date between 2003-01-01 and today
+select dd::date as rdate, coalesce(sum(miles), 0) as distance
+from generate_series('2003-01-01', current_date, '1 day') dd
+left join daily_run_mileage on dd = daily_run_mileage.run_date
+group by rdate order by rdate;
+
+-- :name daily-miles-by-year :? :*
+-- :doc get sum of miles run per day for a given year
+-- this query uses the daily_run_mileage view
+-- this query returns a row for every date between Jan 1 and Dec 31 (inclusive) of the given year
+select dd::date as rdate, coalesce(sum(miles), 0) as distance
+from generate_series(make_date(:year, 1, 1), make_date(:year, 12, 31), '1 day') dd
+left join daily_run_mileage on dd = daily_run_mileage.run_date
+group by rdate order by rdate;
+
 -- :name get-daily-distance-by-years :? :*
 -- :doc get total daily distance per day for one or more years
 -- this is for the heatmap data

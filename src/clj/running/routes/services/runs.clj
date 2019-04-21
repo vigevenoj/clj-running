@@ -123,7 +123,9 @@
                                  :units "miles"}))
 
 (handler daily-distance-all-years [units]
-         (db/get-daily-distance-all-years {:units units}))
+         (case units
+           "miles" (db/daily-miles-all-years)
+           (db/get-daily-distance-all-years {:units units})))
 
 ;-- :snip filter-select-snip
 ;select :i*:cols
