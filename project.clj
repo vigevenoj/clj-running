@@ -15,6 +15,8 @@
                  [conman "0.8.3"]
                  [cprop "0.1.13"]
                  [funcool/struct "1.3.0"]
+                 [honeysql "0.9.4"]
+                 [nilenso/honeysql-postgres "0.2.5"]
                  [luminus-immutant "0.2.5"]
                  [luminus-migrations "0.6.5"]
                  [luminus-nrepl "0.1.6"]
