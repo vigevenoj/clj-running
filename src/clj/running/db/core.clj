@@ -195,3 +195,19 @@
                                 :admin
                                 :is-active
                                 :last-login]))))
+
+
+(defn generate-sqlvec-params [years]
+  "Convert a vector of years into a map of {:year#### ####} elements, suitable for a sqlvec"
+  (zipmap (map #(keyword (str "year" %)) stuff) (map int stuff)))
+
+(defn generate-yearly-query [years]
+  "Generate a sql query that returns a row for every date in each year specified"
+  (str "select dd::date as rdate, coalesce(sum(miles), 0) as distance from (select null as dd "
+       (apply str (map add-union-for-year years ))
+       ") as dd left join daily_run_mileage on dd = daily_run_mileage.run_date where dd is not null group by rdate order by rdate"))
+
+(defn yearly-mileage-heatmap-query [years]
+  (hugsql.core/db-run running.db.core/*db*
+                      (generate-yearly-query years)
+                      (zzz years)))
