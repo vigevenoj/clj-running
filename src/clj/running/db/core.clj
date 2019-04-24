@@ -201,6 +201,9 @@
   "Convert a vector of years into a map of {:year#### ####} elements, suitable for a sqlvec"
   (zipmap (map #(keyword (str "year" %)) stuff) (map int stuff)))
 
+(defn add-union-for-year [year] 
+  (str "union select generate_series(make_date(:year" year ", 1, 1), make_date(:year" year ", 12, 31), '1 day') dd "))
+
 (defn generate-yearly-query [years]
   "Generate a sql query that returns a row for every date in each year specified"
   (str "select dd::date as rdate, coalesce(sum(miles), 0) as distance from (select null as dd "
