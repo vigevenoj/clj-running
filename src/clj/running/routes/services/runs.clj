@@ -119,18 +119,11 @@
                                     :max-distance :max-distance})))
 
 (handler daily-distance-by-years [units years]
-         (db/get-daily-distance-by-years {:years years
-                                 :units "miles"}))
+         (case units
+           "miles" (db/yearly-mileage-heatmap-query {:years years})
+           (bad-request))) ; I don't feel like implementing this right now. ; todo: add views for km and meters
 
 (handler daily-distance-all-years [units]
          (case units
            "miles" (db/daily-miles-all-years)
            (db/get-daily-distance-all-years {:units units})))
-
-;-- :snip filter-select-snip
-;select :i*:cols
-;-- :snip filter-from-snip
-; from :i*:tables
-;(filtered-query db {:select (filter-select-snip {:cols ["runid", "rdate", "timeofday", "distance", "units", "elapsed"]})
-;                    :from (filter-from-snip {:tables ["runs"]})
-;                    :where (filter-where-snip {})})

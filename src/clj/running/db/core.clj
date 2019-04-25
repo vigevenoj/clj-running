@@ -197,20 +197,27 @@
                                 :last-login]))))
 
 
-(defn generate-sqlvec-params [years]
+(defn generate-yearly-query-param-map
   "Convert a vector of years into a map of {:year#### ####} elements, suitable for a sqlvec"
-  (zipmap (map #(keyword (str "year" %)) stuff) (map int stuff)))
+  [params]
+  (zipmap (map #(keyword (str "year" %)) params) (map int params)))
 
-(defn add-union-for-year [year] 
+(defn add-union-for-year
+  "Return a union clause with a named parameter that will be matched to the input data"
+  [year]
   (str "union select generate_series(make_date(:year" year ", 1, 1), make_date(:year" year ", 12, 31), '1 day') dd "))
 
-(defn generate-yearly-query [years]
+(defn generate-yearly-query
   "Generate a sql query that returns a row for every date in each year specified"
+  [years]
   (str "select dd::date as rdate, coalesce(sum(miles), 0) as distance from (select null as dd "
-       (apply str (map add-union-for-year years ))
-       ") as dd left join daily_run_mileage on dd = daily_run_mileage.run_date where dd is not null group by rdate order by rdate"))
+                   (apply str (map add-union-for-year years ))
+                   ") as dd left join daily_run_mileage on dd = daily_run_mileage.run_date where dd is not null group by rdate order by rdate"))
 
-(defn yearly-mileage-heatmap-query [years]
-  (hugsql.core/db-run running.db.core/*db*
-                      (generate-yearly-query years)
-                      (zzz years)))
+(defn yearly-mileage-heatmap-query
+  "Return a row for every date in each year in the vector [years]"
+  [params]
+  (let [years  (:years params)]
+    (hugsql.core/db-run running.db.core/*db*
+                        (generate-yearly-query years)
+                        (generate-yearly-query-param-map years))))
