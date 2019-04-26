@@ -124,6 +124,4 @@
            (bad-request))) ; I don't feel like implementing this right now. ; todo: add views for km and meters
 
 (handler daily-distance-all-years [units]
-         (case units
-           "miles" (db/daily-miles-all-years)
-           (db/get-daily-distance-all-years {:units units})))
+         (db/get-daily-distance-all-years {:units units}))

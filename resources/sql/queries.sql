@@ -42,57 +42,20 @@ where uc.from_u = r.units and uc.to_u = :units
 -- :doc get sum of miles run per day for all years
 -- this query uses the daily_run_mileage view
 -- this query returns a row for every date between 2003-01-01 and today
+-- the get-daily-distance-all-years query goes from the earliest run until latest run
 select dd::date as rdate, coalesce(sum(miles), 0) as distance
 from generate_series('2003-01-01', current_date, '1 day') dd
 left join daily_run_mileage on dd = daily_run_mileage.run_date
 group by rdate order by rdate;
 
--- :name daily-miles-by-year :? :*
--- :doc get sum of miles run per day for a given year
--- this query uses the daily_run_mileage view
--- this query returns a row for every date between Jan 1 and Dec 31 (inclusive) of the given year
-select dd::date as rdate, coalesce(sum(miles), 0) as distance
-from generate_series(make_date(:year, 1, 1), make_date(:year, 12, 31), '1 day') dd
-left join daily_run_mileage on dd = daily_run_mileage.run_date
-group by rdate order by rdate;
-
--- :snip union-year
--- :doc snippet to get a year's worth of dates
-union select generate_series('2019-01-01'::timestamp, date_trunc('year', '2019-01-01'::timestamp) + '1 year'::interval - '1 day'::interval , '1 day') dd
-
--- :name silly-by-year :? :*
--- :doc hacking around
-select dd:date as rdate, coalesce(sum(miles), 0) as distance
-from
-(select null as dd
---~ (map (map #(hugsql.core/sqlvec "union select generate_series(:date, date+trunc(:date) + '1 year'::interval - '1 day'::interval, '1 day')" {:year (java-time/local-date %)}) (:years params))
-)
-left join daily_run_mileage on dd = daily_run_mileage.run_date
-where dd is not null
-group by rdate order by rdate;
-
--- :snip year-series
--- :doc generate a series
-
-
--- :name get-daily-distance-by-years :? :*
--- :doc get total daily distance per day for one or more years
--- this is for the heatmap data
-select r.rdate, coalesce(sum(r.distance * uc.factor), 0) as distance
-from runs r, unit_conversion uc
-where uc.from_u = r.units and uc.to_u = :units
-and extract(year from r.rdate) in (:v*:years)
-group by r.rdate
-order by r.rdate asc
-
 -- :name get-daily-distance-all-years :? :*
 -- :doc get total daily distance per day for one or more years
 -- this is for the heatmap data
-select r.rdate, coalesce(sum(r.distance * uc.factor), 0) as distance
-from runs r, unit_conversion uc
-where uc.from_u = r.units and uc.to_u = :units
-group by r.rdate
-order by r.rdate asc
+-- this query uses the earliest and latest runs as the start/end of the sequence to join against
+select rd.rdate::date as rdate, coalesce(sum(distance), 0) as distance
+from (select generate_series(min(runs.rdate), max(runs.rdate), interval '1 day') as rdate from runs) as rd
+left join
+(select r.rdate as rdate, r.distance * uc.factor as distance from runs r, unit_conversion uc where uc.from_u = r.units and uc.to_u = :units) as runs on rd.rdate = runs.rdate group by rd.rdate order by rd.rdate;
 
 -- :name get-total-cumulative-distance :? :1
 -- :doc get the cumulative total distance of all runs
