@@ -10,6 +10,8 @@
 
 (defroutes home-routes
   (GET "/" [] (home-page))
+  (GET "/login" [] (home-page))
+  (GET "/logout" [] (home-page))
   (GET "/about" [] (home-page))
   (GET "/goals/*" [] (home-page))
   (GET "/shoes/*" [] (home-page))

@@ -130,4 +130,5 @@
   [goal-views/goal-page (bidi/path-for routes/routes :goal-page :id id)])
 (defmethod active-panel :graph-page [] [graphs/graph-page])
 (defmethod active-panel :logout [] [:div "You're logged out"])
+(defmethod active-panel :login [] [login-form])
 (defmethod active-panel :default [] [:div "default text"])

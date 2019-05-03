@@ -20,7 +20,8 @@
                   "goals/" {"" :goal-index
                             [:id] :goal-page}
                   "graphs/" :graph-page
-                  "logout" :logout}])
+                  "logout" :logout
+                  "login" :login}])
 
 ; turn url into data structure
 (defn- parse-url [url]
