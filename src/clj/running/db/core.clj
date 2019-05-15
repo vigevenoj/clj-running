@@ -221,3 +221,13 @@
     (hugsql.core/db-run running.db.core/*db*
                         (generate-yearly-query years)
                         (generate-yearly-query-param-map years))))
+
+(defn filter-query
+  "Query for runs that match a set of filters (before, after, shorterThan, longerThan)"
+  [params]
+  ; start with where 1=1 or some other arbitrarily true
+  ; if params contains :before, add " rdate <= ?"
+  ; if params contains :after, add " rdate >= ?" (validate that :after is earlier than :before)
+  ; figure out a way to get longerThan + units
+  ; figure out a way to get shorterThan + units
+  )
