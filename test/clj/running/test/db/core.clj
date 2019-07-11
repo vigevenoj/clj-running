@@ -43,7 +43,7 @@
 (deftest test-runs
   (jdbc/with-db-transaction[t-conn *db*]
                            (jdbc/db-set-rollback-only! t-conn)
-                           (is (= {:runid 1} (db/create-run!
+                           (is (number? (:runid (db/create-run!
                                       t-conn
                                       ; I should try to use clojure.java-time for this
                                       ; and parse LocalDate. See matching comment below
@@ -54,8 +54,8 @@
                                        :elapsed   (running.db.core/string-duration-to-duration "PT1H30M6S")
                                        :comment   nil
                                        :effort    nil
-                                       :shoeid    nil})) "creating a run returns a map with a runid")
-                           (is (= {:runid 1
+                                       :shoeid    nil}))) "creating a run returns a map with a runid")
+                           (is (= {;:runid any
                                    ; I should use clojure.java-time for this and parse a LocalDate out
                                    ; of this string--that would avoid the timezone issue that I keep seeing
                                    ; And I don't care about time zones in this field so that works fine
@@ -72,6 +72,6 @@
                                    :comment nil
                                    :effort nil
                                    :shoeid nil}
-                                  (first (db/get-runs-by-date t-conn {:rdate (jt/to-sql-date "2018-05-16")})))
+                                  (dissoc (first (db/get-runs-by-date t-conn {:rdate (jt/to-sql-date "2018-05-16")})) :runid))
                                "selecting runs by date returns a list of runs")
                            ))
